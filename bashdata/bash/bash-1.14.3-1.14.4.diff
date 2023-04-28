@@ -1,0 +1,1686 @@
+diff -c2 bash-1.14.3/.patchlevel bash-1.14.4/.patchlevel
+*** bash-1.14.3/.patchlevel	Tue Dec  6 09:46:17 1994
+--- bash-1.14.4/.patchlevel	Wed Feb  1 11:29:20 1995
+***************
+*** 1 ****
+! 3
+--- 1 ----
+! 4
+diff -c2 bash-1.14.3/bashhist.c bash-1.14.4/bashhist.c
+*** bash-1.14.3/bashhist.c	Wed Feb 23 09:45:23 1994
+--- bash-1.14.4/bashhist.c	Mon Jan 30 12:24:25 1995
+***************
+*** 151,155 ****
+    int result = 0;
+  
+!   if (interactive && history_lines_this_session)
+      {
+        char *hf = get_string_value ("HISTFILE");
+--- 151,155 ----
+    int result = 0;
+  
+!   if (history_lines_this_session)
+      {
+        char *hf = get_string_value ("HISTFILE");
+diff -c2 bash-1.14.3/config.h bash-1.14.4/config.h
+*** bash-1.14.3/config.h	Tue May 17 15:09:40 1994
+--- bash-1.14.4/config.h	Sun Feb 26 00:51:59 1995
+***************
+*** 85,96 ****
+  #endif /* BANG_HISTORY && !HISTORY */
+  
+  /* The default value of the PATH variable. */
+  #define DEFAULT_PATH_VALUE \
+!   ":/usr/gnu/bin:/usr/local/bin:/usr/ucb:/bin:/usr/bin:/etc:/usr/etc"
+  
+  /* The value for PATH when invoking `command -p'.  This is only used when
+     the Posix.2 confstr () function, or CS_PATH define are not present. */
+  #define STANDARD_UTILS_PATH \
+!   "/bin:/usr/bin:/usr/ucb:/usr/sbin:/etc:/usr/etc"
+  
+  /* Define V9_ECHO if you want to give the echo builtin backslash-escape
+--- 85,113 ----
+  #endif /* BANG_HISTORY && !HISTORY */
+  
++ #if defined (READLINE) && !defined (HISTORY)
++ #  define HISTORY
++ #endif
++ 
+  /* The default value of the PATH variable. */
+  #define DEFAULT_PATH_VALUE \
+!   "/usr/gnu/bin:/usr/local/bin:/usr/ucb:/bin:/usr/bin:."
+  
+  /* The value for PATH when invoking `command -p'.  This is only used when
+     the Posix.2 confstr () function, or CS_PATH define are not present. */
+  #define STANDARD_UTILS_PATH \
+!   "/bin:/usr/bin:/usr/ucb:/usr/sbin:/sbin:/etc:/usr/etc:/usr/lib"
+! 
+! /* Put system-specific default mail directories here. */
+! #if defined (__bsdi__) || defined (__FreeBSD__) || defined (__NetBSD__)
+! #  define DEFAULT_MAIL_PATH "/var/mail/"
+! #endif
+! 
+! #if !defined (DEFAULT_MAIL_PATH)
+! #if defined (USG)
+! #  define DEFAULT_MAIL_PATH "/usr/mail/"
+! #else
+! #  define DEFAULT_MAIL_PATH "/usr/spool/mail/"
+! #endif
+! #endif
+  
+  /* Define V9_ECHO if you want to give the echo builtin backslash-escape
+diff -c2 bash-1.14.3/config.h.mini bash-1.14.4/config.h.mini
+*** bash-1.14.3/config.h.mini	Tue Mar 15 16:33:46 1994
+--- bash-1.14.4/config.h.mini	Sun Feb 26 00:51:48 1995
+***************
+*** 93,104 ****
+  #endif /* BANG_HISTORY && !HISTORY */
+  
+  /* The default value of the PATH variable. */
+  #define DEFAULT_PATH_VALUE \
+!   ":/usr/gnu/bin:/usr/local/bin:/usr/ucb:/bin:/usr/bin:/etc:/usr/etc"
+  
+  /* The value for PATH when invoking `command -p'.  This is only used when
+     the Posix.2 confstr () function, or CS_PATH define are not present. */
+  #define STANDARD_UTILS_PATH \
+!   "/bin:/usr/bin:/usr/ucb:/usr/sbin:/etc:/usr/etc"
+  
+  /* Define V9_ECHO if you want to give the echo builtin backslash-escape
+--- 93,121 ----
+  #endif /* BANG_HISTORY && !HISTORY */
+  
++ #if defined (READLINE) && !defined (HISTORY)
++ #  define HISTORY
++ #endif
++ 
+  /* The default value of the PATH variable. */
+  #define DEFAULT_PATH_VALUE \
+!   "/usr/gnu/bin:/usr/local/bin:/usr/ucb:/bin:/usr/bin:."
+  
+  /* The value for PATH when invoking `command -p'.  This is only used when
+     the Posix.2 confstr () function, or CS_PATH define are not present. */
+  #define STANDARD_UTILS_PATH \
+!   "/bin:/usr/bin:/usr/ucb:/usr/sbin:/sbin:/etc:/usr/etc:/usr/lib"
+! 
+! /* Put system-specific default mail directories here. */
+! #if defined (__bsdi__) || defined (__FreeBSD__) || defined (__NetBSD__)
+! #  define DEFAULT_MAIL_PATH "/var/mail/"
+! #endif
+! 
+! #if !defined (DEFAULT_MAIL_PATH)
+! #if defined (USG)
+! #  define DEFAULT_MAIL_PATH "/usr/mail/"
+! #else
+! #  define DEFAULT_MAIL_PATH "/usr/spool/mail/"
+! #endif
+! #endif
+  
+  /* Define V9_ECHO if you want to give the echo builtin backslash-escape
+diff -c2 bash-1.14.3/cpp-Makefile bash-1.14.4/cpp-Makefile
+*** bash-1.14.3/cpp-Makefile	Sat Dec 31 16:54:13 1994
+--- bash-1.14.4/cpp-Makefile	Thu Apr  6 16:44:43 1995
+***************
+*** 313,318 ****
+         -D$(Machine) -D$(OS)
+  LDFLAGS	= $(NOSHARE) $(SYSDEP_LD) $(EXTRA_LD_PATH) $(PROFILE_FLAGS) $(CFLAGS)
+! CCFLAGS	= $(PROFILE_FLAGS) $(CFLAGS) $(SYSTEM_FLAGS) -DSHELL $(ALLOCA_CFLAGS) \
+! 	  $(MALLOC_CFLAGS)
+  CPPFLAGS= -I. -I$(srcdir) -I$(LIBSRC)
+  GCC_LINT_FLAGS = -ansi -Wall -Wshadow -Wpointer-arith -Wcast-qual \
+--- 313,318 ----
+         -D$(Machine) -D$(OS)
+  LDFLAGS	= $(NOSHARE) $(SYSDEP_LD) $(EXTRA_LD_PATH) $(PROFILE_FLAGS) $(CFLAGS)
+! CCFLAGS	= $(PROFILE_FLAGS) $(SYSTEM_FLAGS) -DSHELL $(ALLOCA_CFLAGS) \
+! 	  $(MALLOC_CFLAGS) $(CFLAGS)
+  CPPFLAGS= -I. -I$(srcdir) -I$(LIBSRC)
+  GCC_LINT_FLAGS = -ansi -Wall -Wshadow -Wpointer-arith -Wcast-qual \
+***************
+*** 386,394 ****
+  HOSTTYPE_DECL = -DHOSTTYPE='$(SYSTEM_NAME)' -DOSTYPE='$(OS_NAME)'
+  
+- MAINTAIN_DEFINE = -DMAINTAINER='"bug-bash@prep.ai.mit.edu"'
+- 
+  /**/# The group of configuration flags.  These are for shell.c
+! CFG_FLAGS = -DOS_NAME='$(OS_NAME)' -DProgram=$(Program) \
+! 	    -DSYSTEM_NAME='$(SYSTEM_NAME)' $(SIGLIST_FLAG) $(MAINTAIN_DEFINE)
+  
+  /* **************************************************************** */
+--- 386,392 ----
+  HOSTTYPE_DECL = -DHOSTTYPE='$(SYSTEM_NAME)' -DOSTYPE='$(OS_NAME)'
+  
+  /**/# The group of configuration flags.  These are for shell.c
+! CFG_FLAGS = -DOS_NAME='$(OS_NAME)' -DSYSTEM_NAME='$(SYSTEM_NAME)' \
+! 	    $(SIGLIST_FLAG)
+  
+  /* **************************************************************** */
+diff -c2 bash-1.14.3/execute_cmd.c bash-1.14.4/execute_cmd.c
+*** bash-1.14.3/execute_cmd.c	Fri Dec  9 16:30:22 1994
+--- bash-1.14.4/execute_cmd.c	Wed Feb  1 10:30:37 1995
+***************
+*** 3239,3243 ****
+       support Unix file system semantics.  This may produce wrong
+       answers for non-AFS files when ruid != euid.  I hate AFS. */
+!   if (access (name, X_OK))
+      return (FS_EXISTS | FS_EXECABLE);
+    else
+--- 3239,3243 ----
+       support Unix file system semantics.  This may produce wrong
+       answers for non-AFS files when ruid != euid.  I hate AFS. */
+!   if (access (name, X_OK) == 0)
+      return (FS_EXISTS | FS_EXECABLE);
+    else
+diff -c2 bash-1.14.3/externs.h bash-1.14.4/externs.h
+*** bash-1.14.3/externs.h	Tue Apr  5 18:45:26 1994
+--- bash-1.14.4/externs.h	Sat Feb 25 18:47:48 1995
+***************
+*** 58,61 ****
+--- 58,62 ----
+  extern void reset_mail_files __P((void));
+  extern void free_mail_files __P((void));
++ extern char *make_default_mailpath __P((void));
+  extern void remember_mail_dates __P((void));
+  extern void check_mail __P((void));
+diff -c2 bash-1.14.3/flags.c bash-1.14.4/flags.c
+*** bash-1.14.3/flags.c	Wed Dec 15 15:38:49 1993
+--- bash-1.14.4/flags.c	Mon Jan 30 12:49:17 1995
+***************
+*** 108,116 ****
+  int hashing_disabled = 0;
+  
+! #if defined (HISTORY)
+  /* Non-zero means that we are doing history expansion.  The default.
+     This means !22 gets the 22nd line of history. */
+  int history_expansion = 1;
+! #endif /* HISTORY */
+  
+  /* Non-zero means that we allow comments to appear in interactive commands. */
+--- 108,116 ----
+  int hashing_disabled = 0;
+  
+! #if defined (BANG_HISTORY)
+  /* Non-zero means that we are doing history expansion.  The default.
+     This means !22 gets the 22nd line of history. */
+  int history_expansion = 1;
+! #endif /* BANG_HISTORY */
+  
+  /* Non-zero means that we allow comments to appear in interactive commands. */
+***************
+*** 174,181 ****
+    { 'P', &no_symbolic_links },
+  
+! #if defined (HISTORY)
+    /* Once again, we don't have the right mnemonic. */
+    { 'H', &history_expansion },
+! #endif /* HISTORY */
+  
+    {0, (int *)NULL}
+--- 174,181 ----
+    { 'P', &no_symbolic_links },
+  
+! #if defined (BANG_HISTORY)
+    /* Once again, we don't have the right mnemonic. */
+    { 'H', &history_expansion },
+! #endif /* BANG_HISTORY */
+  
+    {0, (int *)NULL}
+diff -c2 bash-1.14.3/flags.h bash-1.14.4/flags.h
+*** bash-1.14.3/flags.h	Sun Dec 19 15:14:30 1993
+--- bash-1.14.4/flags.h	Mon Jan 30 12:48:33 1995
+***************
+*** 48,54 ****
+    asynchronous_notification, interactive_comments, no_symbolic_links;
+  
+! #if defined (HISTORY)
+  extern int history_expansion;
+! #endif /* HISTORY */
+  
+  #if defined (RESTRICTED_SHELL)
+--- 48,54 ----
+    asynchronous_notification, interactive_comments, no_symbolic_links;
+  
+! #if defined (BANG_HISTORY)
+  extern int history_expansion;
+! #endif /* BANG_HISTORY */
+  
+  #if defined (RESTRICTED_SHELL)
+diff -c2 bash-1.14.3/general.c bash-1.14.4/general.c
+*** bash-1.14.3/general.c	Mon Dec  5 14:52:16 1994
+--- bash-1.14.4/general.c	Mon Jan 30 12:23:30 1995
+***************
+*** 644,648 ****
+  	    {
+  	      strcpy (result + i, result + i + 1);
+! 	      i = start;
+  	      continue;
+  	    }
+--- 644,648 ----
+  	    {
+  	      strcpy (result + i, result + i + 1);
+! 	      i = (start < 0) ? 0 : start;
+  	      continue;
+  	    }
+***************
+*** 654,658 ****
+  	      while (--start > -1 && result[start] != '/');
+  	      strcpy (result + start + 1, result + i + 2);
+! 	      i = start;
+  	      continue;
+  	    }
+--- 654,658 ----
+  	      while (--start > -1 && result[start] != '/');
+  	      strcpy (result + start + 1, result + i + 2);
+! 	      i = (start < 0) ? 0 : start;
+  	      continue;
+  	    }
+diff -c2 bash-1.14.3/general.h bash-1.14.4/general.h
+*** bash-1.14.3/general.h	Mon Dec  5 14:55:31 1994
+--- bash-1.14.4/general.h	Wed Mar 29 16:45:24 1995
+***************
+*** 24,27 ****
+--- 24,38 ----
+  #include "stdc.h"
+  
++ /* just to make sure */
++ #if defined (HAVE_UNISTD_H)
++ #  ifdef CRAY
++ #    define word __word
++ #  endif
++ #  include <unistd.h>
++ #  ifdef CRAY
++ #    undef word
++ #  endif
++ #endif
++ 
+  #if !defined (NULL)
+  #  if defined (__STDC__)
+diff -c2 bash-1.14.3/jobs.c bash-1.14.4/jobs.c
+*** bash-1.14.3/jobs.c	Fri Dec 23 17:00:52 1994
+--- bash-1.14.4/jobs.c	Wed Mar 29 16:40:49 1995
+***************
+*** 178,181 ****
+--- 178,182 ----
+  /* Functions local to this file. */
+  static sighandler flush_child ();
++ static int waitchld();
+  static PROCESS *find_pipeline ();
+  static char *current_working_directory ();
+***************
+*** 192,195 ****
+--- 193,198 ----
+  #endif
+  
++ static int waiting_for_job, sigchld;
++ 
+  /* Set this to non-zero whenever you don't want the jobs list to change at
+     all: no jobs deleted and no status change notifications.  This is used,
+***************
+*** 834,838 ****
+  
+    /* We have printed information about this job.  When the job's
+!      status changes, flush_child () sets the notification flag to 0. */
+    jobs[job_index]->flags |= J_NOTIFIED;
+  
+--- 837,841 ----
+  
+    /* We have printed information about this job.  When the job's
+!      status changes, waitchld () sets the notification flag to 0. */
+    jobs[job_index]->flags |= J_NOTIFIED;
+  
+***************
+*** 1036,1048 ****
+  	  if (pipeline_pgrp == shell_pgrp)
+  	    {
+! 	      signal (SIGTSTP, SIG_IGN);
+! 	      signal (SIGTTOU, SIG_IGN);
+! 	      signal (SIGTTIN, SIG_IGN);
+  	    }
+  	  else
+  	    {
+! 	      signal (SIGTSTP, SIG_DFL);
+! 	      signal (SIGTTOU, SIG_DFL);
+! 	      signal (SIGTTIN, SIG_DFL);
+  	    }
+  
+--- 1039,1051 ----
+  	  if (pipeline_pgrp == shell_pgrp)
+  	    {
+! 	      set_signal_handler (SIGTSTP, SIG_IGN);
+! 	      set_signal_handler (SIGTTOU, SIG_IGN);
+! 	      set_signal_handler (SIGTTIN, SIG_IGN);
+  	    }
+  	  else
+  	    {
+! 	      set_signal_handler (SIGTSTP, SIG_DFL);
+! 	      set_signal_handler (SIGTTOU, SIG_DFL);
+! 	      set_signal_handler (SIGTTIN, SIG_DFL);
+  	    }
+  
+***************
+*** 1082,1088 ****
+  	     the shell running the script gets a SIGTSTP and stops. */
+  
+! 	  signal (SIGTSTP, SIG_DFL);
+! 	  signal (SIGTTOU, SIG_DFL);
+! 	  signal (SIGTTIN, SIG_DFL);
+  	}
+  
+--- 1085,1091 ----
+  	     the shell running the script gets a SIGTSTP and stops. */
+  
+! 	  set_signal_handler (SIGTSTP, SIG_DFL);
+! 	  set_signal_handler (SIGTTOU, SIG_DFL);
+! 	  set_signal_handler (SIGTTIN, SIG_DFL);
+  	}
+  
+***************
+*** 1442,1446 ****
+    /* If the shell is interactive, and job control is disabled, see if the
+       foreground process has died due to SIGINT and jump out of the wait
+!      loop if it has.  flush_child has already restored the old SIGINT
+       signal handler. */
+    if (interactive && !job_control)
+--- 1445,1449 ----
+    /* If the shell is interactive, and job control is disabled, see if the
+       foreground process has died due to SIGINT and jump out of the wait
+!      loop if it has.  waitchld has already restored the old SIGINT
+       signal handler. */
+    if (interactive && !job_control)
+***************
+*** 1484,1512 ****
+      }
+  
+-   /* XXX - the linux people say to check for JOBSTATE (job) == JSTOPPED */
+    if (child->running || ((job != NO_JOB) && (JOBSTATE (job) == JRUNNING)))
+      {
+! #if defined (_POSIX_VERSION)
+!       struct sigaction act, oact;
+! 
+!       act.sa_handler = SIG_DFL;
+!       sigemptyset (&act.sa_mask);
+!       act.sa_flags = 0;
+! 
+!       sigaction (SIGCHLD, &act, &oact);
+! #else
+!       SigHandler *ihandler;
+! 
+!       ihandler = set_signal_handler (SIGCHLD, SIG_DFL);
+! #endif /* !_POSIX_VERSION */
+! 
+!       flush_child (0);
+! 
+! #if defined (_POSIX_VERSION)
+!       sigaction (SIGCHLD, &oact, (struct sigaction *)NULL);
+! #else
+!       set_signal_handler (SIGCHLD, ihandler);
+! #endif /* !_POSIX_VERSION */
+! 
+        goto wait_loop;
+      }
+--- 1487,1507 ----
+      }
+  
+    if (child->running || ((job != NO_JOB) && (JOBSTATE (job) == JRUNNING)))
+      {
+! #if defined (WAITPID_BROKEN)	/* SCOv4 */
+!       sigset_t suspend_set;
+!       sigemptyset (&suspend_set);
+!       sigsuspend (&suspend_set);
+! #else /* !WAITPID_BROKEN */
+! #  if defined (MUST_UNBLOCK_CHILD)	/* SCO */
+!       UNBLOCK_CHILD (oset);
+! #  endif
+!       waiting_for_job = 1;
+!       waitchld (0);
+!       waiting_for_job = 0;
+! #  if defined (MUST_UNBLOCK_CHILD)
+!       BLOCK_CHILD (set, oset);
+! #  endif
+! #endif /* !WAITPID_BROKEN */
+        goto wait_loop;
+      }
+***************
+*** 1984,2001 ****
+       int sig;
+  {
+    WAIT status;
+    PROCESS *child;
+    pid_t pid;
+    int call_set_current = 0, last_stopped_job = NO_JOB;
+!   int children_exited = 0;
+  
+    do
+      {
+!       pid = WAITPID (-1, &status, sig ? (WNOHANG | WUNTRACED) : WUNTRACED);
+  
+        if (pid > 0)
+  	{
+- 	  REINSTALL_SIGCHLD_HANDLER;
+- 
+  	  /* Locate our PROCESS for this pid. */
+  	  child = find_pipeline (pid);
+--- 1979,2013 ----
+       int sig;
+  {
++   REINSTALL_SIGCHLD_HANDLER;
++   sigchld++;
++   if (waiting_for_job == 0)
++     waitchld (sig);
++ 
++ #if !defined (VOID_SIGHANDLER)
++   return (0);
++ #endif /* VOID_SIGHANDLER */
++ }
++   
++ static int
++ waitchld (s)
++      int s;
++ {
+    WAIT status;
+    PROCESS *child;
+    pid_t pid;
+    int call_set_current = 0, last_stopped_job = NO_JOB;
+!   int children_exited = 0, flag;
+  
+    do
+      {
+!       flag = WUNTRACED;
+!       if (sigchld || s)
+! 	flag |= WNOHANG;
+!       pid = WAITPID (-1, &status, flag);
+!       if (sigchld && (flag & WNOHANG))
+!         sigchld--;
+  
+        if (pid > 0)
+  	{
+  	  /* Locate our PROCESS for this pid. */
+  	  child = find_pipeline (pid);
+***************
+*** 2115,2119 ****
+  	}
+      }
+!   while (sig && pid > (pid_t)0);
+  
+    /* If a job was running and became stopped, then set the current
+--- 2127,2131 ----
+  	}
+      }
+!   while ((s || sigchld) && pid > (pid_t)0);
+  
+    /* If a job was running and became stopped, then set the current
+***************
+*** 2169,2175 ****
+      notify_of_job_status ();
+  
+- #if !defined (VOID_SIGHANDLER)
+-   return (0);
+- #endif /* VOID_SIGHANDLER */
+  }
+  
+--- 2181,2184 ----
+***************
+*** 2341,2347 ****
+  	  if (shell_pgrp != terminal_pgrp)
+  	    {
+! 	      SigHandler *old_ttin = (SigHandler *)signal (SIGTTIN, SIG_DFL);
+  	      kill (0, SIGTTIN);
+! 	      signal (SIGTTIN, old_ttin);
+  	      continue;
+  	    }
+--- 2350,2356 ----
+  	  if (shell_pgrp != terminal_pgrp)
+  	    {
+! 	      SigHandler *old_ttin = (SigHandler *)set_signal_handler (SIGTTIN, SIG_DFL);
+  	      kill (0, SIGTTIN);
+! 	      set_signal_handler (SIGTTIN, old_ttin);
+  	      continue;
+  	    }
+diff -c2 bash-1.14.3/machines.h bash-1.14.4/machines.h
+*** bash-1.14.3/machines.h	Sat Dec 31 16:57:00 1994
+--- bash-1.14.4/machines.h	Tue Apr 11 15:47:09 1995
+***************
+*** 281,284 ****
+--- 281,291 ----
+  #    endif
+  #  endif /* Irix5 */
++ #  if defined (Irix6)
++ #    define M_OS "Irix6"
++ #    if !defined (HAVE_GCC)
++ #      undef MACHINE_CFLAGS
++ #      define MACHINE_CFLAGS -mips2
++ #    endif /* !HAVE_GCC */
++ #  endif /* Irix6 */
+  #  define M_MACHINE "sgi"
+  #  define HAVE_GETGROUPS
+***************
+*** 294,298 ****
+  #    define ANSIC
+  #  endif /* !__EXTENSIONS__ || __STDC__ */
+! #  if defined (Irix5)
+  #    define SGI_CFLAGS -DUSG -DPGRP_PIPE -DHAVE_BCOPY -DHAVE_GETPW_DECLS \
+  		       -DHAVE_SOCKETS -DNO_SBRK_DECL
+--- 301,305 ----
+  #    define ANSIC
+  #  endif /* !__EXTENSIONS__ || __STDC__ */
+! #  if defined (Irix5) || defined (Irix6)
+  #    define SGI_CFLAGS -DUSG -DPGRP_PIPE -DHAVE_BCOPY -DHAVE_GETPW_DECLS \
+  		       -DHAVE_SOCKETS -DNO_SBRK_DECL
+***************
+*** 668,672 ****
+  #      define ISC_POSIX -Xp
+  #    endif
+! #    define ISC_SYSDEPS -DUSGr3 -DPGRP_PIPE -DHAVE_GETPW_DECLS -D_POSIX_SOURCE -DOPENDIR_NOT_ROBUST -DMEMMOVE_MISSING
+  #    if defined (__STDC__)
+  #      if defined (HAVE_GCC)
+--- 675,679 ----
+  #      define ISC_POSIX -Xp
+  #    endif
+! #    define ISC_SYSDEPS -DUSGr3 -DPGRP_PIPE -DHAVE_GETPW_DECLS -D_POSIX_SOURCE -DOPENDIR_NOT_ROBUST -DMEMMOVE_MISSING -DWAITPID_BROKEN
+  #    if defined (__STDC__)
+  #      if defined (HAVE_GCC)
+***************
+*** 726,732 ****
+  #    define SCO_CFLAGS -DUSG -DUSGr3 -DPGRP_PIPE
+  #    if defined (SCOv4)
+! #      define SYSDEP_CFLAGS SCO_CFLAGS
+  #    else /* !SCOv4 */
+! #      define SYSDEP_CFLAGS SCO_CFLAGS -DOPENDIR_NOT_ROBUST
+  #    endif /* !SCOv4 */
+  #    define HAVE_VFPRINTF
+--- 733,739 ----
+  #    define SCO_CFLAGS -DUSG -DUSGr3 -DPGRP_PIPE
+  #    if defined (SCOv4)
+! #      define SYSDEP_CFLAGS SCO_CFLAGS -DWAITPID_BROKEN
+  #    else /* !SCOv4 */
+! #      define SYSDEP_CFLAGS SCO_CFLAGS -DOPENDIR_NOT_ROBUST -DMUST_UNBLOCK_CHILD
+  #    endif /* !SCOv4 */
+  #    define HAVE_VFPRINTF
+***************
+*** 759,768 ****
+  #  endif /* OSF/1 */
+  
+! /* BSDI BSD/386 running on a 386 or 486. */
+  #  if !defined (done386) && defined (__bsdi__)
+  #    define done386
+  #    define M_MACHINE "i386"
+! #    define M_OS "BSD386"
+! #    define SYSDEP_CFLAGS -DOPENDIR_NOT_ROBUST -DINT_GROUPS_ARRAY
+  #    define HAVE_SYS_SIGLIST
+  #    define HAVE_SETLINEBUF
+--- 766,780 ----
+  #  endif /* OSF/1 */
+  
+! /* BSDI BSD/OS running on a 386 or 486. */
+  #  if !defined (done386) && defined (__bsdi__)
+  #    define done386
+  #    define M_MACHINE "i386"
+! #    if defined (BSDI2)
+! #      define M_OS "BSD_OS"
+! #      define SYSDEP_CFLAGS -DOPENDIR_NOT_ROBUST -DRLIMTYPE=quad_t
+! #    else
+! #      define M_OS "BSD386"
+! #      define SYSDEP_CFLAGS -DOPENDIR_NOT_ROBUST -DINT_GROUPS_ARRAY
+! #    endif
+  #    define HAVE_SYS_SIGLIST
+  #    define HAVE_SETLINEBUF
+***************
+*** 833,837 ****
+  #    define M_MACHINE "i386"
+  #    define M_OS "Linux"
+! #    define SYSDEP_CFLAGS -DUSG -DUSGr3 -DHAVE_GETDTABLESIZE -DHAVE_BCOPY \
+  			  -DHAVE_GETPW_DECLS -DHAVE_GETHOSTNAME
+  #    define REQUIRED_LIBRARIES
+--- 845,849 ----
+  #    define M_MACHINE "i386"
+  #    define M_OS "Linux"
+! #    define SYSDEP_CFLAGS -DHAVE_GETDTABLESIZE -DHAVE_BCOPY \
+  			  -DHAVE_GETPW_DECLS -DHAVE_GETHOSTNAME
+  #    define REQUIRED_LIBRARIES
+***************
+*** 945,949 ****
+  #  define M_MACHINE "Delta"
+  #  define M_OS "USG"
+! #  define SYSDEP_CFLAGS -DUSGr3
+  #  define VOID_SIGHANDLER
+  #  define HAVE_VFPRINTF
+--- 957,961 ----
+  #  define M_MACHINE "Delta"
+  #  define M_OS "USG"
+! #  define SYSDEP_CFLAGS -DUSGr3 -DMEMMOVE_MISSING
+  #  define VOID_SIGHANDLER
+  #  define HAVE_VFPRINTF
+***************
+*** 1800,1804 ****
+  #    define SYSDEP_CFLAGS -DUSGr4 -D_POSIX_JOB_CONTROL
+  #  else
+! #    define SYSDEP_CFLAGS -D_POSIX_JOB_CONTROL
+  #  endif
+  #  define HAVE_DIRENT
+--- 1812,1816 ----
+  #    define SYSDEP_CFLAGS -DUSGr4 -D_POSIX_JOB_CONTROL
+  #  else
+! #    define SYSDEP_CFLAGS -D_POSIX_JOB_CONTROL -DWAITPID_BROKEN
+  #  endif
+  #  define HAVE_DIRENT
+***************
+*** 2021,2024 ****
+--- 2033,2086 ----
+  #  undef HAVE_GETWD
+  #endif /* Tandem running SVR3 */
++ 
++ /* ****************** */ 
++ /*                    */
++ /*     Amdahl UTS     */
++ /*                    */
++ /* ****************** */
++ 
++ #if defined (UTS)
++ #  define M_MACHINE "uts"
++ #  define M_OS "systemV"
++ #  define SYSDEP_CFLAGS -DUSG -DMEMMOVE_MISSING
++ #  define REQUIRED_LIBRARIES  
++ #  undef HAVE_SYS_SIGLIST
++ #  undef HAVE_GETWD
++ #  undef HAVE_ALLOCA 
++ #  define HAVE_VFPRINTF
++ #  define HAVE_DIRENT  
++ #  undef HAVE_RESOURCE   
++ #endif  /* UTS */
++ 
++ /* ************************ */
++ /*                          */
++ /* Stratus i860 running FTX (jonathan@sybase.com (Jonathan Stockley)) */
++ /*                          */
++ /* ************************ */
++ /* Use 'make CPP_DEFINES=-D_FTX' to build as /usr/ccs/lib/cpp doesn't set
++    anything other than i860 which may be set on other i860 machines.
++    The C compiler, cc, sets _FTX & i860 but, unfortunately it barfs at stuff
++    in cpp-Makefile that has a # in it (it has it's own builtin cpp).
++ */
++ #if defined(_FTX) && defined (i860) && !defined (M_MACHINE)
++ #define M_MACHINE "Stratus_i860"
++ #define M_OS "FTX"
++ #define VOID_SIGHANDLER
++ #define HAVE_POSIX_SIGNALS
++ #define HAVE_VFPRINTF
++ #define HAVE_SETVBUF
++ #define REVERSED_SETVBUF_ARGS
++ #define HAVE_STRCHR
++ #define HAVE_STRERROR
++ #define HAVE_GETGROUPS
++ #define HAVE_DUP2
++ #undef HAVE_ALLOCA
++ #undef HAVE_GETWD
++ #define HAVE_GETCWD
++ #define HAVE_SYS_SIGLIST
++ #define SYSDEP_CFLAGS  -DHAVE_UID_T -Dsys_siglist=_sys_siglist  -DUSGr4
++ #define EXTRA_LIB_SEARCH_PATH /usr/ucblib
++ #define REQUIRED_LIBRARIES -lc -lucb
++ #endif /* _FTX */
+  
+  /* ************************ */
+diff -c2 bash-1.14.3/mailcheck.c bash-1.14.4/mailcheck.c
+*** bash-1.14.3/mailcheck.c	Thu Jun 16 16:59:20 1994
+--- bash-1.14.4/mailcheck.c	Fri Mar 24 16:47:25 1995
+***************
+*** 230,240 ****
+  }
+  
+! #if defined (USG)
+! #  define DEFAULT_MAIL_PATH "/usr/mail/"
+! #  define DEFAULT_PATH_LEN 10
+! #else
+! #  define DEFAULT_MAIL_PATH "/usr/spool/mail/"
+! #  define DEFAULT_PATH_LEN 16
+! #endif
+  
+  /* Return the colon separated list of pathnames to check for mail. */
+--- 230,243 ----
+  }
+  
+! char *
+! make_default_mailpath ()
+! {
+!   char *mp;
+! 
+!   mp = xmalloc (1 + sizeof (DEFAULT_MAIL_PATH) + strlen (current_user.user_name));
+!   strcpy (mp, DEFAULT_MAIL_PATH);
+!   strcpy (mp + sizeof (DEFAULT_MAIL_PATH) - 1, current_user.user_name);
+!   return (mp);
+! }
+  
+  /* Return the colon separated list of pathnames to check for mail. */
+***************
+*** 252,259 ****
+      return (savestring (mailpaths));
+      
+!   mailpaths = xmalloc (1 + DEFAULT_PATH_LEN + strlen (current_user.user_name));
+!   strcpy (mailpaths, DEFAULT_MAIL_PATH);
+!   strcpy (mailpaths + DEFAULT_PATH_LEN, current_user.user_name);
+!   return (mailpaths);
+  }
+  
+--- 255,259 ----
+      return (savestring (mailpaths));
+      
+!   return (make_default_mailpath ());
+  }
+  
+***************
+*** 292,299 ****
+  remember_mail_dates ()
+  {
+!   char *mailpaths = get_mailpaths ();
+    char *mailfile, *mp;
+    int i = 0;
+!   
+    while (mailfile = extract_colon_unit (mailpaths, &i))
+      {
+--- 292,300 ----
+  remember_mail_dates ()
+  {
+!   char *mailpaths;
+    char *mailfile, *mp;
+    int i = 0;
+! 
+!   mailpaths = get_mailpaths ();  
+    while (mailfile = extract_colon_unit (mailpaths, &i))
+      {
+diff -c2 bash-1.14.3/nojobs.c bash-1.14.4/nojobs.c
+*** bash-1.14.3/nojobs.c	Mon Jun 20 15:49:08 1994
+--- bash-1.14.4/nojobs.c	Sat Feb 25 19:10:30 1995
+***************
+*** 33,36 ****
+--- 33,37 ----
+  #include "jobs.h"
+  #include "externs.h"
++ #include "error.h"
+  
+  #if defined (BUFFERED_INPUT)
+diff -c2 bash-1.14.3/parse.y bash-1.14.4/parse.y
+*** bash-1.14.3/parse.y	Wed Dec 14 09:48:20 1994
+--- bash-1.14.4/parse.y	Mon Feb 27 11:07:49 1995
+***************
+*** 1607,1610 ****
+--- 1607,1613 ----
+    bind_variable ("_", last_lastarg);
+    FREE (last_lastarg);
++ 
++   if (token_to_read == '\n')
++     token_to_read = 0;
+  }
+  
+***************
+*** 2466,2477 ****
+  reset_readline_prompt ()
+  {
+!   if (prompt_string_pointer && *prompt_string_pointer)
+      {
+        char *temp_prompt;
+  
+!       temp_prompt = decode_prompt_string (*prompt_string_pointer);
+  
+!       if (!temp_prompt)
+! 	temp_prompt = savestring ("");
+  
+        FREE (current_readline_prompt);
+--- 2469,2485 ----
+  reset_readline_prompt ()
+  {
+!   if (prompt_string_pointer)
+      {
+        char *temp_prompt;
+  
+!       temp_prompt = *prompt_string_pointer
+! 			? decode_prompt_string (*prompt_string_pointer)
+! 			: (char *)NULL;
+  
+!       if (temp_prompt == 0)
+! 	{
+! 	  temp_prompt = xmalloc (1);
+! 	  temp_prompt[0] = '\0';
+! 	}
+  
+        FREE (current_readline_prompt);
+***************
+*** 2530,2537 ****
+      prompt_string_pointer = &ps1_prompt;
+  
+!   if (*prompt_string_pointer)
+!     temp_prompt = decode_prompt_string (*prompt_string_pointer);
+!   else
+!     temp_prompt = savestring ("");
+  
+    current_prompt_string = *prompt_string_pointer;
+--- 2538,2550 ----
+      prompt_string_pointer = &ps1_prompt;
+  
+!   temp_prompt = (*prompt_string_pointer)
+! 			? decode_prompt_string (*prompt_string_pointer)
+! 			: (char *)NULL;
+! 
+!   if (temp_prompt == 0)
+!     {
+!       temp_prompt = xmalloc (1);
+!       temp_prompt[0] = '\0';
+!     }
+  
+    current_prompt_string = *prompt_string_pointer;
+***************
+*** 2759,2762 ****
+--- 2772,2776 ----
+  	      goto add_string;
+  
++ #if defined (READLINE)
+  	    case '[':
+  	    case ']':
+***************
+*** 2766,2769 ****
+--- 2780,2784 ----
+  	      temp[2] = '\0';
+  	      goto add_string;
++ #endif
+  
+  	    case '\\':
+diff -c2 bash-1.14.3/print_cmd.c bash-1.14.4/print_cmd.c
+*** bash-1.14.3/print_cmd.c	Wed Jun 29 14:42:13 1994
+--- bash-1.14.4/print_cmd.c	Mon Jan 30 12:45:09 1995
+***************
+*** 663,667 ****
+    int arg_len, c, arg_index;
+  
+!   args[0] = arg1;
+    args[1] = arg2;
+  
+--- 663,667 ----
+    int arg_len, c, arg_index;
+  
+!   args[arg_index = 0] = arg1;
+    args[1] = arg2;
+  
+diff -c2 bash-1.14.3/shell.c bash-1.14.4/shell.c
+*** bash-1.14.3/shell.c	Fri Dec  9 18:06:18 1994
+--- bash-1.14.4/shell.c	Thu Apr  6 16:45:00 1995
+***************
+*** 93,97 ****
+     Makefile. */
+  #if !defined (MAINTAINER)
+! #define MAINTAINER "deliberately-anonymous"
+  #endif
+  
+--- 93,97 ----
+     Makefile. */
+  #if !defined (MAINTAINER)
+! #define MAINTAINER "bash-maintainers@prep.ai.mit.edu"
+  #endif
+  
+***************
+*** 496,500 ****
+      {
+  #if defined (HISTORY)
+!       history_expansion = remember_on_history = 0;
+  #endif /* HISTORY */
+        interactive_shell = startup_state = interactive = 0;
+--- 496,503 ----
+      {
+  #if defined (HISTORY)
+! #  if defined (BANG_HISTORY)
+!       history_expansion = 0;
+! #  endif
+!       remember_on_history = 0;
+  #endif /* HISTORY */
+        interactive_shell = startup_state = interactive = 0;
+***************
+*** 723,727 ****
+--- 726,732 ----
+  	{
+  #if defined (HISTORY)
++ #  if defined (BANG_HISTORY)
+  	  history_expansion = 0;
++ #  endif
+  	  remember_on_history = 0;
+  #endif /* HISTORY */
+***************
+*** 803,807 ****
+  
+  #if defined (HISTORY)
+!   if (interactive && remember_on_history)
+      maybe_save_shell_history ();
+  #endif /* HISTORY */
+--- 808,812 ----
+  
+  #if defined (HISTORY)
+!   if (interactive_shell)
+      maybe_save_shell_history ();
+  #endif /* HISTORY */
+***************
+*** 1034,1039 ****
+  	  /* Some kind of throw to top_level has occured. */
+  	case FORCE_EOF:
+- 	case EXITPROG:
+  	  return last_command_exit_value = 127;
+  	case DISCARD:
+  	  return last_command_exit_value = 1;
+--- 1039,1045 ----
+  	  /* Some kind of throw to top_level has occured. */
+  	case FORCE_EOF:
+  	  return last_command_exit_value = 127;
++ 	case EXITPROG:
++ 	  return last_command_exit_value;
+  	case DISCARD:
+  	  return last_command_exit_value = 1;
+***************
+*** 1148,1162 ****
+  {
+    register int i, j;
+!   char *ps4 = get_string_value ("PS4");
+  
+!   if (!ps4)
+!     ps4 = savestring ("+ ");
+!   else
+!     ps4 = decode_prompt_string (ps4);
+  
+!   for (i = 0; i < indirection_level && i < 99; i++)
+      indirection_string[i] = *ps4;
+  
+!   for (j = 1; ps4[j] && i < 99; i++, j++)
+      indirection_string[i] = ps4[j];
+  
+--- 1154,1171 ----
+  {
+    register int i, j;
+!   char *ps4;
+  
+!   indirection_string[0] = '\0';
+!   ps4 = get_string_value ("PS4");
+! 
+!   if (ps4 == 0 || *ps4 == '\0')
+!     return (indirection_string);
+!     
+!   ps4 = decode_prompt_string (ps4);
+  
+!   for (i = 0; *ps4 && i < indirection_level && i < 99; i++)
+      indirection_string[i] = *ps4;
+  
+!   for (j = 1; *ps4 && ps4[j] && i < 99; i++, j++)
+      indirection_string[i] = ps4[j];
+  
+***************
+*** 1354,1358 ****
+  
+  #if defined (HISTORY)
+!   remember_on_history = history_expansion = 0;
+  #endif /* HISTORY */
+  
+--- 1363,1370 ----
+  
+  #if defined (HISTORY)
+! #  if defined (BANG_HISTORY)
+!   history_expansion = 0;
+! #  endif
+!   remember_on_history = 0;
+  #endif /* HISTORY */
+  
+***************
+*** 1505,1509 ****
+  
+  #if defined (HISTORY)
+!   if (interactive && remember_on_history)
+      maybe_save_shell_history ();
+  #endif /* HISTORY */
+--- 1517,1521 ----
+  
+  #if defined (HISTORY)
+!   if (interactive_shell)
+      maybe_save_shell_history ();
+  #endif /* HISTORY */
+***************
+*** 1520,1524 ****
+  
+    run_exit_trap ();
+!   signal (sig, SIG_DFL);
+    kill (getpid (), sig);
+  
+--- 1532,1536 ----
+  
+    run_exit_trap ();
+!   set_signal_handler (sig, SIG_DFL);
+    kill (getpid (), sig);
+  
+***************
+*** 1566,1575 ****
+      {
+        terminating_signals[i].orig_handler =
+! 	signal (XSIG (i), termination_unwind_protect);
+        /* Don't do anything with signals that are ignored at shell entry
+  	 if the shell is not interactive. */
+        if (!interactive_shell && terminating_signals[i].orig_handler == SIG_IGN)
+  	{
+!           signal (XSIG (i), SIG_IGN);
+            set_signal_ignored (XSIG (i));
+  	}
+--- 1578,1587 ----
+      {
+        terminating_signals[i].orig_handler =
+! 	set_signal_handler (XSIG (i), termination_unwind_protect);
+        /* Don't do anything with signals that are ignored at shell entry
+  	 if the shell is not interactive. */
+        if (!interactive_shell && terminating_signals[i].orig_handler == SIG_IGN)
+  	{
+!           set_signal_handler (XSIG (i), SIG_IGN);
+            set_signal_ignored (XSIG (i));
+  	}
+***************
+*** 1587,1596 ****
+  
+    /* And, some signals that are specifically ignored by the shell. */
+!   signal (SIGQUIT, SIG_IGN);
+  
+    if (interactive)
+      {
+        set_signal_handler (SIGINT, sigint_sighandler);
+!       signal (SIGTERM, SIG_IGN);
+      }
+  }
+--- 1599,1608 ----
+  
+    /* And, some signals that are specifically ignored by the shell. */
+!   set_signal_handler (SIGQUIT, SIG_IGN);
+  
+    if (interactive)
+      {
+        set_signal_handler (SIGINT, sigint_sighandler);
+!       set_signal_handler (SIGTERM, SIG_IGN);
+      }
+  }
+***************
+*** 1622,1626 ****
+  	continue;
+  
+!       signal (XSIG (i), XHANDLER (i));
+      }
+  #endif
+--- 1634,1638 ----
+  	continue;
+  
+!       set_signal_handler (XSIG (i), XHANDLER (i));
+      }
+  #endif
+***************
+*** 1700,1704 ****
+  {
+  #if defined (USG) && !defined (_POSIX_VERSION)
+!   signal (sig, sigint_sighandler);
+  #endif
+  
+--- 1712,1716 ----
+  {
+  #if defined (USG) && !defined (_POSIX_VERSION)
+!   set_signal_handler (sig, sigint_sighandler);
+  #endif
+  
+diff -c2 bash-1.14.3/siglist.h bash-1.14.4/siglist.h
+*** bash-1.14.3/siglist.h	Tue Dec  6 10:34:15 1994
+--- bash-1.14.4/siglist.h	Sat Feb 25 20:44:33 1995
+***************
+*** 29,35 ****
+  
+  #if !defined (Solaris) && !defined (Linux) && !defined (__BSD_4_4__) && \
+! 	!defined (Minix) && !defined (NetBSD) && !defined (FreeBSD)
+  extern char *sys_siglist[];
+! #endif /* !Solaris && !Linux && !__BSD_4_4__ && !Minix && !NetBSD && !FreeBSD */
+  
+  #if !defined (strsignal) && !defined (Solaris) && !defined (NetBSD)
+--- 29,36 ----
+  
+  #if !defined (Solaris) && !defined (Linux) && !defined (__BSD_4_4__) && \
+! 	!defined (Minix) && !defined (NetBSD) && !defined (FreeBSD) && \
+! 	!defined (BSD_OS)
+  extern char *sys_siglist[];
+! #endif /* !Solaris && !Linux && !__BSD_4_4__ && !Minix && !NetBSD && !FreeBSD && !BSD_OS */
+  
+  #if !defined (strsignal) && !defined (Solaris) && !defined (NetBSD)
+diff -c2 bash-1.14.3/stdc.h bash-1.14.4/stdc.h
+*** bash-1.14.3/stdc.h	Thu Apr  7 10:02:50 1994
+--- bash-1.14.4/stdc.h	Sat Feb 25 19:09:21 1995
+***************
+*** 46,62 ****
+  #  define __STRING(x) "x"
+  
+! #if !defined (const)
+! #  if defined (__GNUC__)		/* gcc with -traditional */
+  #    define const  __const
+  #    define inline __inline
+  #    define signed __signed
+  #    define volatile __volatile
+! #  else /* !__GNUC__ */
+  #    define const
+  #    define inline
+  #    define signed
+  #    define volatile
+! #  endif /* !__GNUC__ */
+! #endif /* !const */
+  
+  #endif /* !__STDC__ */
+--- 46,76 ----
+  #  define __STRING(x) "x"
+  
+! #if defined (__GNUC__)		/* gcc with -traditional */
+! #  if !defined (const)
+  #    define const  __const
++ #  endif
++ #  if !defined (inline)
+  #    define inline __inline
++ #  endif
++ #  if !defined (signed)
+  #    define signed __signed
++ #  endif
++ #  if !defined (volatile)
+  #    define volatile __volatile
+! #  endif
+! #else /* !__GNUC__ */
+! #  if !defined (const)
+  #    define const
++ #  endif
++ #  if !defined (inline)
+  #    define inline
++ #  endif
++ #  if !defined (signed)
+  #    define signed
++ #  endif
++ #  if !defined (volatile)
+  #    define volatile
+! #  endif
+! #endif /* !__GNUC__ */
+  
+  #endif /* !__STDC__ */
+diff -c2 bash-1.14.3/subst.c bash-1.14.4/subst.c
+*** bash-1.14.3/subst.c	Thu Dec 29 13:00:14 1994
+--- bash-1.14.4/subst.c	Sat Feb 25 22:59:35 1995
+***************
+*** 2386,2389 ****
+--- 2386,2390 ----
+    WORD_LIST *l;
+    char *t, *t1, *temp;
++   int i;
+  
+    if (value[0] == '~' ||
+***************
+*** 2393,2397 ****
+      temp = savestring (value);
+  
+!   l = *temp ? expand_string_internal (temp, 0) : (WORD_LIST *)NULL;
+    free (temp);
+  
+--- 2394,2406 ----
+      temp = savestring (value);
+  
+!   /* This is a hack.  A better fix is coming later. */
+!   if (*temp == '"')
+!     {
+!       i = 1;
+!       t = string_extract_double_quoted (temp, &i);	/* XXX */
+!       free (temp);
+!       temp = t;
+!     }
+!   l = *temp ? expand_string_internal (temp, quoted) : (WORD_LIST *)NULL;
+    free (temp);
+  
+***************
+*** 2430,2434 ****
+      {
+        WORD_LIST *l = expand_string (value, 0);
+!       char *temp1 =  string_list (l);
+        report_error ("%s: %s", name, temp1 ? temp1 : value);
+        FREE (temp1);
+--- 2439,2443 ----
+      {
+        WORD_LIST *l = expand_string (value, 0);
+!       char *temp1 = string_list (l);
+        report_error ("%s: %s", name, temp1 ? temp1 : value);
+        FREE (temp1);
+***************
+*** 2672,2679 ****
+  	    case '8':
+  	    case '9':
+! 	      if (dollar_vars[digit_value (c)])
+! 		temp = savestring (dollar_vars[digit_value (c)]);
+! 	      else
+! 		temp = (char *)NULL;
+  	      goto dollar_add_string;
+  
+--- 2681,2695 ----
+  	    case '8':
+  	    case '9':
+! 	      temp = dollar_vars[digit_value (c)];
+! 	      if (unbound_vars_is_error && temp == (char *)NULL)
+! 		{
+! 		  report_error ("$%c: unbound variable", c);
+! 		  free (string);
+! 		  free (istring);
+! 		  last_command_exit_value = 1;
+! 		  return (&expand_word_error);
+! 		}
+! 	      if (temp)
+! 		temp = savestring (temp);
+  	      goto dollar_add_string;
+  
+***************
+*** 2691,2694 ****
+--- 2707,2711 ----
+  	      istring = sub_append_string
+  		(temp, istring, &istring_index, &istring_size);
++ 	      temp = (char *)NULL;
+  	      break;
+  
+***************
+*** 3452,3455 ****
+--- 3469,3478 ----
+  	    }
+  	}
++       else if (word->assignment)
++ 	{
++ 	  temp_list = make_word_list (make_word (istring), (WORD_LIST *)NULL);
++ 	  temp_list->word->quoted = quoted;
++ 	  temp_list->word->assignment = assignment (temp_list->word->word);
++ 	}
+        else
+  	{
+***************
+*** 3503,3571 ****
+  {
+    char *r, *result_string, *temp, *temp1;
+!   int sindex, tindex, c;
+  
+    /* The result can be no longer than the original string. */
+    r = result_string = xmalloc (strlen (string) + 1);
+-   sindex = 0;
+  
+!   for (;;)
+      {
+-       c = string[sindex];
+-       if (c == '\0')
+- 	break;
+- 
+        switch (c)
+  	{
+! 	  case '\\':
+! 	    c = string[++sindex];
+! 	    if (quoted && !member (c, slashify_in_quotes))
+! 	      {
+! 		*r++ = '\\';
+! 		*r++ = c;
+! 	      }
+! 	    else
+! 	      *r++ = c;
+! 
+! 	    sindex++;
+! 	    break;
+! 
+! 	  case '"':
+! 	    tindex = ++sindex;
+! 	    temp = string_extract_double_quoted (string, &tindex);
+! 	    sindex = tindex;
+  
+! 	    if (temp)
+! 	      {
+! 		strcpy (r, temp);
+! 		r += strlen (r);
+! 		free (temp);
+! 	      }
+! 	    break;
+  
+! 	  case '\'':
+! 	    if (quoted)
+! 	      {
+! 		*r++ = c;
+! 		sindex++;
+! 	      }
+! 	    else
+! 	      {
+! 		tindex = ++sindex;
+! 		temp = string_extract_single_quoted (string, &tindex);
+! 		sindex = tindex;
+  
+! 		if (temp)
+! 		  {
+! 		    strcpy (r, temp);
+! 		    r += strlen (r);
+! 		    free (temp);
+! 		  }
+! 	      }
+! 	    break;
+  
+! 	  default:
+! 	    *r++ = c;
+! 	    sindex++;
+! 	    break;
+  	}
+      }
+--- 3526,3573 ----
+  {
+    char *r, *result_string, *temp, *temp1;
+!   int sindex, tindex, c, dquote;
+  
+    /* The result can be no longer than the original string. */
+    r = result_string = xmalloc (strlen (string) + 1);
+  
+!   for (sindex = dquote = 0; c = string[sindex];)
+      {
+        switch (c)
+  	{
+! 	case '\\':
+! 	  c = string[++sindex];
+! 	  if ((quoted || dquote) && !member (c, slashify_in_quotes))
+! 	    *r++ = '\\';
+  
+! 	default:
+! 	  *r++ = c;
+! 	  sindex++;
+! 	  break;
+  
+! 	case '\'':
+! 	  if (quoted || dquote)
+! 	    {
+! 	      *r++ = c;
+! 	      sindex++;
+! 	    }
+! 	  else
+! 	    {
+! 	      tindex = ++sindex;
+! 	      temp = string_extract_single_quoted (string, &tindex);
+! 	      sindex = tindex;
+  
+! 	      if (temp)
+! 	        {
+! 		  strcpy (r, temp);
+! 		  r += strlen (r);
+! 		  free (temp);
+! 		}
+! 	    }
+! 	  break;
+  
+! 	case '"':
+! 	  dquote = 1 - dquote;
+! 	  sindex++;
+! 	  break;
+  	}
+      }
+***************
+*** 4354,4359 ****
+  
+  #if defined (HISTORY)
+! void sv_histsize (), sv_histfilesize (), sv_histchars (),
+       sv_history_control (), sv_command_oriented_history ();
+  #endif /* HISTORY */
+  
+--- 4356,4364 ----
+  
+  #if defined (HISTORY)
+! void sv_histsize (), sv_histfilesize (),
+       sv_history_control (), sv_command_oriented_history ();
++ #  if defined (BANG_HISTORY)
++ void sv_histchars ();
++ #  endif
+  #endif /* HISTORY */
+  
+***************
+*** 4393,4397 ****
+--- 4398,4404 ----
+    { "HISTFILESIZE", sv_histfilesize },
+    { "command_oriented_history", sv_command_oriented_history },
++ #  if defined (BANG_HISTORY)
+    { "histchars", sv_histchars },
++ #  endif
+    { "history_control", sv_history_control },
+    { "HISTCONTROL", sv_history_control },
+***************
+*** 4571,4574 ****
+--- 4578,4582 ----
+  }
+  
++ #  if defined (BANG_HISTORY)
+  /* Setting/unsetting of the history expansion character. */
+  
+***************
+*** 4596,4599 ****
+--- 4604,4608 ----
+      }
+  }
++ #  endif /* BANG_HISTORY */
+  #endif /* HISTORY */
+  
+diff -c2 bash-1.14.3/trap.c bash-1.14.4/trap.c
+*** bash-1.14.3/trap.c	Fri Dec  9 18:03:09 1994
+--- bash-1.14.4/trap.c	Sat Feb 25 18:25:03 1995
+***************
+*** 89,94 ****
+    /* Show which signals are treated specially by the shell. */
+  #if defined (SIGCHLD)
+!   original_signals[SIGCHLD] = (SigHandler *) signal (SIGCHLD, SIG_DFL);
+!   signal (SIGCHLD, original_signals[SIGCHLD]);
+    sigmodes[SIGCHLD] |= (SIG_SPECIAL | SIG_NO_TRAP);
+  #endif /* SIGCHLD */
+--- 89,94 ----
+    /* Show which signals are treated specially by the shell. */
+  #if defined (SIGCHLD)
+!   original_signals[SIGCHLD] = (SigHandler *) set_signal_handler (SIGCHLD, SIG_DFL);
+!   set_signal_handler (SIGCHLD, original_signals[SIGCHLD]);
+    sigmodes[SIGCHLD] |= (SIG_SPECIAL | SIG_NO_TRAP);
+  #endif /* SIGCHLD */
+***************
+*** 106,111 ****
+    if (interactive)
+      {
+!       original_signals[SIGTERM] = (SigHandler *)signal (SIGTERM, SIG_DFL);
+!       signal (SIGTERM, original_signals[SIGTERM]);
+        sigmodes[SIGTERM] |= SIG_SPECIAL;
+      }
+--- 106,111 ----
+    if (interactive)
+      {
+!       original_signals[SIGTERM] = (SigHandler *)set_signal_handler (SIGTERM, SIG_DFL);
+!       set_signal_handler (SIGTERM, original_signals[SIGTERM]);
+        sigmodes[SIGTERM] |= SIG_SPECIAL;
+      }
+***************
+*** 224,228 ****
+      {
+  #if defined (USG) && !defined (HAVE_BSD_SIGNALS) && !defined (_POSIX_VERSION)
+!       signal (sig, trap_handler);
+  #endif /* USG && !HAVE_BSD_SIGNALS && !_POSIX_VERSION */
+  
+--- 224,228 ----
+      {
+  #if defined (USG) && !defined (HAVE_BSD_SIGNALS) && !defined (_POSIX_VERSION)
+!       set_signal_handler (sig, trap_handler);
+  #endif /* USG && !HAVE_BSD_SIGNALS && !_POSIX_VERSION */
+  
+***************
+*** 312,316 ****
+        if (original_signals[sig] == IMPOSSIBLE_TRAP_HANDLER)
+  	{
+! 	  original_signals[sig] = (SigHandler *)signal (sig, SIG_DFL);
+  	  set_signal_handler (sig, original_signals[sig]);
+  	}
+--- 312,316 ----
+        if (original_signals[sig] == IMPOSSIBLE_TRAP_HANDLER)
+  	{
+! 	  original_signals[sig] = (SigHandler *)set_signal_handler (sig, SIG_DFL);
+  	  set_signal_handler (sig, original_signals[sig]);
+  	}
+***************
+*** 381,385 ****
+        original_signals[sig] =
+  	(SigHandler *) set_signal_handler (sig, SIG_DFL);
+!       signal (sig, original_signals[sig]);
+  
+        /* Signals ignored on entry to the shell cannot be trapped. */
+--- 381,385 ----
+        original_signals[sig] =
+  	(SigHandler *) set_signal_handler (sig, SIG_DFL);
+!       set_signal_handler (sig, original_signals[sig]);
+  
+        /* Signals ignored on entry to the shell cannot be trapped. */
+***************
+*** 446,450 ****
+    /* Only change the signal handler for SIG if it allows it. */
+    if (!(sigmodes[sig] & SIG_NO_TRAP))
+!     signal (sig, SIG_IGN);
+  
+    /* Change the trap command in either case. */
+--- 446,450 ----
+    /* Only change the signal handler for SIG if it allows it. */
+    if (!(sigmodes[sig] & SIG_NO_TRAP))
+!     set_signal_handler (sig, SIG_IGN);
+  
+    /* Change the trap command in either case. */
+***************
+*** 498,506 ****
+    for (i = 0; i < NSIG; i++)
+      {
+!       if ((sigmodes[i] & SIG_TRAPPED) && trap_list[i] &&
+! 	  (trap_list[i] != (char *)IGNORE_SIG) &&
+! 	  (trap_list[i] != (char *)DEFAULT_SIG) &&
+! 	  (trap_list[i] != (char *)IMPOSSIBLE_TRAP_HANDLER))
+! 	free (trap_list[i]);
+        trap_list[i] = (char *)DEFAULT_SIG;
+        sigmodes[i] &= ~SIG_TRAPPED;
+--- 498,502 ----
+    for (i = 0; i < NSIG; i++)
+      {
+!       free_trap_command (i);
+        trap_list[i] = (char *)DEFAULT_SIG;
+        sigmodes[i] &= ~SIG_TRAPPED;
+***************
+*** 513,517 ****
+       int sig;
+  {
+!   signal (sig, original_signals[sig]);
+  }
+  
+--- 509,513 ----
+       int sig;
+  {
+!   set_signal_handler (sig, original_signals[sig]);
+  }
+  
+***************
+*** 523,526 ****
+--- 519,529 ----
+    register int i;
+  
++   if (sigmodes[0] & SIG_TRAPPED)
++     {
++       free_trap_command (0);
++       trap_list[0] = (char *)NULL;
++       sigmodes[0] &= ~SIG_TRAPPED;
++     }
++ 
+    for (i = 1; i < NSIG; i++)
+      {
+***************
+*** 530,534 ****
+  	{
+  	  if (trap_list[i] == (char *)IGNORE_SIG)
+! 	    signal (i, SIG_IGN);
+  	  else
+  	    reset_signal (i);
+--- 533,537 ----
+  	{
+  	  if (trap_list[i] == (char *)IGNORE_SIG)
+! 	    set_signal_handler (i, SIG_IGN);
+  	  else
+  	    reset_signal (i);
+***************
+*** 546,549 ****
+--- 549,560 ----
+  
+    reset_terminating_signals ();		/* in shell.c */
++ 
++   if (sigmodes[0] & SIG_TRAPPED)
++     {
++       free_trap_command (0);
++       trap_list[0] = (char *)NULL;
++       sigmodes[0] &= ~SIG_TRAPPED;
++     }
++ 
+    for (i = 1; i < NSIG; i++)
+      {
+***************
+*** 553,557 ****
+  	{
+  	  if (trap_list[i] == (char *)IGNORE_SIG)
+! 	    signal (i, SIG_IGN);
+  	  else
+  	    restore_signal (i);
+--- 564,568 ----
+  	{
+  	  if (trap_list[i] == (char *)IGNORE_SIG)
+! 	    set_signal_handler (i, SIG_IGN);
+  	  else
+  	    restore_signal (i);
+diff -c2 bash-1.14.3/variables.c bash-1.14.4/variables.c
+*** bash-1.14.3/variables.c	Mon Dec  5 13:54:40 1994
+--- bash-1.14.4/variables.c	Fri Mar 24 16:46:26 1995
+***************
+*** 90,99 ****
+  char **non_unsettable_vars = (char **)NULL;
+  
+- #if defined (USG)
+- #define DEFAULT_MAIL_PATH "/usr/mail/"
+- #else
+- #define DEFAULT_MAIL_PATH "/usr/spool/mail/"
+- #endif
+- 
+  static char *have_local_variables;		/* XXX */
+  static int local_variable_stack_size = 0;	/* XXX */
+--- 90,93 ----
+***************
+*** 210,213 ****
+--- 204,208 ----
+        set_if_not ("PS2", secondary_prompt);
+      }
++   set_if_not ("PS4", "+ ");
+  
+  #if defined (INSECURITY)
+***************
+*** 223,245 ****
+    set_auto_export (temp_var);
+  
+!   /* Default MAILPATH, and MAILCHECK for interactive shells. */
+    if (interactive_shell)
+!     {
+!       set_if_not ("MAILCHECK", "60");
+! 
+!       if ((get_string_value ("MAIL") == (char *)NULL) &&
+! 	  (get_string_value ("MAILPATH") == (char *)NULL))
+! 	{
+! 	  char *tem;
+! 
+! 	  tem = xmalloc (1 + sizeof (DEFAULT_MAIL_PATH)
+! 			   + strlen (current_user.user_name));
+! 	  strcpy (tem, DEFAULT_MAIL_PATH);
+! 	  strcat (tem, current_user.user_name);
+! 
+! 	  bind_variable ("MAILPATH", tem);
+! 	  free (tem);
+! 	}
+!     }
+  
+    /* Do some things with shell level. */
+--- 218,224 ----
+    set_auto_export (temp_var);
+  
+!   /* Default MAILCHECK for interactive shells. */
+    if (interactive_shell)
+!     set_if_not ("MAILCHECK", "60");
+  
+    /* Do some things with shell level. */
+***************
+*** 327,331 ****
+      /* Make a variable called BASH, which is the name of THIS shell. */
+      temp_var = bind_variable ("BASH", name);
+-     temp_var->attributes |= att_exported;
+  
+      free (name);
+--- 306,309 ----

@@ -1,0 +1,65 @@
+diff -rc2 bash-1.14.6/.patchlevel bash-1.14.7/.patchlevel
+*** bash-1.14.6/.patchlevel	Mon Oct  9 14:42:45 1995
+--- bash-1.14.7/.patchlevel	Mon Aug 26 11:57:41 1996
+***************
+*** 1 ****
+! 6
+--- 1 ----
+! 7
+diff -rc2 bash-1.14.6/parse.y bash-1.14.7/parse.y
+*** bash-1.14.6/parse.y	Thu Nov  2 15:00:51 1995
+--- bash-1.14.7/parse.y	Mon Aug 26 11:15:55 1996
+***************
+*** 861,865 ****
+    else
+      {
+!       int c = current_readline_line[current_readline_line_index++];
+        return (c);
+      }
+--- 861,865 ----
+    else
+      {
+!       int c = (unsigned char)current_readline_line[current_readline_line_index++];
+        return (c);
+      }
+***************
+*** 905,909 ****
+  yy_string_get ()
+  {
+!   register char *string;
+    register int c;
+  
+--- 905,909 ----
+  yy_string_get ()
+  {
+!   register unsigned char *string;
+    register int c;
+  
+***************
+*** 953,959 ****
+    if (bash_input.location.file)
+  #if defined (NO_READ_RESTART_ON_SIGNAL)
+!     result = getc_with_restart (bash_input.location.file);
+  #else
+!     result = getc (bash_input.location.file);
+  #endif /* !NO_READ_RESTART_ON_SIGNAL */
+    return (result);
+--- 953,959 ----
+    if (bash_input.location.file)
+  #if defined (NO_READ_RESTART_ON_SIGNAL)
+!     result = (unsigned char)getc_with_restart (bash_input.location.file);
+  #else
+!     result = (unsigned char)getc (bash_input.location.file);
+  #endif /* !NO_READ_RESTART_ON_SIGNAL */
+    return (result);
+diff -rc2 bash-1.14.6/subst.c bash-1.14.7/subst.c
+*** bash-1.14.6/subst.c	Fri Nov 17 16:50:37 1995
+--- bash-1.14.7/subst.c	Mon Aug 26 11:51:09 1996
+***************
+*** 953,956 ****
+--- 953,957 ----
+    *p = '\0';
+    strcpy (string, nstr);
++   free (nstr);
+  }
+  

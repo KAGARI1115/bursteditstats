@@ -1,0 +1,33 @@
+#
+# Master Manifest file for documentation-only distribution
+#
+doc	d
+lib	d
+MANIFEST.doc	f
+lib/readline		d
+lib/readline/doc	d
+doc/article.ps	f
+doc/bash.ps		f
+doc/bashbug.ps	f
+doc/builtins.ps	f
+doc/bashref.ps	f
+doc/readline.ps	f
+doc/bashref.dvi	f
+doc/bash.0		f
+doc/bashbug.0		f
+doc/builtins.0	f
+doc/readline.0	f
+doc/article.txt	f
+doc/bash.html		f
+doc/bashref.html	f
+doc/bashref_toc.html	f
+lib/readline/doc/readline.ps	f
+lib/readline/doc/history.ps	f
+lib/readline/doc/readline.dvi	f
+lib/readline/doc/history.dvi	f
+lib/readline/doc/readline.info	f
+lib/readline/doc/history.info	f
+lib/readline/doc/readline.html	f
+lib/readline/doc/readline_toc.html	f
+lib/readline/doc/history.html	f
+lib/readline/doc/history_toc.html	f

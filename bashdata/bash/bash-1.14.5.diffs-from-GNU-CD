@@ -1,0 +1,86 @@
+diff -Nrc2 bash-1.14.5.GNUCD/NEWS bash-1.14.5/NEWS
+*** bash-1.14.5.GNUCD/NEWS	Fri Jun  9 17:18:11 1995
+--- bash-1.14.5/NEWS	Wed Jul 12 10:08:44 1995
+***************
+*** 48,51 ****
+--- 48,57 ----
+      dump when printing an error message.
+  
++ p.  Fixed a bug that caused "$*" to sometimes leave a stray ^B in the
++     expansion when there were no positional parameters.
++ 
++ q.  Fixed a bug that caused pre-3.2v4.x SCO machines to hang waiting for
++     waitpid(2) to return.
++ 
+  2.  Bugs fixed in Readline
+  
+diff -Nrc2 bash-1.14.5.GNUCD/jobs.c bash-1.14.5/jobs.c
+*** bash-1.14.5.GNUCD/jobs.c	Wed Jun  7 15:47:50 1995
+--- bash-1.14.5/jobs.c	Wed Jul 12 09:37:18 1995
+***************
+*** 1495,1499 ****
+  #else /* !WAITPID_BROKEN */
+  #  if defined (MUST_UNBLOCK_CHILD)	/* SCO */
+!       UNBLOCK_CHILD (oset);
+  #  endif
+        waiting_for_job = 1;
+--- 1495,1509 ----
+  #else /* !WAITPID_BROKEN */
+  #  if defined (MUST_UNBLOCK_CHILD)	/* SCO */
+!       struct sigaction act, oact;
+!       sigset_t nullset, chldset;
+! 
+!       sigemptyset (&nullset);
+!       sigemptyset (&chldset);
+!       sigprocmask (SIG_SETMASK, &nullset, &chldset);
+!       act.sa_handler = SIG_DFL;
+!       sigemptyset (&act.sa_mask);
+!       sigemptyset (&oact.sa_mask);
+!       act.sa_flags = 0;
+!       sigaction (SIGCHLD, &act, &oact);
+  #  endif
+        waiting_for_job = 1;
+***************
+*** 1501,1505 ****
+        waiting_for_job = 0;
+  #  if defined (MUST_UNBLOCK_CHILD)
+!       BLOCK_CHILD (set, oset);
+  #  endif
+  #endif /* !WAITPID_BROKEN */
+--- 1511,1516 ----
+        waiting_for_job = 0;
+  #  if defined (MUST_UNBLOCK_CHILD)
+!       sigaction (SIGCHLD, &oact, (struct sigaction *)NULL);
+!       sigprocmask (SIG_SETMASK, &chldset, (sigset_t *)NULL);
+  #  endif
+  #endif /* !WAITPID_BROKEN */
+***************
+*** 2132,2136 ****
+  				  temp_handler = old_sigint_handler;
+  				  restore_sigint_handler ();
+! 				  (*temp_handler) (SIGINT);
+  				}
+  			    }
+--- 2143,2148 ----
+  				  temp_handler = old_sigint_handler;
+  				  restore_sigint_handler ();
+! 				  if (temp_handler != SIG_IGN)
+! 				    (*temp_handler) (SIGINT);
+  				}
+  			    }
+diff -Nrc2 bash-1.14.5.GNUCD/subst.c bash-1.14.5/subst.c
+*** bash-1.14.5.GNUCD/subst.c	Fri Jun  2 15:45:47 1995
+--- bash-1.14.5/subst.c	Tue Jun 27 15:13:26 1995
+***************
+*** 2807,2810 ****
+--- 2807,2816 ----
+  	      temp = string_rest_of_args (quoted);
+  
++ 	      if (quoted && temp && *temp == '\0' /* && istring_index > 0 */)
++ 		{
++ 		  free (temp);
++ 		  temp = (char *)NULL;
++ 		}
++ 
+  	      /* In the case of a quoted string, quote the entire arg-list.
+  		 "$1 $2 $3". */

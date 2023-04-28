@@ -1,0 +1,44 @@
+there
+one - alpha
+two - beta
+three - gamma
+hi\
+there$a
+stuff
+hi\
+there
+EO\
+F
+hi
+hi
+tab 1
+tab 2
+tab 3
+abc
+def ghi
+jkl mno
+fff is a function
+fff () 
+{ 
+    ed /tmp/foo  > /dev/null <<ENDOFINPUT
+/^name/d
+w
+q
+ENDOFINPUT
+
+    aa=1
+}
+fff is a function
+fff () 
+{ 
+    ed /tmp/foo > /dev/null  <<ENDOFINPUT
+/^name/d
+w
+q
+ENDOFINPUT
+
+    aa=1
+}
+./heredoc.tests: line 94: warning: here-document at line 92 delimited by end-of-file (wanted `EOF')
+hi
+there

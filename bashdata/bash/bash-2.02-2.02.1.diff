@@ -1,0 +1,952 @@
+diff -Nrc2 bash-2.02/CHANGES bash-2.02.1/CHANGES
+*** bash-2.02/CHANGES	Wed Apr 15 10:26:03 1998
+--- bash-2.02.1/CHANGES	Fri Jul 10 12:20:38 1998
+***************
+*** 1,4 ****
+! This document details the changes between this version, bash-2.02-beta2,
+! and the previous version, bash-2.02-beta1.
+  
+  1.  Changes to Bash
+--- 1,55 ----
+! This document details the changes between this version, bash-2.02.1-release,
+! and the previous version, bash-2.02-release.
+! 
+! 1.  Changes to Bash
+! 
+! a.  A bug that caused the bash readline support to not compile unless aliases
+!     and csh-style history were configured into the shell was fixed.
+! 
+! b.  Fixed a bug that could cause a core dump when here documents contained
+!     more than 1000 characters.
+! 
+! c.  Fixed a bug that caused a CDPATH entry of "" to not be treated the same
+!     as the current directory when in POSIX mode.
+! 
+! d.  Fixed an alignment problem with the memory returned by the bash malloc,
+!     so returned memory is now 64-bit aligned.
+! 
+! e.  Fixed a bug that caused command substitutions executed within pipelines
+!     to put the terminal in the wrong process group.
+! 
+! f.  Fixes to support/config.sub for: alphas, SCO Open Server and Open Desktop,
+!     Unixware 2, and Unixware 7.
+! 
+! g.  Fixes to the pattern matching code to make it work correctly for eight-bit
+!     characters.
+! 
+! h.  Fixed a problem that occasionally caused the shell to display the wrong
+!     value for the new working directory when changing to a directory found
+!     in $CDPATH when in physical mode.
+! 
+! i.  Fixed a bug that caused core dumps when using conditional commands in
+!     shell functions.
+! 
+! j.  Fixed a bug that caused the printf builtin to loop forever if the format
+!     string did not consume any of the arguments.
+! 
+! k.  Fixed a bug in the parameter expansion code that caused "$@" to be
+!     incorrectly split if $IFS did not contain a space character.
+! 
+! l.  Fixed a bug that could cause a core dump when completing hostnames if
+!     the number of matching hostnames was an exact multiple of 16.
+! 
+! m.  Fixed a bug that caused the shell to fork too early when a command
+!     such as `%2 &' was given.
+! 
+! 2.  Changes to Readline
+! 
+! a.  Fixed a problem with redisplay that showed up when the prompt string was
+!     longer than the screen width and the prompt contained invisible characters.
+! 
+! ------------------------------------------------------------------------------
+! This document details the changes between this version, bash-2.02-release,
+! and the previous version, bash-2.02-beta2.
+  
+  1.  Changes to Bash
+diff -Nrc2 bash-2.02/INSTALL bash-2.02.1/INSTALL
+*** bash-2.02/INSTALL	Thu Sep 18 15:44:39 1997
+--- bash-2.02.1/INSTALL	Thu Jul 23 10:37:54 1998
+***************
+*** 30,35 ****
+  will need to create two files: `_distribution' and `_patchlevel'.
+  `_distribution' should contain the major and minor version numbers of
+! the Bash distribution, for example `2.01'.  `_patchlevel' should
+! contain the patch level of the Bash distribution, `0' for example.  The
+  script `support/mkconffiles' has been provided to automate the creation
+  of these files.
+--- 30,35 ----
+  will need to create two files: `_distribution' and `_patchlevel'.
+  `_distribution' should contain the major and minor version numbers of
+! the Bash distribution, for example `2.02'.  `_patchlevel' should
+! contain the patch level of the Bash distribution, `1' for example.  The
+  script `support/mkconffiles' has been provided to automate the creation
+  of these files.
+diff -Nrc2 bash-2.02/NOTES bash-2.02.1/NOTES
+*** bash-2.02/NOTES	Tue Apr 14 13:36:37 1998
+--- bash-2.02.1/NOTES	Fri Jul 10 12:32:12 1998
+***************
+*** 4,13 ****
+  1.  configure --without-gnu-malloc on:
+  
+! 	alpha running OSF/1
+! 	alpha running Linux
+  
+  	next running NeXT/OS
+  
+! 	all machines running SunOS YP code: SunOS4, SunOS5, HP/UX
+  
+  	linux (optional, but don't do it if you're using Doug Lea's malloc)
+--- 4,15 ----
+  1.  configure --without-gnu-malloc on:
+  
+! 	alpha running OSF/1, Linux, or NetBSD (malloc needs 8-byte alignment;
+! 	bash malloc has 8-byte alignment now, but I have no alphas to test on)
+  
+  	next running NeXT/OS
+  
+! 	all machines running SunOS YP code: SunOS4, SunOS5, HP/UX, if you
+! 	have problems with username completion or tilde expansion for
+! 	usernames found via YP/NIS
+  
+  	linux (optional, but don't do it if you're using Doug Lea's malloc)
+***************
+*** 20,26 ****
+  	Cray
+  
+! 	NetBSD/sparc (malloc needs 8-byte alignment; GNU malloc has 4-byte)
+  
+! 	BSD/OS 2.1 if you want to use loadable builtins
+  
+  	If you are using GNU libc, especially on a linux system
+--- 22,29 ----
+  	Cray
+  
+! 	NetBSD/sparc (malloc needs 8-byte alignment; bash malloc has 8-byte
+! 	alignment now, but I have no NetBSD machines to test on)
+  
+! 	BSD/OS 2.1, 3.x if you want to use loadable builtins
+  
+  	If you are using GNU libc, especially on a linux system
+***************
+*** 29,33 ****
+  being built and linked against, but there is only a stub file in the archive.)
+  
+! 2.  configure using shlicc on BSD/OS 2.1 to use loadable builtins
+  
+  3.  Bash cannot be built in a directory separate from the source directory
+--- 32,37 ----
+  being built and linked against, but there is only a stub file in the archive.)
+  
+! 2.  Configure using shlicc2 on BSD/OS 2.1 and BSD/OS 3.x to use loadable
+!     builtins
+  
+  3.  Bash cannot be built in a directory separate from the source directory
+***************
+*** 45,50 ****
+  
+  5.  There is a problem with Red Hat Linux's `makewhatis' script.
+!     Running `makewhatis' with bash-2.0 results in error messages
+!     like this:
+  
+      /usr/sbin/makewhatis: cd: manpath: No such file or directory
+--- 49,54 ----
+  
+  5.  There is a problem with Red Hat Linux's `makewhatis' script.
+!     Running `makewhatis' with bash-2.0 or later versions results
+!     in error messages like this:
+  
+      /usr/sbin/makewhatis: cd: manpath: No such file or directory
+diff -Nrc2 bash-2.02/README bash-2.02.1/README
+*** bash-2.02/README	Wed Feb 12 14:00:37 1997
+--- bash-2.02.1/README	Thu Jul 23 10:37:26 1998
+***************
+*** 2,6 ****
+  ============
+  
+! This is GNU Bash, version 2.01.  Bash is the GNU Project's Bourne
+  Again SHell, a complete implementation of the POSIX.2 shell spec,
+  but also with interactive command line editing, job control on
+--- 2,6 ----
+  ============
+  
+! This is GNU Bash, version 2.02.1.  Bash is the GNU Project's Bourne
+  Again SHell, a complete implementation of the POSIX.2 shell spec,
+  but also with interactive command line editing, job control on
+***************
+*** 50,54 ****
+  ==============
+  
+! Bug reports for bash-2.01 should be sent to:
+  
+  	bug-bash@prep.ai.mit.edu
+--- 50,54 ----
+  ==============
+  
+! Bug reports for bash-2.02.1 should be sent to:
+  
+  	bug-bash@prep.ai.mit.edu
+***************
+*** 68,72 ****
+  information:
+  
+! 	* the version number and release status of Bash (e.g., 2.01-release)
+  	* the machine and OS that it is running on (look at the file
+  	  `.made' in the bash build directory)
+--- 68,72 ----
+  information:
+  
+! 	* the version number and release status of Bash (e.g., 2.02.1-release)
+  	* the machine and OS that it is running on (look at the file
+  	  `.made' in the bash build directory)
+diff -Nrc2 bash-2.02/bashline.c bash-2.02.1/bashline.c
+*** bash-2.02/bashline.c	Tue Feb 17 12:09:43 1998
+--- bash-2.02.1/bashline.c	Tue Jun 30 12:37:13 1998
+***************
+*** 214,218 ****
+--- 214,220 ----
+  #ifdef ALIAS
+    rl_add_defun ("alias-expand-line", (Function *)alias_expand_line, -1);
++ #  ifdef BANG_HISTORY
+    rl_add_defun ("history-and-alias-expand-line", (Function *)history_and_alias_expand_line, -1);
++ #  endif
+  #endif
+  
+***************
+*** 539,543 ****
+  
+        /* OK, it matches.  Add it to the list. */
+!       if (nmatch >= rsize)
+  	{
+  	  rsize = (rsize + 16) - (rsize % 16);
+--- 541,545 ----
+  
+        /* OK, it matches.  Add it to the list. */
+!       if (nmatch >= (rsize - 1))
+  	{
+  	  rsize = (rsize + 16) - (rsize % 16);
+diff -Nrc2 bash-2.02/builtins/cd.def bash-2.02.1/builtins/cd.def
+*** bash-2.02/builtins/cd.def	Tue Mar 17 13:50:51 1998
+--- bash-2.02.1/builtins/cd.def	Tue Jun 30 12:09:35 1998
+***************
+*** 264,268 ****
+  		     the shell is interactive. */
+  		  if (opt)
+! 		    printf ("%s\n", the_current_working_directory);
+  
+  		  free (temp);
+--- 264,268 ----
+  		     the shell is interactive. */
+  		  if (opt)
+! 		    printf ("%s\n", no_symlinks ? temp : the_current_working_directory);
+  
+  		  free (temp);
+***************
+*** 277,282 ****
+  	  /* POSIX.2 says that if `.' does not appear in $CDPATH, we don't
+  	     try the current directory, so we just punt now with an error
+! 	     message if POSIXLY_CORRECT is non-zero. */
+! 	  if (posixly_correct)
+  	    {
+  	      builtin_error ("%s: %s", dirname, strerror (ENOENT));
+--- 277,284 ----
+  	  /* POSIX.2 says that if `.' does not appear in $CDPATH, we don't
+  	     try the current directory, so we just punt now with an error
+! 	     message if POSIXLY_CORRECT is non-zero.  The check for cdpath[0]
+! 	     is so we don't mistakenly treat a CDPATH value of "" as not
+! 	     specifying the current directory. */
+! 	  if (posixly_correct && cdpath[0])
+  	    {
+  	      builtin_error ("%s: %s", dirname, strerror (ENOENT));
+diff -Nrc2 bash-2.02/builtins/exec.def bash-2.02.1/builtins/exec.def
+*** bash-2.02/builtins/exec.def	Thu Jul 10 11:49:51 1997
+--- bash-2.02.1/builtins/exec.def	Tue Jun 30 12:26:20 1998
+***************
+*** 192,195 ****
+--- 192,200 ----
+  
+    shell_execve (command, args, env);
++ 
++   /* We have to set this to NULL because shell_execve has called realloc()
++      to stuff more items at the front of the array, which may have caused
++      the memory to be freed by realloc().  We don't want to free it twice. */
++   args = (char **)NULL;
+    if (cleanenv == 0)
+      adjust_shell_level (1);
+diff -Nrc2 bash-2.02/builtins/printf.def bash-2.02.1/builtins/printf.def
+*** bash-2.02/builtins/printf.def	Thu Jan 29 15:06:57 1998
+--- bash-2.02.1/builtins/printf.def	Tue Jun 30 12:09:41 1998
+***************
+*** 130,133 ****
+--- 130,137 ----
+    garglist = list->next;
+  
++   /* If the format string is empty after preprocessing, return immediately. */
++   if (format == 0 || *format == 0)
++     return (EXECUTION_SUCCESS);
++ 	  
+    /* Basic algorithm is to scan the format string for conversion
+       specifications -- once one is found, find out if the field
+***************
+*** 306,310 ****
+  	}
+      }
+!   while (garglist);
+  
+    PRETURN (retval);
+--- 310,314 ----
+  	}
+      }
+!   while (garglist && garglist != list->next);
+  
+    PRETURN (retval);
+diff -Nrc2 bash-2.02/configure bash-2.02.1/configure
+*** bash-2.02/configure	Thu Apr 16 10:42:52 1998
+--- bash-2.02.1/configure	Thu Jul 16 15:09:16 1998
+***************
+*** 726,730 ****
+  sparc-svr4*)	opt_gnu_malloc=no ;;	# sparc SVR4, SVR4.2
+  sparc-netbsd*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+! sgi-irix6*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+  sparc-linux*)	opt_gnu_malloc=no ;;	# sparc running linux; requires ELF
+  #*-freebsd*)	opt_gnu_malloc=no ;;	# they claim it's better
+--- 726,730 ----
+  sparc-svr4*)	opt_gnu_malloc=no ;;	# sparc SVR4, SVR4.2
+  sparc-netbsd*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+! #mips-irix6*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+  sparc-linux*)	opt_gnu_malloc=no ;;	# sparc running linux; requires ELF
+  #*-freebsd*)	opt_gnu_malloc=no ;;	# they claim it's better
+***************
+*** 1114,1118 ****
+  
+  BASHVERS=2.02
+! BASHPATCH=0
+  
+  echo "Beginning configuration for bash-$BASHVERS for ${host_cpu}-${host_vendor}-${host_os}"
+--- 1114,1118 ----
+  
+  BASHVERS=2.02
+! BASHPATCH=1
+  
+  echo "Beginning configuration for bash-$BASHVERS for ${host_cpu}-${host_vendor}-${host_os}"
+diff -Nrc2 bash-2.02/configure.in bash-2.02.1/configure.in
+*** bash-2.02/configure.in	Wed Mar  4 10:22:48 1998
+--- bash-2.02.1/configure.in	Thu Jul 16 15:08:21 1998
+***************
+*** 39,43 ****
+  sparc-svr4*)	opt_gnu_malloc=no ;;	# sparc SVR4, SVR4.2
+  sparc-netbsd*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+! sgi-irix6*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+  sparc-linux*)	opt_gnu_malloc=no ;;	# sparc running linux; requires ELF
+  #*-freebsd*)	opt_gnu_malloc=no ;;	# they claim it's better
+--- 39,43 ----
+  sparc-svr4*)	opt_gnu_malloc=no ;;	# sparc SVR4, SVR4.2
+  sparc-netbsd*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+! #mips-irix6*)	opt_gnu_malloc=no ;;	# needs 8-byte alignment
+  sparc-linux*)	opt_gnu_malloc=no ;;	# sparc running linux; requires ELF
+  #*-freebsd*)	opt_gnu_malloc=no ;;	# they claim it's better
+diff -Nrc2 bash-2.02/copy_cmd.c bash-2.02.1/copy_cmd.c
+*** bash-2.02/copy_cmd.c	Thu Jan 29 14:49:11 1998
+--- bash-2.02.1/copy_cmd.c	Tue Jun 30 12:09:37 1998
+***************
+*** 230,234 ****
+    new_cond->flags = com->flags;
+    new_cond->line = com->line;
+!   new_cond->op = copy_word (com->op);
+    new_cond->left = com->left ? copy_cond_command (com->left) : (COND_COM *)NULL;
+    new_cond->right = com->right ? copy_cond_command (com->right) : (COND_COM *)NULL;
+--- 230,235 ----
+    new_cond->flags = com->flags;
+    new_cond->line = com->line;
+!   new_cond->type = com->type;
+!   new_cond->op = com->op ? copy_word (com->op) : com->op;
+    new_cond->left = com->left ? copy_cond_command (com->left) : (COND_COM *)NULL;
+    new_cond->right = com->right ? copy_cond_command (com->right) : (COND_COM *)NULL;
+diff -Nrc2 bash-2.02/doc/FAQ bash-2.02.1/doc/FAQ
+*** bash-2.02/doc/FAQ	Thu Apr 16 13:31:25 1998
+--- bash-2.02.1/doc/FAQ	Fri Jul 10 12:46:28 1998
+***************
+*** 1,3 ****
+! This is the Bash FAQ, version 2.11, for Bash version 2.02.
+  
+  This document contains a set of frequently-asked questions concerning
+--- 1,3 ----
+! This is the Bash FAQ, version 2.13, for Bash version 2.02.
+  
+  This document contains a set of frequently-asked questions concerning
+***************
+*** 151,157 ****
+  
+  Configuration specifics for Unix-like systems such as QNX and
+! LynxOS are included in the distribution.  Previous versions of
+! bash have been ported to Minix, but I don't believe anyone has
+! built bash-2.x on Minix yet.
+  
+  Bash has been ported to versions of Windows implementing the Win32
+--- 151,158 ----
+  
+  Configuration specifics for Unix-like systems such as QNX and
+! LynxOS are included in the distribution.  Bash-2.02 should 
+! compile and run on Minix 2.0 (patches were contributed), but I
+! don't believe anyone has built bash-2.x on earlier Minix versions
+! yet.
+  
+  Bash has been ported to versions of Windows implementing the Win32
+***************
+*** 175,181 ****
+  ftp://ftp.gnustep.org//pub/win32/bash-alpha-nt-1.01.tar.gz
+  
+! Softway Systems has ported bash-2.01.1 to their OpenNT system, a
+! Unix subsystem for NT that replaces the Microsoft POSIX subsystem.
+! Check out http://www.opennt.com for more information.
+  
+  D. J. Delorie has ported bash-1.14.7 to run under MS-DOS, as part of
+--- 176,182 ----
+  ftp://ftp.gnustep.org//pub/win32/bash-alpha-nt-1.01.tar.gz
+  
+! Softway Systems has ported bash-2.01.1 to their Interix (nee OpenNT)
+! system, a Unix subsystem for NT that replaces the Microsoft POSIX
+! subsystem.  Check out http://www.interix.com for more information.
+  
+  D. J. Delorie has ported bash-1.14.7 to run under MS-DOS, as part of
+***************
+*** 404,407 ****
+--- 405,410 ----
+  	new $'...' and $"..." quoting
+  	the $(...) form of command substitution
++ 	the $(<filename) form of command substitution, equivalent to
++ 		$(cat filename)
+  	the ${#param} parameter value length operator
+  	the ${!param} indirect parameter expansion operator
+***************
+*** 414,418 ****
+  		   LINENO, HISTCMD, HOSTTYPE, OSTYPE, MACHTYPE, HOSTNAME,
+  		   ENV, PS3, PS4, DIRSTACK, PIPESTATUS, HISTSIZE, HISTFILE,
+! 		   HISTFILESIZE, HISTCONTROL, HISTIGNORE, GLOBIGNORE,
+  		   PROMPT_COMMAND, FCEDIT, FIGNORE, IGNOREEOF, INPUTRC,
+  		   SHELLOPTS, OPTERR, HOSTFILE, TMOUT, histchars, auto_resume
+--- 417,421 ----
+  		   LINENO, HISTCMD, HOSTTYPE, OSTYPE, MACHTYPE, HOSTNAME,
+  		   ENV, PS3, PS4, DIRSTACK, PIPESTATUS, HISTSIZE, HISTFILE,
+! 		   HISTFILESIZE, HISTCONTROL, HISTIGNORE, GLOBIGNORE, GROUPS,
+  		   PROMPT_COMMAND, FCEDIT, FIGNORE, IGNOREEOF, INPUTRC,
+  		   SHELLOPTS, OPTERR, HOSTFILE, TMOUT, histchars, auto_resume
+***************
+*** 437,440 ****
+--- 440,444 ----
+  	tilde expansion
+  	arithmetic expansion with $((...)) and `let' builtin
++ 	the `[[...]]' extended conditional command
+  	process substitution
+  	aliases and alias/unalias builtins
+***************
+*** 445,451 ****
+  	other new bash builtins: bind, command, builtin, declare/typeset,
+  				 dirs, enable, fc, help, history, logout,
+! 				 popd, pushd, disown, shopt
+  	exported functions
+  	filename generation when using output redirection (command >a*)
+  	variable assignments preceding commands affect only that command,
+  		even for builtins and functions
+--- 449,460 ----
+  	other new bash builtins: bind, command, builtin, declare/typeset,
+  				 dirs, enable, fc, help, history, logout,
+! 				 popd, pushd, disown, shopt, printf
+  	exported functions
+  	filename generation when using output redirection (command >a*)
++ 	POSIX.2-style globbing character classes
++ 	POSIX.2-style globbing equivalence classes
++ 	POSIX.2-style globbing collating symbols
++ 	egrep-like extended pattern matching operators
++ 	case-insensitive pattern matching and globbing
+  	variable assignments preceding commands affect only that command,
+  		even for builtins and functions
+***************
+*** 494,498 ****
+  		   IGNOREEOF, FIGNORE, INPUTRC, HOSTFILE, DIRSTACK,
+  		   PIPESTATUS, HOSTNAME, OPTERR, SHELLOPTS, GLOBIGNORE,
+! 		   histchars, auto_resume
+  	prompt expansion with backslash escapes and command substitution
+  	redirection: &> (stdout and stderr)
+--- 503,507 ----
+  		   IGNOREEOF, FIGNORE, INPUTRC, HOSTFILE, DIRSTACK,
+  		   PIPESTATUS, HOSTNAME, OPTERR, SHELLOPTS, GLOBIGNORE,
+! 		   GROUPS, histchars, auto_resume
+  	prompt expansion with backslash escapes and command substitution
+  	redirection: &> (stdout and stderr)
+***************
+*** 505,517 ****
+  		  -o posix/-o hashall/-o onecmd/-h/-B/-C/-b/-H/-P, set +o,
+  		  suspend, trap -l, type, typeset -a/-F/-p, ulimit -u,
+! 		  umask -S, alias -p, shopt, disown
+  	`!' csh-style history expansion
+  
+  Things ksh88 has or uses that bash does not:
+- 	new version of test: [[...]]
+  	tracked aliases
+- 	$(<file)	
+  	variables: ERRNO, FPATH, COLUMNS, LINES, EDITOR, VISUAL
+- 	extended pattern matching with egrep-style pattern lists
+  	co-processes (|&, >&p, <&p)
+  	weirdly-scoped functions
+--- 514,529 ----
+  		  -o posix/-o hashall/-o onecmd/-h/-B/-C/-b/-H/-P, set +o,
+  		  suspend, trap -l, type, typeset -a/-F/-p, ulimit -u,
+! 		  umask -S, alias -p, shopt, disown, printf
+  	`!' csh-style history expansion
++ 	POSIX.2-style globbing character classes
++ 	POSIX.2-style globbing equivalence classes
++ 	POSIX.2-style globbing collating symbols
++ 	egrep-like extended pattern matching operators
++ 	case-insensitive pattern matching and globbing
++ 	`**' arithmetic operator to do exponentiation
+  
+  Things ksh88 has or uses that bash does not:
+  	tracked aliases
+  	variables: ERRNO, FPATH, COLUMNS, LINES, EDITOR, VISUAL
+  	co-processes (|&, >&p, <&p)
+  	weirdly-scoped functions
+***************
+*** 548,552 ****
+  		   .sh.version, .sh.name, .sh.subscript, .sh.value
+  	backreferences in pattern matching
+! 	print -f (bash has a loadable version)
+  	`fc' has been renamed to `hist'
+  	read -t/-d
+--- 560,564 ----
+  		   .sh.version, .sh.name, .sh.subscript, .sh.value
+  	backreferences in pattern matching
+! 	print -f (bash has a loadable version of print and the printf builtin)
+  	`fc' has been renamed to `hist'
+  	read -t/-d
+***************
+*** 713,722 ****
+  ksh-88 feature		Bash equivalent
+  --------------		---------------
+- [[...]]			can usually use [...]; minor differences (no
+- 			pattern matching, for one)
+  compiled-in aliases	set up aliases in .bashrc; some ksh aliases are
+  			bash builtins (hash, history, type)
+- $(<file)		$(cat file)
+- extended patterns	no good substitute
+  coprocesses		named pipe pairs (one for read, one for write)
+  typeset +f		declare -F
+--- 725,730 ----
+***************
+*** 1147,1151 ****
+  in bash-2.0.  
+  
+! A second edition of this book is available, just published in January, 1998.
+  The ISBN number is 1-56592-347-2.  Look for it in the same fine bookstores
+  or on the web.
+--- 1155,1159 ----
+  in bash-2.0.  
+  
+! A second edition of this book is available, published in January, 1998.
+  The ISBN number is 1-56592-347-2.  Look for it in the same fine bookstores
+  or on the web.
+diff -Nrc2 bash-2.02/examples/scripts.v2/repeat bash-2.02.1/examples/scripts.v2/repeat
+*** bash-2.02/examples/scripts.v2/repeat	Wed May 10 16:57:32 1995
+--- bash-2.02.1/examples/scripts.v2/repeat	Mon Jun 29 10:45:15 1998
+***************
+*** 78,81 ****
+--- 78,82 ----
+      count=${1%-}
+      forever=1
++     end="-1";
+      ;;
+  -[0-9]*-[0-9]*|[0-9]*-[0-9]*)
+***************
+*** 93,96 ****
+--- 94,98 ----
+  -)
+      forever=1
++     end="-1";
+      ;;
+  *) 
+diff -Nrc2 bash-2.02/execute_cmd.c bash-2.02.1/execute_cmd.c
+*** bash-2.02/execute_cmd.c	Wed Mar 25 11:36:22 1998
+--- bash-2.02.1/execute_cmd.c	Fri Jul 10 11:49:07 1998
+***************
+*** 2277,2281 ****
+    WORD_LIST *words, *lastword;
+    char *command_line, *lastarg, *temp;
+!   int first_word_quoted, result, builtin_is_special, already_forked;
+    pid_t old_last_command_subst_pid;
+    Function *builtin;
+--- 2277,2281 ----
+    WORD_LIST *words, *lastword;
+    char *command_line, *lastarg, *temp;
+!   int first_word_quoted, result, builtin_is_special, already_forked, dofork;
+    pid_t old_last_command_subst_pid;
+    Function *builtin;
+***************
+*** 2299,2304 ****
+    old_last_command_subst_pid = last_command_subst_pid;
+  
+!   already_forked = 0;
+!   if (pipe_in != NO_PIPE || pipe_out != NO_PIPE || async)
+      {
+        /* XXX memory leak if expand_words() error causes a jump_to_top_level */
+--- 2299,2319 ----
+    old_last_command_subst_pid = last_command_subst_pid;
+  
+!   already_forked = dofork = 0;
+! 
+!   /* If we're in a pipeline or run in the background, set DOFORK so we
+!      make the child early, before word expansion.  This keeps assignment
+!      statements from affecting the parent shell's environment when they
+!      should not. */
+!   dofork = pipe_in != NO_PIPE || pipe_out != NO_PIPE || async;
+! 
+!   /* Something like `%2 &' should restart job 2 in the background, not cause
+!      the shell to fork here. */
+!   if (dofork && pipe_in == NO_PIPE && pipe_out == NO_PIPE &&
+! 	simple_command->words && simple_command->words->word &&
+! 	simple_command->words->word->word &&
+! 	(simple_command->words->word->word[0] == '%'))
+!     dofork = 0;
+! 
+!   if (dofork)
+      {
+        /* XXX memory leak if expand_words() error causes a jump_to_top_level */
+***************
+*** 2313,2317 ****
+  	  pipe_in = pipe_out = -1;
+  
+! 	  subshell_environment = SUBSHELL_ASYNC;
+  	}
+        else
+--- 2328,2332 ----
+  	  pipe_in = pipe_out = -1;
+  
+! 	  subshell_environment = async ? SUBSHELL_ASYNC : SUBSHELL_FORK;
+  	}
+        else
+diff -Nrc2 bash-2.02/jobs.c bash-2.02.1/jobs.c
+*** bash-2.02/jobs.c	Mon Apr  6 16:06:34 1998
+--- bash-2.02.1/jobs.c	Tue Jun 30 12:35:46 1998
+***************
+*** 926,932 ****
+  	    {
+  	      if (WIFSTOPPED (show->status))
+! 		temp = strsignal (WSTOPSIG (show->status));
+  	      else if (WIFSIGNALED (show->status))
+! 		temp = strsignal (WTERMSIG (show->status));
+  	      else if (WIFEXITED (show->status))
+  		{
+--- 926,932 ----
+  	    {
+  	      if (WIFSTOPPED (show->status))
+! 		temp = (char *)strsignal (WSTOPSIG (show->status));
+  	      else if (WIFSIGNALED (show->status))
+! 		temp = (char *)strsignal (WTERMSIG (show->status));
+  	      else if (WIFEXITED (show->status))
+  		{
+***************
+*** 1192,1196 ****
+  	    {
+  #endif
+! 	      if (async_p == 0)
+  		give_terminal_to (pipeline_pgrp);
+  
+--- 1192,1196 ----
+  	    {
+  #endif
+! 	      if (async_p == 0 && pipeline_pgrp != shell_pgrp)
+  		give_terminal_to (pipeline_pgrp);
+  
+diff -Nrc2 bash-2.02/lib/glob/fnmatch.c bash-2.02.1/lib/glob/fnmatch.c
+*** bash-2.02/lib/glob/fnmatch.c	Wed Jan  7 15:04:58 1998
+--- bash-2.02.1/lib/glob/fnmatch.c	Tue Jun 30 12:28:08 1998
+***************
+*** 38,44 ****
+  /* Note that these evaluate C many times.  */
+  
+- #define ISUPPER(c)	(isascii (c) && isupper (c))
+- #define ISLOWER(c)	(isascii (c) && islower (c))
+- 
+  #ifndef isblank
+  #  define isblank(c)	((c) == ' ' || (c) == '\t')
+--- 38,41 ----
+***************
+*** 53,57 ****
+  #endif
+  
+! # define FOLD(c) ((flags & FNM_CASEFOLD) && ISUPPER (c) ? tolower (c) : (c))
+  
+  #ifndef STREQ
+--- 50,57 ----
+  #endif
+  
+! /* The result of FOLD is an `unsigned char' */
+! # define FOLD(c) ((flags & FNM_CASEFOLD) && isupper ((unsigned char)c) \
+! 	? tolower ((unsigned char)c) \
+! 	: ((unsigned char)c))
+  
+  #ifndef STREQ
+***************
+*** 191,195 ****
+  	      c = FOLD (c);
+  	    }
+! 	  if (FOLD (sc) != c)
+  	    return FNM_NOMATCH;
+  	  break;
+--- 191,195 ----
+  	      c = FOLD (c);
+  	    }
+! 	  if (FOLD (sc) != (unsigned char)c)
+  	    return FNM_NOMATCH;
+  	  break;
+***************
+*** 241,247 ****
+  	  /* General case, use recursion. */
+  	  {
+! 	    char c1;
+  
+! 	    c1 = ((flags & FNM_NOESCAPE) == 0 && c == '\\') ? *p : c;
+  	    c1 = FOLD (c1);
+  	    for (--p; n < se; ++n)
+--- 241,247 ----
+  	  /* General case, use recursion. */
+  	  {
+! 	    unsigned char c1;
+  
+! 	    c1 = (unsigned char)((flags & FNM_NOESCAPE) == 0 && c == '\\') ? *p : c;
+  	    c1 = FOLD (c1);
+  	    for (--p; n < se; ++n)
+***************
+*** 273,277 ****
+  
+  	default:
+! 	  if (c != FOLD (sc))
+  	    return (FNM_NOMATCH);
+  	}
+--- 273,277 ----
+  
+  	default:
+! 	  if ((unsigned char)c != FOLD (sc))
+  	    return (FNM_NOMATCH);
+  	}
+***************
+*** 379,383 ****
+  	    { pc = isgraph (test); p += 8; }
+  	  else if (STREQN (p+1, "lower:]", 7))
+! 	    { pc = ISLOWER (test); p += 8; }
+  	  else if (STREQN (p+1, "print:]", 7))
+  	    { pc = isprint (test); p += 8; }
+--- 379,383 ----
+  	    { pc = isgraph (test); p += 8; }
+  	  else if (STREQN (p+1, "lower:]", 7))
+! 	    { pc = islower (test); p += 8; }
+  	  else if (STREQN (p+1, "print:]", 7))
+  	    { pc = isprint (test); p += 8; }
+***************
+*** 387,391 ****
+  	    { pc = isspace (test); p += 8; }
+  	  else if (STREQN (p+1, "upper:]", 7))
+! 	    { pc = ISUPPER (test); p += 8; }
+  	  else if (STREQN (p+1, "xdigit:]", 8))
+  	    { pc = isxdigit (test); p += 9; }
+--- 387,391 ----
+  	    { pc = isspace (test); p += 8; }
+  	  else if (STREQN (p+1, "upper:]", 7))
+! 	    { pc = isupper (test); p += 8; }
+  	  else if (STREQN (p+1, "xdigit:]", 8))
+  	    { pc = isxdigit (test); p += 9; }
+diff -Nrc2 bash-2.02/lib/malloc/malloc.c bash-2.02.1/lib/malloc/malloc.c
+*** bash-2.02/lib/malloc/malloc.c	Tue Nov 11 12:06:03 1997
+--- bash-2.02.1/lib/malloc/malloc.c	Tue Jun 30 12:09:29 1998
+***************
+*** 185,189 ****
+     done. */
+  union mhead {
+!   union mhead *mh_align;
+    struct {
+      char     mi_alloc;	/* ISALLOC or ISFREE */		/* 1 */
+--- 185,189 ----
+     done. */
+  union mhead {
+!   double mh_align;
+    struct {
+      char     mi_alloc;	/* ISALLOC or ISFREE */		/* 1 */
+diff -Nrc2 bash-2.02/lib/readline/display.c bash-2.02.1/lib/readline/display.c
+*** bash-2.02/lib/readline/display.c	Mon Aug  4 15:54:23 1997
+--- bash-2.02.1/lib/readline/display.c	Tue Jun 30 12:09:32 1998
+***************
+*** 424,428 ****
+--- 424,435 ----
+    while (lpos >= screenwidth)
+      {
++ #if 0
+        temp = ((newlines + 1) * screenwidth) - ((newlines == 0) ? wrap_offset : 0);
++ #else
++       /* XXX - possible fix from Darin Johnson <darin@acuson.com> for prompt
++ 	 string with invisible characters that is longer than the screen
++ 	 width. */
++       temp = ((newlines + 1) * screenwidth) + ((newlines == 0) ? wrap_offset : 0);
++ #endif
+        inv_lbreaks[++newlines] = temp;
+        lpos -= screenwidth;
+diff -Nrc2 bash-2.02/make_cmd.c bash-2.02.1/make_cmd.c
+*** bash-2.02/make_cmd.c	Fri Sep 12 14:21:01 1997
+--- bash-2.02.1/make_cmd.c	Tue Jun 30 12:09:08 1998
+***************
+*** 493,497 ****
+        if (len + document_index >= document_size)
+  	{
+! 	  document_size = document_size ? 2 * (document_size + len) : 1000;
+  	  document = xrealloc (document, document_size);
+  	}
+--- 493,497 ----
+        if (len + document_index >= document_size)
+  	{
+! 	  document_size = document_size ? 2 * (document_size + len) : len + 2;
+  	  document = xrealloc (document, document_size);
+  	}
+diff -Nrc2 bash-2.02/shell.c bash-2.02.1/shell.c
+*** bash-2.02/shell.c	Mon Feb 23 10:43:36 1998
+--- bash-2.02.1/shell.c	Thu May 21 13:17:13 1998
+***************
+*** 1391,1397 ****
+  
+    /* Line buffer output for stderr and stdout. */
+- #if defined (SunOS5)
+    if (shell_initialized == 0)
+- #endif
+      {
+        setlinebuf (stderr);
+--- 1391,1395 ----
+diff -Nrc2 bash-2.02/subst.c bash-2.02.1/subst.c
+*** bash-2.02/subst.c	Thu Apr  9 20:48:12 1998
+--- bash-2.02.1/subst.c	Tue Jun 30 12:09:45 1998
+***************
+*** 5034,5038 ****
+  	      if (list->next)
+  		{
+! 		  temp = string_list (quote_list (list));
+  		  dispose_words (list);
+  		  goto add_string;
+--- 5034,5042 ----
+  	      if (list->next)
+  		{
+! 		  /* Testing quoted_dollar_at makes sure that "$@" is
+! 		     split correctly when $IFS does not contain a space. */
+! 		  temp = quoted_dollar_at
+! 				? string_list_dollar_at (list, Q_DOUBLE_QUOTES)
+! 				: string_list (quote_list (list));
+  		  dispose_words (list);
+  		  goto add_string;
+diff -Nrc2 bash-2.02/support/config.guess bash-2.02.1/support/config.guess
+*** bash-2.02/support/config.guess	Fri Mar 27 16:37:51 1998
+--- bash-2.02.1/support/config.guess	Tue Jun 30 12:32:37 1998
+***************
+*** 738,741 ****
+--- 738,746 ----
+  	echo i386-sequent-sysv4
+  	exit 0 ;;
++ # added by chet for bash based on usenet posting from <hops@sco.com> and
++ # documentation on SCO's web site -- UnixWare 7 (SVR5)
++     i?86:UnixWare:5*:*)
++ 	echo ${UNAME_MACHINE}-pc-sysv5uw${UNAME_VERSION}
++ 	exit 0 ;;
+      i?86:UNIX_SV:4.2MP:2.*)
+  	# Unixware is an offshoot of SVR4, but it has its own version
+diff -Nrc2 bash-2.02/support/config.sub bash-2.02.1/support/config.sub
+*** bash-2.02/support/config.sub	Wed Oct  8 11:03:43 1997
+--- bash-2.02.1/support/config.sub	Tue Jun 30 12:32:38 1998
+***************
+*** 103,107 ****
+  		;;
+  	-sco5)
+! 		os=sco3.2v5
+  		basic_machine=`echo $1 | sed -e 's/86-.*/86-pc/'`
+  		;;
+--- 103,107 ----
+  		;;
+  	-sco5)
+! 		os=-sco3.2v5
+  		basic_machine=`echo $1 | sed -e 's/86-.*/86-pc/'`
+  		;;
+***************
+*** 176,180 ****
+  	      | none-* | 580-* | cray2-* | h8300-* | i960-* | xmp-* | ymp-* \
+  	      | hppa-* | hppa1.0-* | hppa1.1-* | hppa2.0-* \
+! 	      | alpha-* | we32k-* | cydra-* | ns16k-* \
+  	      | pn-* | np1-* | xps100-* | clipper-* | orion-* | sparclite-* \
+  	      | pdp11-* | sh-* | powerpc-* | powerpcle-* | sparc64-* | mips64-* | mipsel-* \
+--- 176,181 ----
+  	      | none-* | 580-* | cray2-* | h8300-* | i960-* | xmp-* | ymp-* \
+  	      | hppa-* | hppa1.0-* | hppa1.1-* | hppa2.0-* \
+! 	      | alpha-* | alphaev5-* | alphaev56-* | alphapca56-* | alphaev6-* \
+! 	      | we32k-* | cydra-* | ns16k-* \
+  	      | pn-* | np1-* | xps100-* | clipper-* | orion-* | sparclite-* \
+  	      | pdp11-* | sh-* | powerpc-* | powerpcle-* | sparc64-* | mips64-* | mipsel-* \
+***************
+*** 455,458 ****
+--- 456,467 ----
+  		basic_machine=np1-gould
+  		;;
++ 	osr5 | sco5)	# SCO Open Server
++ 		basic_machine=i386-pc
++ 		os=-sco3.2v5
++ 		;;
++ 	odt | odt3 | odt4)	# SCO Open Desktop
++ 		basic_machine=i386-pc
++ 		os=-sco3.2v4
++ 		;;
+  	pa-hitachi)
+  		basic_machine=hppa1.1-hitachi
+***************
+*** 585,588 ****
+--- 594,605 ----
+  		os=-sym1
+  		;;
++ 	uw2 | unixware | unixware2)
++ 		basic_machine=i386-pc
++ 		os=-sysv4.2uw2.1
++ 		;;
++ 	uw7 | unixware7)
++ 		basic_machine=i386-pc
++ 		os=-sysv5uw7
++ 		;;
+  	vaxv)
+  		basic_machine=vax-dec
+***************
+*** 684,690 ****
+  		os=-solaris2
+  		;;
+! 	-unixware* | svr4*)
+  		os=-sysv4
+  		;;
+  	-gnu/linux*)
+  		os=`echo $os | sed -e 's|gnu/linux|linux-gnu|'`
+--- 701,713 ----
+  		os=-solaris2
+  		;;
+! 	svr4*)
+  		os=-sysv4
+  		;;
++ 	-unixware | -uw | -unixware2* | -uw2*)
++ 		os=-sysv4.2uw2.1
++ 		;;
++ 	-unixware7* | -uw7*)
++ 		os=-sysv5uw7
++ 		;;
+  	-gnu/linux*)
+  		os=`echo $os | sed -e 's|gnu/linux|linux-gnu|'`
+***************
+*** 760,764 ****
+  		os=-sysv4
+  		;;
+! 	# This must come after -sysvr4.
+  	-sysv*)
+  		;;
+--- 783,790 ----
+  		os=-sysv4
+  		;;
+! 	-sysvr5)
+! 		os=-sysv5
+! 		;;
+! 	# This must come after -sysvr[45].
+  	-sysv*)
+  		;;

@@ -1,0 +1,10 @@
+@ignore
+Copyright (C) 1988-2016 Free Software Foundation, Inc. 
+@end ignore
+
+@set EDITION 7.0
+@set VERSION 7.0
+@set UPDATED 25 January 2016
+@set UPDATED-MONTH January 2016
+
+@set LASTCHANGE Mon Jan 25 10:08:41 EST 2016

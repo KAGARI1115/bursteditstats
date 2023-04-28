@@ -1,0 +1,4089 @@
+*** bash-1.14.0/.patchlevel	Thu Jun  2 09:36:36 1994
+--- bash-1.14.1/.patchlevel	Fri Jul  1 11:21:54 1994
+***************
+*** 1 ****
+! 0
+--- 1 ----
+! 1
+*** bash-1.14.0/INSTALL	Thu Jun  2 09:35:15 1994
+--- bash-1.14.1/INSTALL	Fri Jul  1 11:20:43 1994
+***************
+*** 17,21 ****
+  to install BASH:
+  
+!   1. Type `make'.
+  
+    2. Wait for the compilation to finish.
+--- 17,22 ----
+  to install BASH:
+  
+!   1. Type `make'.  If you want to use GCC to compile bash, type
+!      `make CC=gcc CPPNAME="$(CC) -E"'.
+  
+    2. Wait for the compilation to finish.
+***************
+*** 51,57 ****
+  However, if BASH says that your machine type is an
+  "UNKNOWN_MACHINE", or BASH thought it knew something about your
+! machine but was wrong, then reading the next few sections could be
+! of use to you (*note Files::., and *note Porting::., for more
+! information).
+  
+  On the MIPSEB with the BSD universe, you must:
+--- 52,58 ----
+  However, if BASH says that your machine type is an
+  "UNKNOWN_MACHINE", or BASH thought it knew something about your
+! machine but was wrong, then reading the next few sections could
+! be of use to you (*note Files::., and *note Porting::., for more
+! information). 
+  
+  On the MIPSEB with the BSD universe, you must:
+***************
+*** 86,90 ****
+       reasonable number of `ifdefs' which control what files get
+       compiled and which flags are passed to the various C files
+!      comprising BASH.  It includes a file called `machines.h',
+       `sysdefs.h', and `config.h'.
+  
+--- 87,91 ----
+       reasonable number of `ifdefs' which control what files get
+       compiled and which flags are passed to the various C files
+!      comprising BASH.  It includes files named `machines.h',
+       `sysdefs.h', and `config.h'.
+  
+***************
+*** 103,109 ****
+  `sysdefs.h'
+       This file is dynamically made at build time by running the shell
+!      script `makeargs.sh'.  If there appears to be something wrong in
+!      this file, then edit the `makeargs.sh' script, and mail the
+!      changes that you make to bash-maintainers@ai.mit.edu.
+  
+  `bash-Makefile'
+--- 104,110 ----
+  `sysdefs.h'
+       This file is dynamically made at build time by running the shell
+!      script `support/mksydefs'.  If there appears to be something wrong
+!      in this file, then edit the `mksysdefs' script, and mail the
+!      changes that you make to bash-maintainers@prep.ai.mit.edu.
+  
+  `bash-Makefile'
+***************
+*** 159,163 ****
+  default values is sufficient.  If you do run across a difficult
+  machine, please send all fixes and changes to
+! bash-maintainers@ai.mit.edu in the form of context diffs:
+  
+       diff -c orig-machines.h machines.h >machines.diffs
+--- 160,164 ----
+  default values is sufficient.  If you do run across a difficult
+  machine, please send all fixes and changes to
+! bash-maintainers@prep.ai.mit.edu in the form of context diffs:
+  
+       diff -c orig-machines.h machines.h >machines.diffs
+***************
+*** 180,187 ****
+  Once you have ascertained that a bug really exists, you are welcome
+  to mail in a bug report.  If you have a fix, please mail that too!
+  
+  Suggestions and "philosophical" bug reports should be mailed to
+  bug-bash@ai.mit.edu.  Genuine bug reports should be mailed to the
+! same place, or to bash-maintainers@ai.mit.edu.
+  
+  *All* bug reports should include:
+--- 181,190 ----
+  Once you have ascertained that a bug really exists, you are welcome
+  to mail in a bug report.  If you have a fix, please mail that too!
++ The program `bashbug' is used to submit bug reports.
+  
+  Suggestions and "philosophical" bug reports should be mailed to
+  bug-bash@ai.mit.edu.  Genuine bug reports should be mailed to the
+! same place, or to bash-maintainers@prep.ai.mit.edu.  The `bashbug'
+! script sends its messages to bug-bash@prep.ai.mit.edu.
+  
+  *All* bug reports should include:
+***************
+*** 197,204 ****
+     * A short script or "recipe" which demonstrates the bug.
+  
+! Without this information, it is generally not possible to
+! successfully debug BASH.  Usually, without this information, the
+! bug won't manifest itself!
+  
+! Discussion and questions about BASH in general (including questions
+! about this documentation) can be sent to bash-maintainers@prep.ai.mit.edu.
+--- 200,209 ----
+     * A short script or "recipe" which demonstrates the bug.
+  
+! The `bashbug' program includes much of this information
+! automatically.  Without this information, it is generally not
+! possible to successfully debug BASH.  Usually, without this
+! information, the bug won't manifest itself! 
+  
+! Discussion and questions about BASH in general (including
+! questions about this documentation) can be sent to
+! bash-maintainers@prep.ai.mit.edu. 
+*** bash-1.14.0/Makefile	Thu Jun  2 09:35:16 1994
+--- bash-1.14.1/Makefile	Fri Jul  1 11:20:43 1994
+***************
+*** 3,7 ****
+  # Makefile for Bash.
+  # If your cpp doesn't like -P, just get rid of it (the -P, not cpp).
+! # If you wish to use Gcc, then just type `make CPPNAME="gcc -E" CC=gcc'.
+  # If you wish to use GNU's Make, then change `MAKE'.
+  # If you don't like the destination, then change `bindir'.
+--- 3,7 ----
+  # Makefile for Bash.
+  # If your cpp doesn't like -P, just get rid of it (the -P, not cpp).
+! # If you wish to use Gcc, then type `make CC=gcc CPPNAME="$(CC) -E"'.
+  # If you wish to use GNU's Make, then change `MAKE'.
+  # If you don't like the destination, then change `bindir'.
+***************
+*** 30,34 ****
+  
+  CPP_MAKEFILE = $(srcdir)/cpp-Makefile
+! ANSI_MAKEFILE = $(srcdir)/ansi-Makefile
+  
+  # CPPFLAGS = $(SYSTEM) $(CPP_DEFINES)
+--- 30,34 ----
+  
+  CPP_MAKEFILE = $(srcdir)/cpp-Makefile
+! ANSI_MAKEFILE = ansi-Makefile
+  
+  # CPPFLAGS = $(SYSTEM) $(CPP_DEFINES)
+***************
+*** 56,60 ****
+  
+  all:	.notified bash-Makefile
+! 	$(MAKE) $(MFLAGS) $(MAKEARGS) srcdir=$(srcdir) -f bash-Makefile
+  
+  bash-Makefile: $(CPP_MAKEFILE) Makefile machines.h sysdefs.h config.h
+--- 56,60 ----
+  
+  all:	.notified bash-Makefile
+! 	$(MAKE) -f bash-Makefile $(MFLAGS) $(MAKEARGS) srcdir=$(srcdir)
+  
+  bash-Makefile: $(CPP_MAKEFILE) Makefile machines.h sysdefs.h config.h
+***************
+*** 66,74 ****
+  	  fi
+  	$(RM) $(GETCPPSYMS)
+! 	sh $(SUPPORTSRC)mkdirs support
+  	$(CC) -o $(GETCPPSYMS) $(GETCPPSYMS_SRC)
+  	rm -f bash-Makefile
+! 	@/bin/sh -c 'echo $(CPP) $(CPPFLAGS) $(CPP_ARGS) tmp-Makefile.c \| $(SQUASH_BLANKS) \> bash-Makefile'
+! 	@/bin/sh -c '$(CPP) $(CPPFLAGS) $(CPP_ARGS) tmp-Makefile.c | $(SQUASH_BLANKS) >bash-Makefile'
+  	rm -f tmp-Makefile.c
+  	@test -s bash-Makefile || { rm -f bash-Makefile ; exit 1; }
+--- 66,74 ----
+  	  fi
+  	$(RM) $(GETCPPSYMS)
+! 	$(SHELL) $(SUPPORTSRC)mkdirs support
+  	$(CC) -o $(GETCPPSYMS) $(GETCPPSYMS_SRC)
+  	rm -f bash-Makefile
+! 	@$(SHELL) -c 'echo $(CPP) $(CPPFLAGS) $(CPP_ARGS) tmp-Makefile.c \| $(SQUASH_BLANKS) \> bash-Makefile'
+! 	@$(SHELL) -c '$(CPP) $(CPPFLAGS) $(CPP_ARGS) tmp-Makefile.c | $(SQUASH_BLANKS) >bash-Makefile'
+  	rm -f tmp-Makefile.c
+  	@test -s bash-Makefile || { rm -f bash-Makefile ; exit 1; }
+***************
+*** 75,79 ****
+  
+  sysdefs.h: $(MKSYSDEFS)
+! 	/bin/sh $(MKSYSDEFS)
+  
+  # This is also performed by support/mksysdefs, but there's no way to change
+--- 75,79 ----
+  
+  sysdefs.h: $(MKSYSDEFS)
+! 	$(SHELL) $(MKSYSDEFS) -s $(srcdir)
+  
+  # This is also performed by support/mksysdefs, but there's no way to change
+***************
+*** 81,85 ****
+  # are no dependencies.  This lets you run `make ansi-Makefile'.
+  ansi-Makefile: $(CPP_MAKEFILE)
+! 	cat $(CPP_MAKEFILE) | grep -v '/\*\*/' > $@
+  
+  # Subsequent lines contain targets that are correctly handled by an
+--- 81,85 ----
+  # are no dependencies.  This lets you run `make ansi-Makefile'.
+  ansi-Makefile: $(CPP_MAKEFILE)
+! 	grep -v '/\*\*/' $(CPP_MAKEFILE) > $@
+  
+  # Subsequent lines contain targets that are correctly handled by an
+***************
+*** 86,98 ****
+  # existing bash-Makefile.
+  
+! DEFINES install newversion mailable distribution architecture: bash-Makefile
+! 	$(MAKE) $(MFLAGS) $(MAKEARGS) bindir=$(bindir) -f bash-Makefile $@
+  
+  tests bash.tar.Z tags documentation clone: bash-Makefile directory-frob
+! 	$(MAKE) $(MFLAGS) $(MAKEARGS) bindir=$(bindir) -f bash-Makefile $@
+  
+! clean distclean: bash-Makefile directory-frob
+  	rm -f .notified
+! 	$(MAKE) $(MFLAGS) $(MAKEARGS) bindir=$(bindir) -f bash-Makefile $@
+  
+  directory-frob:
+--- 86,101 ----
+  # existing bash-Makefile.
+  
+! DEFINES newversion mailable distribution architecture: bash-Makefile
+! 	$(MAKE) -f bash-Makefile $(MFLAGS) $(MAKEARGS) bindir=$(bindir) $@
+  
++ install uninstall: bash-Makefile
++ 	$(MAKE) -f bash-Makefile $(MFLAGS) $(MAKEARGS) bindir=$(bindir) $@
++ 
+  tests bash.tar.Z tags documentation clone: bash-Makefile directory-frob
+! 	$(MAKE) -f bash-Makefile $(MFLAGS) $(MAKEARGS) bindir=$(bindir) $@
+  
+! clean distclean realclean: bash-Makefile directory-frob
+  	rm -f .notified
+! 	$(MAKE) -f bash-Makefile $(MFLAGS) $(MAKEARGS) bindir=$(bindir) $@
+  
+  directory-frob:
+***************
+*** 113,115 ****
+  	@echo ""
+  	@touch .notified
+- 	
+--- 116,117 ----
+*** bash-1.14.0/README	Thu Jun  2 09:35:14 1994
+--- bash-1.14.1/README	Fri Jul  1 11:20:43 1994
+***************
+*** 11,15 ****
+  
+  To compile it, try typing `make'.  Bash auto-configures the build
+! process, so no intervention should be necessary.
+  
+  You may want to read the file INSTALL in this directory for more
+--- 11,16 ----
+  
+  To compile it, try typing `make'.  Bash auto-configures the build
+! process, so no intervention should be necessary.  If you want to
+! use gcc, type `make CC=gcc CPPNAME="$(CC) -E"'.
+  
+  You may want to read the file INSTALL in this directory for more
+***************
+*** 17,26 ****
+  
+  If you are a csh user and wish to convert your csh aliases to Bash
+! aliases, you may wish to use the script in examples/alias-conv.sh.
+  
+  Bug reports for 1.14 should be sent to:
+  
+! 	bash-maintainers@prep.ai.mit.edu
+  
+  The discussion list "bug-bash@prep.ai.mit.edu" often contains information
+  about new ports of Bash, or discussions of new features or behavior
+--- 18,31 ----
+  
+  If you are a csh user and wish to convert your csh aliases to Bash
+! aliases, you may wish to use the script in examples/alias-conv.sh
+! as a starting point.
+  
+  Bug reports for 1.14 should be sent to:
+  
+! 	bug-bash@prep.ai.mit.edu
+  
++ using the `bashbug' program that is built and installed at the same
++ time as bash.
++ 
+  The discussion list "bug-bash@prep.ai.mit.edu" often contains information
+  about new ports of Bash, or discussions of new features or behavior
+***************
+*** 28,32 ****
+  as a usenet newsgroup: gnu.bash.bug.
+  
+! When you send a bug report to bash-maintainers@ai.mit.edu, please
+  include:
+  
+--- 33,37 ----
+  as a usenet newsgroup: gnu.bash.bug.
+  
+! When you send a bug report to bash-maintainers@prep.ai.mit.edu, please
+  include:
+  
+***************
+*** 37,42 ****
+  	* a fix for the bug if you have one!
+  
+! While the maintainers of Bash do not promise to fix all bugs, we would
+  like this shell to be the best that we can make it.
+  
+  Enjoy!
+--- 42,52 ----
+  	* a fix for the bug if you have one!
+  
+! The `bashbug' program includes much of this automatically.
+! 
+! While the Bash maintainers do not promise to fix all bugs, we would
+  like this shell to be the best that we can make it.
+  
+  Enjoy!
++ 
++ Chet Ramey
++ chet@po.cwru.edu
+*** bash-1.14.0/bashline.c	Thu Jun  2 09:35:21 1994
+--- bash-1.14.1/bashline.c	Fri Jul  1 11:20:48 1994
+***************
+*** 587,591 ****
+        command = savestring (VI_EDIT_COMMAND);
+      }
+!   parse_and_execute (command, "v");
+  }
+  #endif /* VI_MODE */
+--- 587,591 ----
+        command = savestring (VI_EDIT_COMMAND);
+      }
+!   parse_and_execute (command, "v", -1);
+  }
+  #endif /* VI_MODE */
+*** bash-1.14.0/cpp-Makefile	Thu Jun  2 10:35:00 1994
+--- bash-1.14.1/cpp-Makefile	Fri Jul  1 11:20:44 1994
+***************
+*** 30,34 ****
+  /**/# support/mksysdefs instead.  Then, assuming the edits were required
+  /**/# to compile Bash on your system, mail the changes you had to make to
+! /**/# bash-maintainers@ai.mit.edu.  We will do our best to incorporate
+  /**/# them into the next release.
+  
+--- 30,34 ----
+  /**/# support/mksysdefs instead.  Then, assuming the edits were required
+  /**/# to compile Bash on your system, mail the changes you had to make to
+! /**/# bash-maintainers@prep.ai.mit.edu.  We will do our best to incorporate
+  /**/# them into the next release.
+  
+***************
+*** 146,151 ****
+--- 146,156 ----
+  #endif /* MAKE_SHELL */
+  
++ CP = cp
+  RM = rm -f
+  AR = ar
++ 
++ INSTALL_PROGRAM = install -c
++ INSTALL_DATA = install -c -m 644
++ 
+  COMPRESS = gzip
+  COMPRESS_EXT = .gz
+***************
+*** 282,285 ****
+--- 287,294 ----
+  #endif /* HAVE_STRCHR */
+  
++ #if defined (HAVE_STRCASECMP)
++ STRCASE = -DHAVE_STRCASECMP
++ #endif /* HAVE_STRCASECMP */
++ 
+  #if defined (HAVE_DEV_FD)
+  /**/# This system has the /dev/fd directory for naming open files.
+***************
+*** 293,299 ****
+  
+  SYSTEM_FLAGS = $(LINEBUF) $(VPRINTF) $(UNISTD) $(STDLIB) $(LIMITSH) \
+!        $(GROUPS) $(RESOURCE) $(PARAM) \
+!        $(SIGHANDLER) $(SYSDEP) $(WAITH) $(GETWD) $(DUP2) $(STRERROR) \
+!        $(DIRENT) $(DIRENTH) $(STRINGH) $(VARARGSH) $(STRCHR) $(DEVFD) \
+         -D$(Machine) -D$(OS)
+  LDFLAGS	= $(NOSHARE) $(SYSDEP_LD) $(EXTRA_LD_PATH) $(PROFILE_FLAGS) $(CFLAGS)
+--- 302,308 ----
+  
+  SYSTEM_FLAGS = $(LINEBUF) $(VPRINTF) $(UNISTD) $(STDLIB) $(LIMITSH) \
+!        $(GROUPS) $(RESOURCE) $(PARAM) $(SIGHANDLER) $(SYSDEP) $(WAITH) \
+!        $(GETWD) $(DUP2) $(STRERROR) $(DIRENT) $(DIRENTH) $(STRINGH) \
+!        $(VARARGSH) $(STRCHR) $(STRCASE) $(DEVFD) \
+         -D$(Machine) -D$(OS)
+  LDFLAGS	= $(NOSHARE) $(SYSDEP_LD) $(EXTRA_LD_PATH) $(PROFILE_FLAGS) $(CFLAGS)
+***************
+*** 359,363 ****
+  		  $(PTEM) $(PTE) $(STREAM) $(STRERROR) $(RESOURCE) \
+  		  $(STRCHR) -D$(Machine) -D$(OS) $(UNISTD) $(LIMITSH) \
+! 		  $(STDLIB) -DSHELL
+  
+  /**/# These are required for sending bug reports.
+--- 368,372 ----
+  		  $(PTEM) $(PTE) $(STREAM) $(STRERROR) $(RESOURCE) \
+  		  $(STRCHR) -D$(Machine) -D$(OS) $(UNISTD) $(LIMITSH) \
+! 		  $(STRCASE) $(STDLIB) -DSHELL
+  
+  /**/# These are required for sending bug reports.
+***************
+*** 1274,1277 ****
+--- 1283,1287 ----
+  builtins/exec.o: shell.h unwind_prot.h variables.h $(DEFDIR)common.h stdc.h
+  builtins/exec.o: dispose_cmd.h make_cmd.h subst.h externs.h execute_cmd.h
++ builtins/exec.o: flags.h
+  builtins/exit.o: command.h config.h memalloc.h error.h general.h maxpath.h
+  builtins/exit.o: shell.h unwind_prot.h variables.h quit.h
+***************
+*** 1430,1438 ****
+  		  then mv $(bindir)/$(Program) $(bindir)/$(Program).old; \
+  		fi
+! 		cp $(Program) $(bindir)/$(Program)
+  		$(RM) installed-$(Program)
+  		-ln -s $(bindir)/$(Program) installed-$(Program)
+! 		( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) mandir=$(mandir) man3dir=$(man3dir) infodir=$(infodir) $@ )
+  
+  .distribution:
+  		./newversion.aux -dir $(srcdir) -dist `$(Program) -c 'echo $$BASH_VERSION'`
+--- 1440,1459 ----
+  		  then mv $(bindir)/$(Program) $(bindir)/$(Program).old; \
+  		fi
+! 		$(INSTALL_PROGRAM) $(Program) $(bindir)/$(Program)
+! 		-if [ -f $(bindir)/bashbug ]; \
+! 		  then mv $(bindir)/bashbug $(bindir)$bashbug.old; \
+! 		fi
+! 		$(INSTALL_PROGRAM) bashbug $(bindir)/bashbug
+  		$(RM) installed-$(Program)
+  		-ln -s $(bindir)/$(Program) installed-$(Program)
+! 		( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) mandir=$(mandir) \
+! 			man3dir=$(man3dir) infodir=$(infodir) \
+! 			INSTALL_PROGRAM="${INSTALL_PROGRAM}" \
+! 			INSTALL_DATA="${INSTALL_DATA}" $@ )
+  
++ uninstall:	.made
++ 		$(RM) $(bindir)/$(Program) installed-$(Program) $(bindir)/bashbug
++ 		( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) mandir=$(mandir) man3dir=$(man3dir) infodir=$(infodir) $@ )
++ 		
+  .distribution:
+  		./newversion.aux -dir $(srcdir) -dist `$(Program) -c 'echo $$BASH_VERSION'`
+***************
+*** 1487,1492 ****
+  
+  distclean:	clean
+  realclean:	clean
+! 		$(RM) y.tab.c y.tab.h parser-built
+  
+  recho:		$(SUPPORT_SRC)recho.c
+--- 1508,1515 ----
+  
+  distclean:	clean
++ 		$(RM) installed-bash
++ 
+  realclean:	clean
+! 		$(RM) y.tab.c y.tab.h parser-built installed-bash
+  
+  recho:		$(SUPPORT_SRC)recho.c
+*** bash-1.14.0/execute_cmd.c	Thu Jun  2 09:35:21 1994
+--- bash-1.14.1/execute_cmd.c	Fri Jul  1 11:20:48 1994
+***************
+*** 697,702 ****
+  	  {
+  	    COMMAND *tc = command->value.Connection->first;
+! 	    REDIRECT *rp = tc->redirects;
+  
+  	    if (ignore_return && tc)
+  	      tc->flags |= CMD_IGNORE_RETURN;
+--- 697,707 ----
+  	  {
+  	    COMMAND *tc = command->value.Connection->first;
+! 	    REDIRECT *rp;
+  
++ 	    if (!tc)
++ 	      break;
++ 
++ 	    rp = tc->redirects;
++ 
+  	    if (ignore_return && tc)
+  	      tc->flags |= CMD_IGNORE_RETURN;
+***************
+*** 1940,1944 ****
+  
+    return_catch_flag++;
+!   return_val =  setjmp (return_catch);
+  
+    if (return_val)
+--- 1945,1949 ----
+  
+    return_catch_flag++;
+!   return_val = setjmp (return_catch);
+  
+    if (return_val)
+***************
+*** 2100,2107 ****
+  setup_async_signals ()
+  {
+!   set_signal_handler (SIGINT, SIG_IGN);
+!   set_signal_ignored (SIGINT);
+!   set_signal_handler (SIGQUIT, SIG_IGN);
+!   set_signal_ignored (SIGQUIT);
+  }
+  
+--- 2105,2117 ----
+  setup_async_signals ()
+  {
+! #if defined (JOB_CONTROL)
+!   if (job_control == 0)
+! #endif
+!     {
+!       set_signal_handler (SIGINT, SIG_IGN);
+!       set_signal_ignored (SIGINT);
+!       set_signal_handler (SIGQUIT, SIG_IGN);
+!       set_signal_ignored (SIGQUIT);
+!     }
+  }
+  
+***************
+*** 2132,2135 ****
+--- 2142,2146 ----
+       int nofork;	/* Don't fork, just exec, if no pipes */
+  {
++   register char *pathname;
+    char *hashed_file, *command, **args;
+    int pid, temp_path;
+***************
+*** 2136,2144 ****
+    SHELL_VAR *path;
+  
+  #if defined (RESTRICTED_SHELL)
+!   if (restricted && strchr (words->word->word, '/'))
+      {
+        report_error ("%s: restricted: cannot specify `/' in command names",
+! 		    words->word->word);
+        last_command_exit_value = EXECUTION_FAILURE;
+        return;
+--- 2147,2156 ----
+    SHELL_VAR *path;
+  
++   pathname = words->word->word;
+  #if defined (RESTRICTED_SHELL)
+!   if (restricted && strchr (pathname, '/'))
+      {
+        report_error ("%s: restricted: cannot specify `/' in command names",
+! 		    pathname);
+        last_command_exit_value = EXECUTION_FAILURE;
+        return;
+***************
+*** 2158,2163 ****
+       that is already completely specified. */
+  
+!   if (!path && !absolute_program (words->word->word))
+!     hashed_file = find_hashed_filename (words->word->word);
+  
+    /* If a command found in the hash table no longer exists, we need to
+--- 2170,2175 ----
+       that is already completely specified. */
+  
+!   if (!path && !absolute_program (pathname))
+!     hashed_file = find_hashed_filename (pathname);
+  
+    /* If a command found in the hash table no longer exists, we need to
+***************
+*** 2166,2181 ****
+       so I am basing it on the presence of POSIXLY_CORRECT. */
+  
+!   if (hashed_file)
+      {
+!       if (posixly_correct)
+! 	{
+! 	  int st;
+  
+! 	  st = file_status (hashed_file);
+! 	  if ((st ^ (FS_EXISTS | FS_EXECABLE)) != 0)
+! 	    {
+! 	      remove_hashed_filename (words->word->word);
+! 	      hashed_file = (char *)NULL;
+! 	    }
+  	}
+      }
+--- 2178,2190 ----
+       so I am basing it on the presence of POSIXLY_CORRECT. */
+  
+!   if (hashed_file && posixly_correct)
+      {
+!       int st;
+  
+!       st = file_status (hashed_file);
+!       if ((st ^ (FS_EXISTS | FS_EXECABLE)) != 0)
+! 	{
+! 	  remove_hashed_filename (pathname);
+! 	  hashed_file = (char *)NULL;
+  	}
+      }
+***************
+*** 2183,2206 ****
+    if (hashed_file)
+      command = savestring (hashed_file);
+    else
+      {
+!       /* A command containing a slash is not looked up in PATH. */
+!       if (absolute_program (words->word->word))
+! 	command = savestring (words->word->word);
+!       else
+! 	{
+! 	  command = find_user_command (words->word->word);
+! 
+! 	  /* A command name containing a slash is not saved in the
+! 	     hash table. */
+! 	  if (command && !hashing_disabled && !temp_path)
+! 	    {
+! 	      remember_filename
+! 		(words->word->word, command, dot_found_in_search);
+! 
+! 	      /* Increase the number of hits to 1. */
+! 	      find_hashed_filename (words->word->word);
+! 	    }
+! 	}
+      }
+  
+--- 2192,2204 ----
+    if (hashed_file)
+      command = savestring (hashed_file);
++   else if (absolute_program (pathname))
++     /* A command containing a slash is not looked up in PATH or saved in
++        the hash table. */
++     command = savestring (pathname);
+    else
+      {
+!       command = find_user_command (pathname);
+!       if (command && !hashing_disabled && !temp_path)
+! 	remember_filename (pathname, command, dot_found_in_search, 1);
+      }
+  
+***************
+*** 2530,2534 ****
+  	internal_error ("cannot duplicate fd %d to fd 0: %s",
+  			pipe_in, strerror (errno));
+!       close (pipe_in);
+      }
+    if (pipe_out != NO_PIPE)
+--- 2528,2533 ----
+  	internal_error ("cannot duplicate fd %d to fd 0: %s",
+  			pipe_in, strerror (errno));
+!       if (pipe_in > 0)
+!         close (pipe_in);
+      }
+    if (pipe_out != NO_PIPE)
+***************
+*** 2539,2543 ****
+  	    internal_error ("cannot duplicate fd %d to fd 1: %s",
+  			    pipe_out, strerror (errno));
+! 	  close (pipe_out);
+  	}
+        else
+--- 2538,2543 ----
+  	    internal_error ("cannot duplicate fd %d to fd 1: %s",
+  			    pipe_out, strerror (errno));
+! 	  if (pipe_out == 0 || pipe_out > 1)
+! 	    close (pipe_out);
+  	}
+        else
+***************
+*** 3015,3018 ****
+--- 3015,3021 ----
+  		  add_undo_close_redirect (redirector);
+  
++ #if defined (BUFFERED_INPUT)
++ 	      check_bash_input (redirector);
++ #endif
+  	      if (dup2 (fd, redirector) < 0)
+  		{
+***************
+*** 3080,3083 ****
+--- 3083,3087 ----
+  
+  #if defined (BUFFERED_INPUT)
++ 	  check_bash_input (redirector);
+  	  close_buffered_fd (redirector);
+  #else /* !BUFFERED_INPUT */
+*** bash-1.14.0/general.c	Thu Jun  2 09:35:16 1994
+--- bash-1.14.1/general.c	Fri Jul  1 11:20:44 1994
+***************
+*** 22,25 ****
+--- 22,26 ----
+  #include "config.h"	/* includes unistd.h for us */
+  #include <stdio.h>
++ #include <ctype.h>
+  #include <errno.h>
+  #include "bashtypes.h"
+***************
+*** 543,547 ****
+--- 544,552 ----
+  	i++;
+  
++ #if !defined (apollo)
+        if ((start + 1) != i)
++ #else
++       if ((start + 1) != i && (start != 0 || i != 2))
++ #endif /* apollo */
+  	{
+  	  strcpy (result + start + 1, result + i);
+***************
+*** 727,751 ****
+  }
+  
+! /* Determine if s2 occurs in s1.  If so, return a pointer to the
+!    match in s1.  The compare is case insensitive. */
+! char *
+! strindex (s1, s2)
+!      char *s1, *s2;
+! {
+!   register int i, l = strlen (s2);
+!   register int len = strlen (s1);
+  
+-   for (i = 0; (len - i) >= l; i++)
+-     if (strnicmp (s1 + i, s2, l) == 0)
+-       return (s1 + i);
+-   return ((char *)NULL);
+- }
+- 
+  #if !defined (to_upper)
+! #define lowercase_p(c) (((c) > ('a' - 1) && (c) < ('z' + 1)))
+! #define uppercase_p(c) (((c) > ('A' - 1) && (c) < ('Z' + 1)))
+! #define pure_alphabetic(c) (lowercase_p(c) || uppercase_p(c))
+! #define to_upper(c) (lowercase_p(c) ? ((c) - 32) : (c))
+! #define to_lower(c) (uppercase_p(c) ? ((c) + 32) : (c))
+  #endif /* to_upper */
+  
+--- 732,739 ----
+  }
+  
+! #if !defined (HAVE_STRCASECMP)
+  
+  #if !defined (to_upper)
+! #  define to_upper(c) (islower(c) ? toupper(c) : (c))
+  #endif /* to_upper */
+  
+***************
+*** 785,789 ****
+  	return (1);
+      }
+!   return (*string1 | *string2);
+  }
+  
+--- 773,793 ----
+  	return (1);
+      }
+!   return (*string1 - *string2);
+! }
+! #endif /* !HAVE_STRCASECMP */
+! 
+! /* Determine if s2 occurs in s1.  If so, return a pointer to the
+!    match in s1.  The compare is case insensitive. */
+! char *
+! strindex (s1, s2)
+!      char *s1, *s2;
+! {
+!   register int i, l = strlen (s2);
+!   register int len = strlen (s1);
+! 
+!   for (i = 0; (len - i) >= l; i++)
+!     if (strnicmp (s1 + i, s2, l) == 0)
+!       return (s1 + i);
+!   return ((char *)NULL);
+  }
+  
+*** bash-1.14.0/general.h	Thu Jun  2 09:35:25 1994
+--- bash-1.14.1/general.h	Fri Jul  1 11:20:51 1994
+***************
+*** 199,204 ****
+  extern char *full_pathname __P((char *));
+  extern char *strindex __P((char *, char *));
+- extern int strnicmp __P((char *, char *, int));
+- extern int stricmp __P((char *, char *));
+  extern void set_lines_and_columns __P((int, int));
+  extern void xbcopy __P((char *, char *, int));
+--- 199,202 ----
+***************
+*** 209,212 ****
+--- 207,218 ----
+  extern char *strerror __P((int));
+  #endif
++ 
++ #if !defined (HAVE_STRCASECMP)
++ extern int strnicmp __P((char *, char *, int));
++ extern int stricmp __P((char *, char *));
++ #else /* HAVE_STRCASECMP */
++ #  define stricmp strcasecmp
++ #  define strnicmp strncasecmp
++ #endif /* HAVE_STRCASECMP */
+  
+  extern int dup2 __P((int, int));
+*** bash-1.14.0/jobs.c	Thu Jun  2 09:35:19 1994
+--- bash-1.14.1/jobs.c	Fri Jul  1 11:20:47 1994
+***************
+*** 88,96 ****
+  /* For Sun workstations we undefine a couple of defines so that
+     the inclusion of termios.h won't cause complaints. */
+! #  if defined (sun)
+  #    undef ECHO
+  #    undef NOFLSH
+  #    undef TOSTOP
+! #  endif /* sun */
+  #  include <termios.h>
+  #endif /* TERMIOS_TTY_DRIVER */
+--- 88,96 ----
+  /* For Sun workstations we undefine a couple of defines so that
+     the inclusion of termios.h won't cause complaints. */
+! #  if defined (SunOS4)
+  #    undef ECHO
+  #    undef NOFLSH
+  #    undef TOSTOP
+! #  endif /* SunOS4 */
+  #  include <termios.h>
+  #endif /* TERMIOS_TTY_DRIVER */
+***************
+*** 99,103 ****
+  
+  #if defined (hpux) && !defined (TERMIOS_TTY_DRIVER)
+! #include <bsdtty.h>
+  #endif /* hpux && !TERMIOS_TTY_DRIVER */
+  
+--- 99,103 ----
+  
+  #if defined (hpux) && !defined (TERMIOS_TTY_DRIVER)
+! #  include <bsdtty.h>
+  #endif /* hpux && !TERMIOS_TTY_DRIVER */
+  
+***************
+*** 116,119 ****
+--- 116,120 ----
+  /* Variables used here but defined in other files. */
+  extern int interactive, interactive_shell, asynchronous_notification;
++ extern int subshell_environment;
+  extern int posixly_correct, no_symbolic_links, shell_level;
+  extern int interrupt_immediately, last_command_exit_value;
+***************
+*** 1064,1076 ****
+  	  signal (SIGTTOU, SIG_DFL);
+  	  signal (SIGTTIN, SIG_DFL);
+- 
+- #if 0
+- 	  /* This now done by setup_async_signals. */
+- 	  if (async_p)
+- 	    {
+- 	      signal (SIGINT, SIG_IGN);
+- 	      signal (SIGQUIT, SIG_IGN);
+- 	    }
+- #endif
+  	}
+  
+--- 1065,1068 ----
+***************
+*** 1518,1522 ****
+    if (job != NO_JOB)
+      {
+!       if (interactive_shell)
+  	{
+  	  if (WIFSIGNALED (child->status) || WIFSTOPPED (child->status))
+--- 1510,1514 ----
+    if (job != NO_JOB)
+      {
+!       if (interactive_shell && !subshell_environment)
+  	{
+  	  if (WIFSIGNALED (child->status) || WIFSTOPPED (child->status))
+***************
+*** 2129,2133 ****
+  	{
+  	  interrupt_immediately = 1;
+! 	  parse_and_execute (savestring (trap_command), "trap");
+  	}
+  
+--- 2121,2125 ----
+  	{
+  	  interrupt_immediately = 1;
+! 	  parse_and_execute (savestring (trap_command), "trap", -1);
+  	}
+  
+*** bash-1.14.0/machines.h	Thu Jun  2 09:35:23 1994
+--- bash-1.14.1/machines.h	Fri Jul  1 11:20:50 1994
+***************
+*** 95,105 ****
+  #  define VOID_SIGHANDLER
+  #  define HAVE_DIRENT
+  #endif /* sparc && __NetBSD__ */
+  
+  #if defined (sun) && !defined (M_MACHINE)
+- #  if defined (USGr4) || defined (__svr4__) || defined (__SVR4)
+- #    define Solaris
+- #  endif /* USGr4 || __svr4__ */
+- 
+  /* We aren't currently using GNU Malloc on Suns because of a bug in Sun's
+     YP which bites us when Sun free ()'s an already free ()'ed address.
+--- 95,102 ----
+  #  define VOID_SIGHANDLER
+  #  define HAVE_DIRENT
++ #  define HAVE_STRCASECMP
+  #endif /* sparc && __NetBSD__ */
+  
+  #if defined (sun) && !defined (M_MACHINE)
+  /* We aren't currently using GNU Malloc on Suns because of a bug in Sun's
+     YP which bites us when Sun free ()'s an already free ()'ed address.
+***************
+*** 117,135 ****
+  
+  /* Check for SunOS4 or greater. */
+! #  if defined (HAVE_SHARED_LIBS)
+! #    if defined (Solaris)
+! #      define M_OS "SunOS5"
+! #      define SYSDEP_CFLAGS -DUSGr4 -DUSG -DSolaris -DOPENDIR_NOT_ROBUST \
+! 			    -DNO_SBRK_DECL -DINT_GROUPS_ARRAY
+! #      define EXTRA_LIB_SEARCH_PATH /usr/ccs/lib
+! #      if !defined (HAVE_GCC)
+! #        define REQUIRED_LIBRARIES -ldl
+! #        define SYSDEP_LDFLAGS -Bdynamic
+! #      endif /* !HAVE_GCC */
+! #      define HAVE_STRERROR
+!        /* The following are only available thru the BSD compatability lib. */
+! #      undef HAVE_GETWD
+! #      undef HAVE_SETLINEBUF
+! #    else /* !Solaris */
+  #      define M_OS "SunOS4"
+  #      define SYSDEP_CFLAGS -DBSD_GETPGRP -DOPENDIR_NOT_ROBUST -DTERMIOS_LDISC \
+--- 114,132 ----
+  
+  /* Check for SunOS4 or greater. */
+! #  if defined (SunOS5)
+! #    define M_OS "SunOS5"
+! #    define SYSDEP_CFLAGS -DUSGr4 -DUSG -DSolaris -DOPENDIR_NOT_ROBUST \
+! 			  -DNO_SBRK_DECL -DINT_GROUPS_ARRAY
+! #    define EXTRA_LIB_SEARCH_PATH /usr/ccs/lib
+! #    if !defined (HAVE_GCC)
+! #      define REQUIRED_LIBRARIES -ldl
+! #      define SYSDEP_LDFLAGS -Bdynamic
+! #    endif /* !HAVE_GCC */
+! #    define HAVE_STRERROR
+!      /* The following are only available thru the BSD compatability lib. */
+! #    undef HAVE_GETWD
+! #    undef HAVE_SETLINEBUF
+! #  else /* !SunOS5 */
+! #    if defined (SunOS4)
+  #      define M_OS "SunOS4"
+  #      define SYSDEP_CFLAGS -DBSD_GETPGRP -DOPENDIR_NOT_ROBUST -DTERMIOS_LDISC \
+***************
+*** 136,146 ****
+  			    -DINT_GROUPS_ARRAY
+  #      define HAVE_DIRENT
+! #    endif /* !Solaris */
+! #  else /* !HAVE_SHARED_LIBS */
+! #    if !defined (sparc) && !defined (__sparc__)
+! #      undef VOID_SIGHANDLER
+! #    endif /* !sparc */
+! #    define M_OS "SunOS3"
+! #  endif /* !HAVE_SHARED_LIBS */
+  
+  #  if defined (mc68010)
+--- 133,143 ----
+  			    -DINT_GROUPS_ARRAY
+  #      define HAVE_DIRENT
+! #    else /* !SunOS4 */
+! #      if !defined (sparc) && !defined (__sparc__)
+! #        undef VOID_SIGHANDLER
+! #      endif /* !sparc */
+! #      define M_OS "SunOS3"
+! #    endif /* !SunOS4 */
+! #  endif /* !SunOS5 */
+  
+  #  if defined (mc68010)
+***************
+*** 166,170 ****
+  #  endif /* i386 */
+  
+! #endif /* sun */
+  
+  /* **************************************************************** */
+--- 163,167 ----
+  #  endif /* i386 */
+  
+! #endif /* sun && !M_MACHINE */
+  
+  /* **************************************************************** */
+***************
+*** 233,236 ****
+--- 230,239 ----
+  #endif /* vax && !ultrix */
+  
++ /* **************************************************************** */
++ /*								    */
++ /*		Machines with MIPSco processors			    */
++ /*								    */
++ /* **************************************************************** */
++ 
+  /* **************************************** */
+  /*					    */
+***************
+*** 396,399 ****
+--- 399,440 ----
+  #endif /* sony */
+  
++ /* ******************************* */
++ /*			           */
++ /*  Ardent Titan OS v2.2 and later */
++ /*			           */
++ /* ******************************* */
++ #if defined (ardent)
++ #  define M_MACHINE "Ardent Titan"
++ #  define M_OS "Bsd"
++ #  if defined (titan)
++ #    undef HAVE_GETGROUPS
++ #  else
++ #    define HAVE_GETGROUPS
++ #  endif /* !titan */
++ #  define HAVE_SYS_SIGLIST
++ #  define HAVE_SETLINEBUF
++ #  define SYSDEP_CFLAGS -43 -w
++ #  define SYSDEP_LDFLAGS -43
++ #  undef HAVE_ALLOCA
++ #  undef USE_GNU_MALLOC
++ #  undef HAVE_VFPRINTF
++ #  undef HAVE_DIRENT_H
++ #endif /* ardent */
++ 
++ /* ************************ */
++ /*			    */
++ /*	  Stardent	    */
++ /*			    */
++ /* ************************ */
++ #if defined (stardent) && !defined (M_MACHINE)
++ #  define M_MACHINE "Stardent"
++ #  define M_OS "USG"
++ #  define HAVE_SYS_SIGLIST
++ #  define USE_TERMCAP_EMULATION
++ #  define VOID_SIGHANDLER
++ #  undef HAVE_GETWD
++ #  undef HAVE_ALLOCA
++ #endif /* stardent */
++ 
+  /* ******************************** */
+  /*				    */
+***************
+*** 495,498 ****
+--- 536,540 ----
+  #    define HAVE_VFPRINTF
+  #    define VOID_SIGHANDLER
++ /* Might need to add -lsocket -linet -lnsl to the list of libraries. */
+  #    define REQUIRED_LIBRARIES -lPW -lseq
+  #    undef HAVE_GETWD
+***************
+*** 524,527 ****
+--- 566,573 ----
+  #    define HAVE_STRERROR
+  #    define VOID_SIGHANDLER
++ #    if !defined (HAVE_RESOURCE)
++ #      define HAVE_RESOURCE
++ #    endif
++ #    define HAVE_STRCASECMP
+  #    undef HAVE_GETWD
+  #    undef HAVE_GETCWD
+***************
+*** 528,532 ****
+  #    undef USE_GNU_MALLOC
+  #    undef HAVE_DIRENT_H
+! #    define SYSDEP_CFLAGS -DNeXT DHAVE_RESOURCE -DMKFIFO_MISSING -DRLOGIN_PGRP_BUG
+  #  endif
+  
+--- 574,578 ----
+  #    undef USE_GNU_MALLOC
+  #    undef HAVE_DIRENT_H
+! #    define SYSDEP_CFLAGS -DNeXT -DMKFIFO_MISSING -DRLOGIN_PGRP_BUG
+  #  endif
+  
+***************
+*** 706,709 ****
+--- 752,756 ----
+  #    define VOID_SIGHANDLER
+  #    define HAVE_DIRENT
++ #    define HAVE_STRCASECMP
+  #  endif /* !done386 && bsdi */
+  
+***************
+*** 721,724 ****
+--- 768,772 ----
+  #    define VOID_SIGHANDLER
+  #    define HAVE_DIRENT
++ #    define HAVE_STRCASECMP
+  #  endif /* !done386 && __NetBSD__ */
+  
+***************
+*** 736,739 ****
+--- 784,788 ----
+  #    define VOID_SIGHANDLER
+  #    define HAVE_DIRENT
++ #    define HAVE_STRCASECMP
+  #  endif /* !done386 && __FreeBSD__ */
+  
+***************
+*** 751,754 ****
+--- 800,804 ----
+  #    define VOID_SIGHANDLER
+  #    define HAVE_DIRENT
++ #    define HAVE_STRCASECMP
+  #  endif /* !done386 && __386BSD__ */
+  
+***************
+*** 905,912 ****
+  #  define HAVE_STRERROR
+  #  define VOID_SIGHANDLER
+  #  undef HAVE_GETWD
+  #  undef HAVE_GETCWD
+  #  undef HAVE_DIRENT_H
+! #  define SYSDEP_CFLAGS -DHAVE_RESOURCE -DMKFIFO_MISSING -DRLOGIN_PGRP_BUG
+  #  undef USE_GNU_MALLOC
+  #endif /* NeXT */
+--- 955,966 ----
+  #  define HAVE_STRERROR
+  #  define VOID_SIGHANDLER
++ #  if !defined (HAVE_RESOURCE)
++ #    define HAVE_RESOURCE
++ #  endif
++ #  define HAVE_STRCASECMP
+  #  undef HAVE_GETWD
+  #  undef HAVE_GETCWD
+  #  undef HAVE_DIRENT_H
+! #  define SYSDEP_CFLAGS -DMKFIFO_MISSING -DRLOGIN_PGRP_BUG
+  #  undef USE_GNU_MALLOC
+  #endif /* NeXT */
+***************
+*** 926,929 ****
+--- 980,984 ----
+  #  define HAVE_VFPRINTF
+  #  define VOID_SIGHANDLER
++ #  define HAVE_STRCASECMP
+  #  define SYSDEP_CFLAGS -DHAVE_GETDTABLESIZE -DHAVE_BCOPY -DHAVE_RESOURCE
+  #  undef HAVE_ALLOCA
+***************
+*** 1655,1659 ****
+  #  define HAVE_GETGROUPS
+  #  undef HAVE_GETWD
+! #  undef HAVE_GETCWD
+  #  undef HAVE_ALLOCA
+  #endif /* m88k && M88100 */
+--- 1710,1716 ----
+  #  define HAVE_GETGROUPS
+  #  undef HAVE_GETWD
+! #  if !defined (USGr4)
+! #    undef HAVE_GETCWD
+! #  endif
+  #  undef HAVE_ALLOCA
+  #endif /* m88k && M88100 */
+***************
+*** 1697,1735 ****
+  /* ************************ */
+  /*			    */
+- /*    Ardent Titan OS v2.2  */
+- /*			    */
+- /* ************************ */
+- #if defined (ardent)
+- #  define M_MACHINE "Ardent Titan"
+- #  define M_OS "Bsd"
+- #  if !defined (titan)
+- #    define HAVE_GETGROUPS
+- #  endif /* !titan */
+- #  define HAVE_SYS_SIGLIST
+- #  define HAVE_SETLINEBUF
+- #  define SYSDEP_CFLAGS -43 -w
+- #  define SYSDEP_LDFLAGS -43
+- #  undef HAVE_ALLOCA
+- #  undef USE_GNU_MALLOC
+- #  undef HAVE_VFPRINTF
+- #endif /* ardent */
+- 
+- /* ************************ */
+- /*			    */
+- /*	  Stardent	    */
+- /*			    */
+- /* ************************ */
+- #if defined (stardent) && !defined (M_MACHINE)
+- #  define M_MACHINE "Stardent"
+- #  define M_OS "USG"
+- #  define HAVE_SYS_SIGLIST
+- #  define USE_TERMCAP_EMULATION
+- #  define VOID_SIGHANDLER
+- #  undef HAVE_GETWD
+- #  undef HAVE_ALLOCA
+- #endif /* stardent */
+- 
+- /* ************************ */
+- /*			    */
+  /*	Concurrent	    */
+  /*			    */
+--- 1754,1757 ----
+***************
+*** 1790,1794 ****
+  #  if defined (CrayYMP) && !defined (M_MACHINE)
+  #    define M_MACHINE "CrayYMP"
+! #    define CRAY_STACK -DCRAY_STACKSEG_END=getb67
+  #  endif
+  #  if !defined (M_MACHINE)
+--- 1812,1820 ----
+  #  if defined (CrayYMP) && !defined (M_MACHINE)
+  #    define M_MACHINE "CrayYMP"
+! #    if RELEASE_LEVEL >= 7000
+! #      define CRAY_STACK -DCRAY_STACKSEG_END=GETB67
+! #    else
+! #      define CRAY_STACK -DCRAY_STACKSEG_END=getb67
+! #    endif /* RELEASE_LEVEL < 7000 */
+  #  endif
+  #  if !defined (M_MACHINE)
+***************
+*** 2005,2008 ****
+--- 2031,2039 ----
+     in the C library, or a macro in a header file. */
+  /* #define HAVE_STRERROR */
++ 
++ /* Define HAVE_STRCASECMPif your system supplies definitions for the caseless
++    string comparison functions strcasecmp and strncasemp in libc or one of
++    the system header files. */
++ /* #define HAVE_STRCASECMP */
+  
+  /* Define HAVE_DIRENT if you have the dirent library and a definition of
+*** bash-1.14.0/mailcheck.c	Thu Jun  2 09:35:20 1994
+--- bash-1.14.1/mailcheck.c	Fri Jul  1 11:20:47 1994
+***************
+*** 294,298 ****
+    char *mailpaths = get_mailpaths ();
+    char *mailfile, *mp;
+!   int i = 0, pass_next = 0;
+    
+    while (mailfile = extract_colon_unit (mailpaths, &i))
+--- 294,298 ----
+    char *mailpaths = get_mailpaths ();
+    char *mailfile, *mp;
+!   int i = 0;
+    
+    while (mailfile = extract_colon_unit (mailpaths, &i))
+***************
+*** 322,326 ****
+  check_mail ()
+  {
+-   register int string_index;
+    char *current_mail_file, *you_have_mail_message;
+    char *mailpaths, *mp;
+--- 322,325 ----
+*** bash-1.14.0/make_cmd.c	Thu Jun  2 09:35:16 1994
+--- bash-1.14.1/make_cmd.c	Fri Jul  1 11:20:44 1994
+***************
+*** 573,577 ****
+     active, instead of just the last.  This is wrong, and needs fixing
+     up.  This function takes the `&' and applies it to the last command
+!    in the list. */
+  COMMAND *
+  connect_async_list (command, command2, connector)
+--- 573,578 ----
+     active, instead of just the last.  This is wrong, and needs fixing
+     up.  This function takes the `&' and applies it to the last command
+!    in the list.  This is done only for lists connected by `;'; it makes
+!    `;' bind `tighter' than `&'. */
+  COMMAND *
+  connect_async_list (command, command2, connector)
+***************
+*** 583,586 ****
+--- 584,595 ----
+    t1 = command;
+    t = command->value.Connection->second;
++ 
++   if (!t || (command->flags & CMD_WANT_SUBSHELL) ||
++       command->value.Connection->connector != ';')
++     {
++       t = command_connect (command, command2, connector);
++       return t;
++     }
++ 
+    /* This is just defensive programming.  The Yacc precedence rules
+       will generally hand this function a command where t points directly
+***************
+*** 590,594 ****
+       with `( ... )', so we have to check for CMD_WANT_SUBSHELL.  That's
+       the only way to tell. */
+!   while (((t->flags & CMD_WANT_SUBSHELL) == 0) && (t->type == cm_connection))
+      {
+        t1 = t;
+--- 599,604 ----
+       with `( ... )', so we have to check for CMD_WANT_SUBSHELL.  That's
+       the only way to tell. */
+!   while (((t->flags & CMD_WANT_SUBSHELL) == 0) && t->type == cm_connection &&
+! 	 t->value.Connection->connector == ';')
+      {
+        t1 = t;
+*** bash-1.14.0/nojobs.c	Thu Jun  2 09:35:21 1994
+--- bash-1.14.1/nojobs.c	Fri Jul  1 11:20:48 1994
+***************
+*** 74,77 ****
+--- 74,78 ----
+  
+  extern int interactive, interactive_shell, login_shell;
++ extern int subshell_environment;
+  extern int last_command_exit_value;
+  #if defined (_POSIX_VERSION)
+***************
+*** 528,532 ****
+      }
+  
+!   if (interactive_shell)
+      {
+        if (WIFSIGNALED (status) || WIFSTOPPED (status))
+--- 529,533 ----
+      }
+  
+!   if (interactive_shell && !subshell_environment)
+      {
+        if (WIFSIGNALED (status) || WIFSTOPPED (status))
+*** bash-1.14.0/parse.y	Thu Jun  2 09:35:18 1994
+--- bash-1.14.1/parse.y	Fri Jul  1 11:20:45 1994
+***************
+*** 79,82 ****
+--- 79,83 ----
+  static void prompt_again ();
+  static void reset_readline_prompt ();
++ static void print_prompt ();
+  
+  /* PROMPT_STRING_POINTER points to one of these, never to an actual string. */
+***************
+*** 88,91 ****
+--- 89,96 ----
+  char *current_prompt_string;
+  
++ /* The decoded prompt string.  Used if READLINE is not defined or if
++    editing is turned off.  Analogous to current_readline_prompt. */
++ static char *current_decoded_prompt;
++ 
+  /* The number of lines read from input while creating the current command. */
+  int current_command_line_count = 0;
+***************
+*** 744,748 ****
+--- 749,757 ----
+      bash_input.name = (char *)NULL;
+  
++ #if defined (CRAY)
++   memcpy((char *)&bash_input.location.string, (char *)&location.string, sizeof(location));
++ #else
+    bash_input.location = location;
++ #endif
+    bash_input.getter = get;
+    bash_input.ungetter = unget;
+***************
+*** 829,840 ****
+  
+        if (!current_readline_line)
+! 	{
+! 	  current_readline_line_index = 0;
+! 	  return (EOF);
+! 	}
+  
+        line_len = strlen (current_readline_line);
+        current_readline_line = xrealloc (current_readline_line, 2 + line_len);
+-       /* replaces strcat (current_readline_line, "\n"); */
+        current_readline_line[line_len++] = '\n';
+        current_readline_line[line_len] = '\0';
+--- 838,845 ----
+  
+        if (!current_readline_line)
+! 	return (EOF);
+  
+        line_len = strlen (current_readline_line);
+        current_readline_line = xrealloc (current_readline_line, 2 + line_len);
+        current_readline_line[line_len++] = '\n';
+        current_readline_line[line_len] = '\0';
+***************
+*** 1375,1378 ****
+--- 1380,1390 ----
+  #endif /* !JOB_CONTROL */
+  
++ #if defined (READLINE)
++       if (interactive && no_line_editing)
++ #else
++       if (interactive)
++ #endif
++ 	print_prompt ();
++ 
+        if (bash_input.type == st_stream)
+  	clearerr (stdin);
+***************
+*** 1537,1541 ****
+    Function *temp_last, *temp_this;
+    char *last_lastarg;
+!   int temp_exit_value, temp_eof_encountered, temp_interactive;
+  
+    temp_last = last_shell_builtin;
+--- 1549,1553 ----
+    Function *temp_last, *temp_this;
+    char *last_lastarg;
+!   int temp_exit_value, temp_eof_encountered;
+  
+    temp_last = last_shell_builtin;
+***************
+*** 1547,1554 ****
+      last_lastarg = savestring (last_lastarg);
+  
+!   temp_interactive = interactive;
+!   interactive = 0;
+!   parse_and_execute (savestring (command), "PROMPT_COMMAND");
+!   interactive = temp_interactive;
+  
+    last_shell_builtin = temp_last;
+--- 1559,1563 ----
+      last_lastarg = savestring (last_lastarg);
+  
+!   parse_and_execute (savestring (command), "PROMPT_COMMAND", 0);
+  
+    last_shell_builtin = temp_last;
+***************
+*** 1584,1601 ****
+  	}
+  
+- #if 0
+-       /* Allow the execution of a random command just before the printing
+- 	 of each primary prompt.  If the shell variable PROMPT_COMMAND
+- 	 is set then the value of it is the command to execute. */
+-       if (prompt_is_ps1)
+- 	{
+- 	  char *command_to_execute;
+- 
+- 	  command_to_execute = get_string_value ("PROMPT_COMMAND");
+- 	  if (command_to_execute)
+- 	    execute_prompt_command (command_to_execute);
+- 	}
+- #endif
+- 
+        /* Avoid printing a prompt if we're not going to read anything, e.g.
+  	 after resetting the parser with read_token (RESET). */
+--- 1593,1596 ----
+***************
+*** 2508,2512 ****
+      {
+        FREE (current_readline_prompt);
+-       
+        current_readline_prompt = temp_prompt;
+      }
+--- 2503,2506 ----
+***************
+*** 2514,2521 ****
+  #endif	/* READLINE */
+      {
+!       fprintf (stderr, "%s", temp_prompt);
+!       fflush (stderr);
+!       free (temp_prompt);
+      }
+  }
+  
+--- 2508,2521 ----
+  #endif	/* READLINE */
+      {
+!       FREE (current_decoded_prompt);
+!       current_decoded_prompt = temp_prompt;
+      }
++ }
++ 
++ static void
++ print_prompt ()
++ {
++   fprintf (stderr, "%s", current_decoded_prompt);
++   fflush (stderr);
+  }
+  
+*** bash-1.14.0/print_cmd.c	Thu Jun  2 09:35:16 1994
+--- bash-1.14.1/print_cmd.c	Fri Jul  1 11:20:44 1994
+***************
+*** 35,39 ****
+  #include "builtins/common.h"
+  
+! #if defined (__GNUC__)
+  extern int printf __P((const char *, ...));	/* Yuck.  Double yuck. */
+  #endif
+--- 35,39 ----
+  #include "builtins/common.h"
+  
+! #if defined (__GNUC__) || defined (ardent)
+  extern int printf __P((const char *, ...));	/* Yuck.  Double yuck. */
+  #endif
+***************
+*** 661,665 ****
+    register char *s;
+    char char_arg[2], *argp, *args[2];
+!   int arg_len;
+  
+    args[0] = arg1;
+--- 661,665 ----
+    register char *s;
+    char char_arg[2], *argp, *args[2];
+!   int arg_len, c, arg_index;
+  
+    args[0] = arg1;
+***************
+*** 693,697 ****
+  	    case 's':
+  	      argp = (char *)args[arg_index++];
+! 	      arg_len = strlen (string);
+  	      break;
+  
+--- 693,697 ----
+  	    case 's':
+  	      argp = (char *)args[arg_index++];
+! 	      arg_len = strlen (argp);
+  	      break;
+  
+*** bash-1.14.0/shell.c	Thu Jun  2 09:35:18 1994
+--- bash-1.14.1/shell.c	Fri Jul  1 11:20:46 1994
+***************
+*** 124,128 ****
+  int login_shell = 0;
+  
+! /* Non-zero means that at this moment, the shell is interactive. */
+  int interactive = 0;
+  
+--- 124,130 ----
+  int login_shell = 0;
+  
+! /* Non-zero means that at this moment, the shell is interactive.  In
+!    general, this means that the shell is at this moment reading input
+!    from the keyboard. */
+  int interactive = 0;
+  
+***************
+*** 526,530 ****
+      {
+        char *term = getenv ("TERM");
+!       no_line_editing = term && (STREQ (term, "emacs"));
+      }
+  
+--- 528,532 ----
+      {
+        char *term = getenv ("TERM");
+!       no_line_editing |= term && (STREQ (term, "emacs"));
+      }
+  
+***************
+*** 665,674 ****
+  	     and report an error and exit if it is. */
+  	  sample_len = read (fd, sample, sizeof (sample));
+! 	  if (sample_len > 0)
+! 	    if (check_binary_file (sample, sample_len))
+! 	      {
+! 		report_error ("%s: cannot execute binary file", filename);
+! 		exit (EX_BINARY_FILE);
+! 	      }
+  	  /* Now rewind the file back to the beginning. */
+  	  lseek (fd, 0L, 0);
+--- 667,675 ----
+  	     and report an error and exit if it is. */
+  	  sample_len = read (fd, sample, sizeof (sample));
+! 	  if (sample_len > 0 && (check_binary_file (sample, sample_len)))
+! 	    {
+! 	      report_error ("%s: cannot execute binary file", filename);
+! 	      exit (EX_BINARY_FILE);
+! 	    }
+  	  /* Now rewind the file back to the beginning. */
+  	  lseek (fd, 0L, 0);
+***************
+*** 919,923 ****
+  
+    temp = base_pathname (shell_name);
+!   if (restricted || (STREQ (temp, "rbash"))
+      {
+        set_var_read_only ("PATH");
+--- 920,924 ----
+  
+    temp = base_pathname (shell_name);
+!   if (restricted || (STREQ (temp, "rbash")))
+      {
+        set_var_read_only ("PATH");
+***************
+*** 960,963 ****
+--- 961,971 ----
+      goto file_error_and_exit;
+  
++   if (S_ISDIR (file_info.st_mode))
++     {
++       internal_error ("%s: cannot execute directories", filename);
++       free (filename);
++       return -1;
++     }
++ 
+    string = (char *)xmalloc (1 + (int)file_info.st_size);
+    tresult = read (fd, string, file_info.st_size);
+***************
+*** 992,996 ****
+      parse_and_execute_cleanup ();
+    else
+!     tresult = parse_and_execute (string, filename);
+  
+    if (force_noninteractive)
+--- 1000,1004 ----
+      parse_and_execute_cleanup ();
+    else
+!     tresult = parse_and_execute (string, filename, -1);
+  
+    if (force_noninteractive)
+***************
+*** 1031,1035 ****
+  	}
+      }
+!    return (parse_and_execute (savestring (command), "-c"));
+  }
+  #endif /* ONESHOT */
+--- 1039,1043 ----
+  	}
+      }
+!    return (parse_and_execute (savestring (command), "-c", -1));
+  }
+  #endif /* ONESHOT */
+*** bash-1.14.0/subst.c	Thu Jun  2 09:35:18 1994
+--- bash-1.14.1/subst.c	Fri Jul  1 11:20:46 1994
+***************
+*** 64,67 ****
+--- 64,68 ----
+  /* Extern functions and variables from different files. */
+  extern int last_command_exit_value, interactive, interactive_shell;
++ extern int subshell_environment;
+  extern int dollar_dollar_pid, no_brace_expansion;
+  extern int posixly_correct;
+***************
+*** 711,725 ****
+  	{
+  	  pass_next = 0;
+! 	  if (i >= eindex - 1)
+! 	    quoted++;
+  	  continue;
+  	}
+-       else if (quoted)
+- 	continue;
+        else if (string[i] == '\'')
+          {
+            temp = string_extract_single_quoted (string, &i);
+            free (temp);
+!           if (i >= eindex)
+              return 1;
+          }
+--- 712,725 ----
+  	{
+  	  pass_next = 0;
+! 	  if (i >= eindex)	/* XXX was if (i >= eindex - 1) */
+! 	    return 1;
+  	  continue;
+  	}
+        else if (string[i] == '\'')
+          {
++           i++;
+            temp = string_extract_single_quoted (string, &i);
+            free (temp);
+!           if (i > eindex)
+              return 1;
+          }
+***************
+*** 726,732 ****
+        else if (string[i] == '"')
+          {
+            temp = string_extract_double_quoted (string, &i);
+            free (temp);
+!           if (i >= eindex)
+              return 1;
+          }
+--- 726,733 ----
+        else if (string[i] == '"')
+          {
++           i++;
+            temp = string_extract_double_quoted (string, &i);
+            free (temp);
+!           if (i > eindex)
+              return 1;
+          }
+***************
+*** 737,741 ****
+          }
+      }
+!   return (quoted);
+  }
+  
+--- 738,742 ----
+          }
+      }
+!   return (0);
+  }
+  
+***************
+*** 1845,1849 ****
+  {
+    char *pathname;
+!   int fd, result, old_interactive;
+    pid_t old_pid, pid;
+  #if defined (HAVE_DEV_FD)
+--- 1846,1850 ----
+  {
+    char *pathname;
+!   int fd, result;
+    pid_t old_pid, pid;
+  #if defined (HAVE_DEV_FD)
+***************
+*** 1851,1854 ****
+--- 1852,1858 ----
+    int fildes[2];
+  #endif /* HAVE_DEV_FD */
++ #if defined (JOB_CONTROL)
++   pid_t old_pipeline_pgrp;
++ #endif  
+  
+    if (!string || !*string)
+***************
+*** 1881,1898 ****
+  
+  #if defined (JOB_CONTROL)
+!   {
+!     pid_t old_pipeline_pgrp = pipeline_pgrp;
+!     pipeline_pgrp = shell_pgrp;
+!     pid = make_child ((char *)NULL, 1);
+!     if (pid == 0)
+!       {
+!         /* Cancel traps, in trap.c. */
+!         restore_original_signals ();
+!         setup_async_signals ();
+!       }
+!     set_sigchld_handler ();
+!     stop_making_children ();
+!     pipeline_pgrp = old_pipeline_pgrp;
+!   }
+  #else /* !JOB_CONTROL */
+    pid = make_child ((char *)NULL, 1);
+--- 1885,1901 ----
+  
+  #if defined (JOB_CONTROL)
+!   old_pipeline_pgrp = pipeline_pgrp;
+!   pipeline_pgrp = shell_pgrp;
+!   pid = make_child ((char *)NULL, 1);
+!   if (pid == 0)
+!     {
+!       /* Cancel traps, in trap.c. */
+!       restore_original_signals ();
+!       setup_async_signals ();
+!       subshell_environment++;
+!     }
+!   set_sigchld_handler ();
+!   stop_making_children ();
+!   pipeline_pgrp = old_pipeline_pgrp;
+  #else /* !JOB_CONTROL */
+    pid = make_child ((char *)NULL, 1);
+***************
+*** 1902,1905 ****
+--- 1905,1909 ----
+        restore_original_signals ();
+        setup_async_signals ();
++       subshell_environment++;
+      }
+  #endif /* !JOB_CONTROL */
+***************
+*** 1973,1980 ****
+  #endif /* HAVE_DEV_FD */
+  
+!   old_interactive = interactive;
+!   interactive = 0;
+!   result = parse_and_execute (string, "process substitution");
+!   interactive = old_interactive;
+  
+  #if !defined (HAVE_DEV_FD)
+--- 1977,1981 ----
+  #endif /* HAVE_DEV_FD */
+  
+!   result = parse_and_execute (string, "process substitution", 0);
+  
+  #if !defined (HAVE_DEV_FD)
+***************
+*** 2096,2100 ****
+  	exit (EXECUTION_FAILURE);
+        else
+! 	exit (parse_and_execute (string, "command substitution"));
+      }
+    else
+--- 2097,2101 ----
+  	exit (EXECUTION_FAILURE);
+        else
+! 	exit (parse_and_execute (string, "command substitution", -1));
+      }
+    else
+***************
+*** 4520,4524 ****
+      {
+        history_expansion_char = *temp;
+!       if (temp[1])
+  	{
+  	  history_subst_char = temp[1];
+--- 4521,4525 ----
+      {
+        history_expansion_char = *temp;
+!       if (temp[0] && temp[1])
+  	{
+  	  history_subst_char = temp[1];
+*** bash-1.14.0/trap.c	Thu Jun  2 09:35:18 1994
+--- bash-1.14.1/trap.c	Fri Jul  1 11:20:46 1994
+***************
+*** 169,172 ****
+--- 169,174 ----
+    for (sig = 0; sig < NSIG; sig++)
+      {
++       /* XXX this could be made into a counter by using
++          while (pending_traps[sig]--) instead of the if statement. */
+        if (pending_traps[sig])
+  	{
+***************
+*** 191,195 ****
+  	    }
+  	  else
+! 	    parse_and_execute (savestring (trap_list[sig]), "trap");
+  
+  	  pending_traps[sig] = 0;
+--- 193,197 ----
+  	    }
+  	  else
+! 	    parse_and_execute (savestring (trap_list[sig]), "trap", 0);
+  
+  	  pending_traps[sig] = 0;
+***************
+*** 445,449 ****
+  
+        if (code == 0)
+! 	parse_and_execute (trap_command, "trap");
+  
+        last_command_exit_value = old_exit_value;
+--- 447,451 ----
+  
+        if (code == 0)
+! 	parse_and_execute (trap_command, "trap", 0);
+  
+        last_command_exit_value = old_exit_value;
+***************
+*** 541,547 ****
+    int old_exit_value;
+  
+!   /* Run the interrupt trap if SIGINT is trapped and not ignored. */
+    if ((sigmodes[SIGINT] & SIG_TRAPPED) &&
+!       (trap_list[SIGINT] != (char *) IGNORE_SIG))
+      {
+        command = savestring (trap_list[SIGINT]);
+--- 543,551 ----
+    int old_exit_value;
+  
+!   /* Run the interrupt trap if SIGINT is trapped and not ignored, and if
+!      we are not currently running in the interrupt trap handler. */
+    if ((sigmodes[SIGINT] & SIG_TRAPPED) &&
+!       (trap_list[SIGINT] != (char *)IGNORE_SIG) &&
+!       (trap_list[SIGINT] != (char *)IMPOSSIBLE_TRAP_HANDLER))
+      {
+        command = savestring (trap_list[SIGINT]);
+***************
+*** 552,556 ****
+        trap_list[SIGINT] = (char *)IMPOSSIBLE_TRAP_HANDLER;
+  
+!       parse_and_execute (command, "interrupt trap");
+  
+        if (trap_list[SIGINT] == (char *)IMPOSSIBLE_TRAP_HANDLER)
+--- 556,560 ----
+        trap_list[SIGINT] = (char *)IMPOSSIBLE_TRAP_HANDLER;
+  
+!       parse_and_execute (command, "interrupt trap", 0);
+  
+        if (trap_list[SIGINT] == (char *)IMPOSSIBLE_TRAP_HANDLER)
+*** bash-1.14.0/variables.c	Thu Jun  2 09:35:16 1994
+--- bash-1.14.1/variables.c	Fri Jul  1 11:20:44 1994
+***************
+*** 37,41 ****
+  extern int posixly_correct;
+  extern int variable_context, line_number;
+! extern int interactive_shell, login_shell, shell_level;
+  extern int subshell_environment;
+  extern int build_version;
+--- 37,41 ----
+  extern int posixly_correct;
+  extern int variable_context, line_number;
+! extern int interactive, interactive_shell, login_shell, shell_level;
+  extern int subshell_environment;
+  extern int build_version;
+***************
+*** 149,154 ****
+  	  eval_string = xmalloc (3 + string_length + strlen (name));
+  	  sprintf (eval_string, "%s %s", name, string);
+- 	  parse_and_execute (eval_string, name);
+  
+  	  if (name[char_index - 1] == ')')
+  	    name[char_index - 2] = '\0';
+--- 149,155 ----
+  	  eval_string = xmalloc (3 + string_length + strlen (name));
+  	  sprintf (eval_string, "%s %s", name, string);
+  
++ 	  parse_and_execute (eval_string, name, 0);
++ 
+  	  if (name[char_index - 1] == ')')
+  	    name[char_index - 2] = '\0';
+***************
+*** 354,359 ****
+  #if defined (HISTORY)
+    if (interactive_shell && remember_on_history)
+!     command_oriented_history =
+!       find_variable ("command_oriented_history") != (SHELL_VAR *)NULL;
+  #endif /* HISTORY */
+  
+--- 355,365 ----
+  #if defined (HISTORY)
+    if (interactive_shell && remember_on_history)
+!     {
+!       sv_command_oriented_history ("command_oriented_history");
+!       if (find_variable ("history_control"))
+! 	sv_history_control ("history_control");	/* gone in next release */
+!       else
+! 	sv_history_control ("HISTCONTROL");
+!     }
+  #endif /* HISTORY */
+  
+*** bash-1.14.0/builtins/Makefile	Thu Jun  2 09:35:29 1994
+--- bash-1.14.1/builtins/Makefile	Fri Jul  1 11:20:55 1994
+***************
+*** 172,176 ****
+  exec.o: ../quit.h ../dispose_cmd.h ../make_cmd.h ../subst.h ../externs.h
+  exec.o: ../shell.h ../unwind_prot.h ../variables.h common.h ../execute_cmd.h
+! exec.o: ../maxpath.h
+  exit.o: ../command.h ../config.h ../memalloc.h ../error.h ../general.h
+  exit.o: ../quit.h ../dispose_cmd.h ../make_cmd.h ../subst.h ../externs.h
+--- 172,176 ----
+  exec.o: ../quit.h ../dispose_cmd.h ../make_cmd.h ../subst.h ../externs.h
+  exec.o: ../shell.h ../unwind_prot.h ../variables.h common.h ../execute_cmd.h
+! exec.o: ../maxpath.h ../flags.h
+  exit.o: ../command.h ../config.h ../memalloc.h ../error.h ../general.h
+  exit.o: ../quit.h ../dispose_cmd.h ../make_cmd.h ../subst.h ../externs.h
+*** bash-1.14.0/builtins/command.def	Thu Jun  2 09:35:30 1994
+--- bash-1.14.1/builtins/command.def	Fri Jul  1 11:20:56 1994
+***************
+*** 163,169 ****
+    size_t len;
+  
+!   len = (long) confstr (_CS_PATH, (char *)NULL, (size_t)0);
+    p = xmalloc ((int)len + 2);
+!   (void) confstr (_CS_PATH, p, len);
+    return (p);
+  #else /* !_CSPATH || hpux_7 || NetBSD */
+--- 163,170 ----
+    size_t len;
+  
+!   len = (size_t)confstr (_CS_PATH, (char *)NULL, (size_t)0);
+    p = xmalloc ((int)len + 2);
+!   *p = '\0';
+!   confstr (_CS_PATH, p, len);
+    return (p);
+  #else /* !_CSPATH || hpux_7 || NetBSD */
+*** bash-1.14.0/builtins/common.c	Thu Jun  2 09:35:31 1994
+--- bash-1.14.1/builtins/common.c	Fri Jul  1 11:20:56 1994
+***************
+*** 534,542 ****
+  
+  /* Parse and execute the commands in STRING.  Returns whatever
+!    execute_command () returns.  This frees STRING. */
+  int
+! parse_and_execute (string, from_file)
+       char *string;
+       char *from_file;
+  {
+    int last_result = EXECUTION_SUCCESS;
+--- 534,545 ----
+  
+  /* Parse and execute the commands in STRING.  Returns whatever
+!    execute_command () returns.  This frees STRING.  INTERACT is
+!    the new value for `interactive' while the commands are being
+!    executed.  A value of -1 means don't change it. */
+  int
+! parse_and_execute (string, from_file, interact)
+       char *string;
+       char *from_file;
++      int interact;
+  {
+    int last_result = EXECUTION_SUCCESS;
+***************
+*** 549,552 ****
+--- 552,557 ----
+    unwind_protect_jmp_buf (top_level);
+    unwind_protect_int (indirection_level);
++   if (interact != -1 && interactive != interact)
++     unwind_protect_int (interactive);
+  
+  #if defined (HISTORY)
+***************
+*** 568,571 ****
+--- 573,578 ----
+    push_stream ();
+    indirection_level++;
++   if (interact != -1)
++     interactive = interact;
+  
+  #if defined (HISTORY)
+***************
+*** 597,600 ****
+--- 604,608 ----
+  	if (code)
+  	  {
++ 	    jump_to_top_level = 0;
+  	    switch (code)
+  	      {
+*** bash-1.14.0/builtins/eval.def	Thu Jun  2 09:35:31 1994
+--- bash-1.14.1/builtins/eval.def	Fri Jul  1 11:20:57 1994
+***************
+*** 37,43 ****
+    int result;
+  
+!   /* Note that parse_and_execute () free ()'s what it is passed. */
+    if (list)
+!     result = parse_and_execute (string_list (list), "eval");
+    else
+      result = EXECUTION_SUCCESS;
+--- 37,43 ----
+    int result;
+  
+!   /* Note that parse_and_execute () frees the string it is passed. */
+    if (list)
+!     result = parse_and_execute (string_list (list), "eval", -1);
+    else
+      result = EXECUTION_SUCCESS;
+*** bash-1.14.0/builtins/exec.def	Thu Jun  2 09:35:32 1994
+--- bash-1.14.1/builtins/exec.def	Fri Jul  1 11:20:57 1994
+***************
+*** 41,44 ****
+--- 41,45 ----
+  #include "../execute_cmd.h"
+  #include "common.h"
++ #include "../flags.h"
+  
+  /* Not all systems declare ERRNO in errno.h... and some systems #define it! */
+*** bash-1.14.0/builtins/fc.def	Thu Jun  2 09:35:32 1994
+--- bash-1.14.1/builtins/fc.def	Fri Jul  1 11:20:58 1994
+***************
+*** 122,126 ****
+  		for (rl = rlist; rl; ) { \
+  			REPL *r;	\
+- \
+  			r = rl->next; \
+  			if (rl->pat) \
+--- 122,125 ----
+***************
+*** 259,263 ****
+        printf ("%s\n", command);
+        fc_replhist (command);	/* replace `fc -e -' with command */
+!       return (parse_and_execute (command, "fc"));
+      }
+  
+--- 258,262 ----
+        printf ("%s\n", command);
+        fc_replhist (command);	/* replace `fc -e -' with command */
+!       return (parse_and_execute (command, "fc", -1));
+      }
+  
+***************
+*** 379,383 ****
+        sprintf (command, "%s %s", FC_EDIT_COMMAND, fn);
+      }
+!   parse_and_execute (command, "fc");
+  
+    /* Now reopen the file and execute the edited commands. */
+--- 378,382 ----
+        sprintf (command, "%s %s", FC_EDIT_COMMAND, fn);
+      }
+!   parse_and_execute (command, "fc", -1);
+  
+    /* Now reopen the file and execute the edited commands. */
+***************
+*** 625,631 ****
+     by this time, is `fc blah...'.  The intent is that the new command
+     become the history entry, and that `fc' should never appear in the
+!    history list.  This way you can do `r' to your heart's content.
+! 
+!    Should this do anything with the history_control variable? */
+  static void
+  fc_replhist (command)
+--- 624,628 ----
+     by this time, is `fc blah...'.  The intent is that the new command
+     become the history entry, and that `fc' should never appear in the
+!    history list.  This way you can do `r' to your heart's content. */
+  static void
+  fc_replhist (command)
+***************
+*** 633,637 ****
+  {
+    register int i;
+!   HIST_ENTRY **hlist, *histent, *discard, *history_get ();
+    char *data;
+    int n;
+--- 630,634 ----
+  {
+    register int i;
+!   HIST_ENTRY **hlist, *histent, *discard;
+    char *data;
+    int n;
+***************
+*** 655,663 ****
+      return;
+  
+-   if (histent->data)
+-     data = savestring (histent->data);
+-   else
+-     data = (char *) NULL;
+- 
+    n = strlen (command);
+  
+--- 652,655 ----
+***************
+*** 667,671 ****
+    if (command && *command)
+      {
+!       discard = replace_history_entry (i, command, data);
+        if (discard)
+  	{
+--- 659,663 ----
+    if (command && *command)
+      {
+!       discard = remove_history (i);
+        if (discard)
+  	{
+***************
+*** 672,678 ****
+  	  if (discard->line)
+  	    free (discard->line);
+- 
+  	  free ((char *) discard);
+  	}
+      }
+  }
+--- 664,670 ----
+  	  if (discard->line)
+  	    free (discard->line);
+  	  free ((char *) discard);
+  	}
++       maybe_add_history (command);	/* Obeys HISTCONTROL setting. */
+      }
+  }
+***************
+*** 683,687 ****
+       char *line;
+  {
+!   register int n = strlen (line);
+  
+    if (line[n - 1] == '\n')
+--- 675,681 ----
+       char *line;
+  {
+!   register int n;
+! 
+!   n = strlen (line);
+  
+    if (line[n - 1] == '\n')
+*** bash-1.14.0/builtins/fg_bg.def	Thu Jun  2 09:35:32 1994
+--- bash-1.14.1/builtins/fg_bg.def	Fri Jul  1 11:20:58 1994
+***************
+*** 50,54 ****
+  
+    if (!job_control)
+!     return (EXECUTION_FAILURE);
+  
+    /* If the last arg on the line is '&', then start this job in the
+--- 50,57 ----
+  
+    if (!job_control)
+!     {
+!       builtin_error ("no job control");
+!       return (EXECUTION_FAILURE);
+!     }
+  
+    /* If the last arg on the line is '&', then start this job in the
+***************
+*** 81,85 ****
+  {
+    if (!job_control)
+!     return (EXECUTION_FAILURE);
+  
+    return (fg_bg (list, 0));
+--- 84,91 ----
+  {
+    if (!job_control)
+!     {
+!       builtin_error ("no job control");
+!       return (EXECUTION_FAILURE);
+!     }
+  
+    return (fg_bg (list, 0));
+*** bash-1.14.0/builtins/hash.def	Thu Jun  2 09:35:33 1994
+--- bash-1.14.1/builtins/hash.def	Fri Jul  1 11:20:59 1994
+***************
+*** 175,181 ****
+  	{
+  	  if (full_path && executable_file (full_path))
+! 	    {
+! 	      remember_filename (word, full_path, dot_found_in_search);
+! 	    }
+  	  else
+  	    {
+--- 175,179 ----
+  	{
+  	  if (full_path && executable_file (full_path))
+! 	    remember_filename (word, full_path, dot_found_in_search, 0);
+  	  else
+  	    {
+***************
+*** 200,208 ****
+  /* Place FILENAME (key) and FULL_PATHNAME (data->path) into the
+     hash table.  CHECK_DOT if non-null is for future calls to
+!    find_hashed_filename (). */
+  void
+! remember_filename (filename, full_pathname, check_dot)
+       char *filename, *full_pathname;
+!      int check_dot;
+  {
+    register BUCKET_CONTENTS *item;
+--- 198,207 ----
+  /* Place FILENAME (key) and FULL_PATHNAME (data->path) into the
+     hash table.  CHECK_DOT if non-null is for future calls to
+!    find_hashed_filename ().  FOUND is the initial value for
+!    times_found. */
+  void
+! remember_filename (filename, full_pathname, check_dot, found)
+       char *filename, *full_pathname;
+!      int check_dot, found;
+  {
+    register BUCKET_CONTENTS *item;
+***************
+*** 220,223 ****
+    pathdata(item)->path = savestring (full_pathname);
+    pathdata(item)->check_dot = check_dot;
+!   item->times_found = 0;
+  }
+--- 219,222 ----
+    pathdata(item)->path = savestring (full_pathname);
+    pathdata(item)->check_dot = check_dot;
+!   item->times_found = found;
+  }
+*** bash-1.14.0/builtins/help.def	Thu Jun  2 09:35:33 1994
+--- bash-1.14.1/builtins/help.def	Fri Jul  1 11:20:59 1994
+***************
+*** 106,110 ****
+  
+  	      QUIT;
+! 	      if ((strnicmp (pattern, name, plen) == 0) ||
+  		  (fnmatch (pattern, name, 0) != FNM_NOMATCH))
+  		{
+--- 106,110 ----
+  
+  	      QUIT;
+! 	      if ((strncmp (pattern, name, plen) == 0) ||
+  		  (fnmatch (pattern, name, 0) != FNM_NOMATCH))
+  		{
+***************
+*** 133,135 ****
+    return (EXECUTION_SUCCESS);
+  }
+- 
+--- 133,134 ----
+*** bash-1.14.0/builtins/source.def	Thu Jun  2 09:35:35 1994
+--- bash-1.14.1/builtins/source.def	Fri Jul  1 11:21:01 1994
+***************
+*** 166,170 ****
+  	parse_and_execute_cleanup ();
+        else
+! 	result = parse_and_execute (string, filename);
+  
+        run_unwind_frame ("File Sourcing");
+--- 166,170 ----
+  	parse_and_execute_cleanup ();
+        else
+! 	result = parse_and_execute (string, filename, -1);
+  
+        run_unwind_frame ("File Sourcing");
+*** bash-1.14.0/builtins/ulimit.def	Thu Jun  2 09:35:37 1994
+--- bash-1.14.1/builtins/ulimit.def	Fri Jul  1 11:21:02 1994
+***************
+*** 103,108 ****
+  #define u_ALL_LIMITS		0x7ff
+  
+! #ifndef RLIM_INFINITY
+  #  define RLIM_INFINITY  0x7fffffff
+  #endif
+  
+--- 103,115 ----
+  #define u_ALL_LIMITS		0x7ff
+  
+! #if !defined (RLIM_INFINITY)
+  #  define RLIM_INFINITY  0x7fffffff
++ #endif
++ 
++ /* Some systems use RLIMIT_NOFILE, others use RLIMIT_OFILE */
++ #if defined (HAVE_RESOURCE)
++ #  if defined (RLIMIT_OFILE) && !defined (RLIMIT_NOFILE)
++ #    define RLIMIT_NOFILE RLIMIT_OFILE
++ #  endif
+  #endif
+  
+*** bash-1.14.0/builtins/umask.def	Thu Jun  2 09:35:37 1994
+--- bash-1.14.1/builtins/umask.def	Fri Jul  1 11:21:03 1994
+***************
+*** 71,75 ****
+  	{
+  	  bad_option (list->word->word);
+! 	  builtin_error ("usage: ulimit [-S] [mode]");
+  	  return (EX_USAGE);
+  	}
+--- 71,75 ----
+  	{
+  	  bad_option (list->word->word);
+! 	  builtin_error ("usage: umask [-S] [mode]");
+  	  return (EX_USAGE);
+  	}
+*** bash-1.14.0/builtins/wait.def	Thu Jun  2 09:35:37 1994
+--- bash-1.14.1/builtins/wait.def	Fri Jul  1 11:21:03 1994
+***************
+*** 78,89 ****
+      {
+        pid_t pid;
+!       if (digit (*(list->word->word)))
+  	{
+! 	  if (sscanf (list->word->word, "%d", &pid) == 1)
+! 	    status = wait_for_single_pid (pid);
+  	  else
+  	    {
+! 	      builtin_error
+! 		("`%s' is not a pid or job spec", list->word->word);
+  	      status = EXECUTION_FAILURE;
+  	      goto return_status;
+--- 78,94 ----
+      {
+        pid_t pid;
+!       char *w;
+! 
+!       w = list->word->word;
+!       if (digit (*w))
+  	{
+! 	  if (all_digits (w + 1))
+! 	    {
+! 	      pid = (pid_t)atoi (w);
+! 	      status = wait_for_single_pid (pid);
+! 	    }
+  	  else
+  	    {
+! 	      builtin_error ("`%s' is not a pid or job spec", w);
+  	      status = EXECUTION_FAILURE;
+  	      goto return_status;
+***************
+*** 91,95 ****
+  	}
+  #if defined (JOB_CONTROL)
+!       else if (job_control)
+  	/* Must be a job spec.  Check it out. */
+  	{
+--- 96,100 ----
+  	}
+  #if defined (JOB_CONTROL)
+!       else if (job_control && *w)
+  	/* Must be a job spec.  Check it out. */
+  	{
+***************
+*** 117,122 ****
+        else
+  	{
+! 	  builtin_error ("%s is not a pid or legal job spec",
+! 			 list->word->word);
+  	  status = EXECUTION_FAILURE;
+  	}
+--- 122,126 ----
+        else
+  	{
+! 	  builtin_error ("`%s' is not a pid or legal job spec", w);
+  	  status = EXECUTION_FAILURE;
+  	}
+*** bash-1.14.0/documentation/Makefile	Thu Jun  2 09:36:07 1994
+--- bash-1.14.1/documentation/Makefile	Fri Jul  1 11:21:24 1994
+***************
+*** 4,7 ****
+--- 4,9 ----
+  RM	    = rm -f
+  
++ INSTALL_DATA = install -c -m 644
++ 
+  DOC_SUPPORT = ../lib/doc-support/
+  TEXINDEX    = $(DOC_SUPPORT)texindex
+***************
+*** 13,16 ****
+--- 15,21 ----
+  MAKEINFO    = makeinfo
+  
++ # Change to groff -Tascii if you don't have nroff
++ NROFF	    = nroff
++ 
+  HSUSER      = ./../lib/readline/doc/hsuser.texinfo
+  RLUSER      = ./../lib/readline/doc/rluser.texinfo
+***************
+*** 20,41 ****
+  .1.ps:
+  	$(RM) $@
+! 	groff -man $*.1 > $@
+  .1.txt:
+  	$(RM) $@
+! 	nroff -man $*.1 > $@
+  
+  .ms.ps:
+  	$(RM) $@
+! 	groff -ms $*.ms > $@
+  .ms.txt:
+  	$(RM) $@
+! 	nroff -ms $*.ms > $@
+  
+  .3.ps:
+  	$(RM) $@
+! 	groff -man $*.3 > $@
+  .3.txt:
+  	$(RM) $@
+! 	nroff -man $*.3 > $@
+  
+  all: ps info dvi text
+--- 25,46 ----
+  .1.ps:
+  	$(RM) $@
+! 	groff -man $< > $@
+  .1.txt:
+  	$(RM) $@
+! 	${NROFF} -man $< > $@
+  
+  .ms.ps:
+  	$(RM) $@
+! 	groff -ms $< > $@
+  .ms.txt:
+  	$(RM) $@
+! 	${NROFF} -ms $< > $@
+  
+  .3.ps:
+  	$(RM) $@
+! 	groff -man $< > $@
+  .3.txt:
+  	$(RM) $@
+! 	${NROFF} -man $< > $@
+  
+  all: ps info dvi text
+***************
+*** 53,57 ****
+  features.ps: features.dvi
+  	$(RM) $@
+! 	$(DVIPS) $*.dvi
+  
+  features.info: features.texi $(HSUSER) $(RLUSER)
+--- 58,62 ----
+  features.ps: features.dvi
+  	$(RM) $@
+! 	$(DVIPS) features.dvi
+  
+  features.info: features.texi $(HSUSER) $(RLUSER)
+***************
+*** 96,101 ****
+  
+  install: all
+! 	$(CP) bash.1 $(mandir)
+  	sed 's:so bash.1:so man1/bash.1:' < builtins.1 > $(mandir)/bash_builtins.1
+! 	$(CP) readline.3 $(man3dir)
+! 	$(CP) features.info $(infodir)/bash.info
+--- 101,113 ----
+  
+  install: all
+! 	[ -d $(mandir) ] || mkdir $(mandir)
+! 	$(INSTALL_DATA) bash.1 $(mandir)
+  	sed 's:so bash.1:so man1/bash.1:' < builtins.1 > $(mandir)/bash_builtins.1
+! 	[ -d $(man3dir) ] || mkdir $(man3dir)
+! 	$(INSTALL_DATA) readline.3 $(man3dir)
+! 	[ -d $(infodir) ] || mkdir $(infodir)
+! 	$(INSTALL_DATA) features.info $(infodir)/bash.info
+! 
+! uninstall:
+! 	$(RM) $(mandir)/bash.1 $(mandir)/bash_builtins.1
+! 	$(RM) $(man3dir)/readline.3 $(infodir)/bash.info
+*** bash-1.14.0/documentation/bash.1	Thu Jun  2 09:36:07 1994
+--- bash-1.14.1/documentation/bash.1	Fri Jul  1 11:21:24 1994
+***************
+*** 7,15 ****
+  .\"	chet@ins.CWRU.Edu
+  .\"
+! .\"	Last Change: Tue May 31 15:03:41 EDT 1994
+  .\"
+  .\" bash_builtins, strip all but Built-Ins section
+  .if \n(zZ=1 .ig zZ
+! .TH BASH 1 "1994 May 31" GNU
+  .\"
+  .\" There's some problem with having a `@'
+--- 7,15 ----
+  .\"	chet@ins.CWRU.Edu
+  .\"
+! .\"	Last Change: Mon Jun 13 20:05:33 EDT 1994
+  .\"
+  .\" bash_builtins, strip all but Built-Ins section
+  .if \n(zZ=1 .ig zZ
+! .TH BASH 1 "1994 June 13" GNU
+  .\"
+  .\" There's some problem with having a `@'
+***************
+*** 3585,3591 ****
+  loop.  If \fIn\fP is specified, break \fIn\fP levels.
+  .I n
+! must be
+! \(>=
+! 1.  If
+  .I n
+  is greater than the number of enclosing loops, all enclosing loops
+--- 3585,3589 ----
+  loop.  If \fIn\fP is specified, break \fIn\fP levels.
+  .I n
+! must be \(>= 1.  If
+  .I n
+  is greater than the number of enclosing loops, all enclosing loops
+***************
+*** 3697,3703 ****
+  is specified, resume at the \fIn\fPth enclosing loop.
+  .I n
+! must be
+! \(>=
+! 1.  If
+  .I n
+  is greater than the number of enclosing loops, the last enclosing loop
+--- 3695,3699 ----
+  is specified, resume at the \fIn\fPth enclosing loop.
+  .I n
+! must be \(>= 1.  If
+  .I n
+  is greater than the number of enclosing loops, the last enclosing loop
+***************
+*** 5325,5332 ****
+  .PP
+  Once you have determined that a bug actually exists, mail a
+! bug report to \fIbash\-maintainers\fP@\fIai.MIT.Edu\fP.
+  If you have a fix, you are welcome to mail that
+  as well!  Suggestions and `philosophical' bug reports may be mailed
+! to \fPbug-bash\fP@\fIai.MIT.Edu\fP or posted to the Usenet
+  newsgroup
+  .BR gnu.bash.bug .
+--- 5321,5328 ----
+  .PP
+  Once you have determined that a bug actually exists, mail a
+! bug report to \fIbash\-maintainers\fP@\fIprep.ai.MIT.Edu\fP.
+  If you have a fix, you are welcome to mail that
+  as well!  Suggestions and `philosophical' bug reports may be mailed
+! to \fPbug-bash\fP@\fIprep.ai.MIT.Edu\fP or posted to the Usenet
+  newsgroup
+  .BR gnu.bash.bug .
+*** bash-1.14.0/documentation/readline.3	Thu Jun  2 09:36:09 1994
+--- bash-1.14.1/documentation/readline.3	Fri Jul  1 11:21:25 1994
+***************
+*** 7,13 ****
+  .\"	chet@ins.CWRU.Edu
+  .\"
+! .\"	Last Change: Thu Jan 27 11:19:45 EST 1994
+  .\"
+! .TH READLINE 3 "1994 January 27" GNU
+  .\"
+  .\" File Name macro.  This used to be `.PN', for Path Name,
+--- 7,13 ----
+  .\"	chet@ins.CWRU.Edu
+  .\"
+! .\"	Last Change: Mon Jun 13 20:06:14 EDT 1994
+  .\"
+! .TH READLINE 3 "1994 June 13" GNU
+  .\"
+  .\" File Name macro.  This used to be `.PN', for Path Name,
+***************
+*** 1196,1203 ****
+  .PP
+  Once you have determined that a bug actually exists, mail a
+! bug report to \fIbash\-maintainers\fP@\fIai.MIT.Edu\fP.
+  If you have a fix, you are welcome to mail that
+  as well!  Suggestions and `philosophical' bug reports may be mailed
+! to \fPbug-bash\fP@\fIai.MIT.Edu\fP or posted to the Usenet
+  newsgroup
+  .BR gnu.bash.bug .
+--- 1196,1203 ----
+  .PP
+  Once you have determined that a bug actually exists, mail a
+! bug report to \fIbash\-maintainers\fP@\fIprep.ai.MIT.Edu\fP.
+  If you have a fix, you are welcome to mail that
+  as well!  Suggestions and `philosophical' bug reports may be mailed
+! to \fPbug-bash\fP@\fIprep.ai.MIT.Edu\fP or posted to the Usenet
+  newsgroup
+  .BR gnu.bash.bug .
+*** bash-1.14.0/lib/readline/STANDALONE	Thu Jun  2 09:35:52 1994
+--- bash-1.14.1/lib/readline/STANDALONE	Fri Jul  1 11:21:15 1994
+***************
+*** 22,25 ****
+--- 22,26 ----
+  WINSIZE_IN_IOCTL_H	need to include <sys/ioctl.h> for TIOCGWINSZ
+  HAVE_GETPW_DECLS	the getpw* functions are declared in <pwd.h>
++ HAVE_STRCASECMP		the strcasecmp and strncasecmp functions are available
+  
+  USG			Running a variant of System V
+***************
+*** 28,29 ****
+--- 29,31 ----
+  Linux			Linux
+  CRAY			running a recent version of Cray UNICOS
++ SunOS4			Running SunOS 4.x
+*** bash-1.14.0/lib/readline/bind.c	Thu Jun  2 09:35:54 1994
+--- bash-1.14.1/lib/readline/bind.c	Fri Jul  1 11:21:16 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+***************
+*** 90,94 ****
+--- 91,101 ----
+  
+  static int glean_key_from_name ();
++ 
++ #if defined (HAVE_STRCASECMP)
++ #define stricmp strcasecmp
++ #define strnicmp strncasecmp
++ #else
+  static int stricmp (), strnicmp ();
++ #endif
+  
+  #if defined (STATIC_MALLOC)
+***************
+*** 1420,1423 ****
+--- 1427,1431 ----
+  }
+  
++ #if !defined (HAVE_STRCASECMP)
+  /* Whoops, Unix doesn't have strnicmp. */
+  
+***************
+*** 1437,1441 ****
+        if (to_upper(ch1) == to_upper(ch2))
+  	count--;
+!       else break;
+      }
+    return (count);
+--- 1445,1450 ----
+        if (to_upper(ch1) == to_upper(ch2))
+  	count--;
+!       else
+!         break;
+      }
+    return (count);
+***************
+*** 1456,1461 ****
+  	return (1);
+      }
+!   return (*string1 | *string2);
+  }
+  
+  /* Determine if s2 occurs in s1.  If so, return a pointer to the
+--- 1465,1471 ----
+  	return (1);
+      }
+!   return (*string1 - *string2);
+  }
++ #endif /* !HAVE_STRCASECMP */
+  
+  /* Determine if s2 occurs in s1.  If so, return a pointer to the
+***************
+*** 1469,1473 ****
+  
+    for (i = 0; (len - i) >= l; i++)
+!     if (strnicmp (&s1[i], s2, l) == 0)
+        return (s1 + i);
+    return ((char *)NULL);
+--- 1479,1483 ----
+  
+    for (i = 0; (len - i) >= l; i++)
+!     if (strnicmp (s1 + i, s2, l) == 0)
+        return (s1 + i);
+    return ((char *)NULL);
+*** bash-1.14.0/lib/readline/chardefs.h	Thu Jun  2 09:35:47 1994
+--- bash-1.14.1/lib/readline/chardefs.h	Fri Jul  1 11:21:11 1994
+***************
+*** 1,6 ****
+  /* chardefs.h -- Character definitions for readline. */
+- #ifndef _CHARDEFS_
+- #define _CHARDEFS_
+  
+  #include <ctype.h>
+  
+--- 1,27 ----
+  /* chardefs.h -- Character definitions for readline. */
+  
++ /* Copyright (C) 1994 Free Software Foundation, Inc.
++ 
++    This file is part of the GNU Readline Library, a library for
++    reading lines of text with interactive input and history editing.
++ 
++    The GNU Readline Library is free software; you can redistribute it
++    and/or modify it under the terms of the GNU General Public License
++    as published by the Free Software Foundation; either version 1, or
++    (at your option) any later version.
++ 
++    The GNU Readline Library is distributed in the hope that it will be
++    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++ 
++    The GNU General Public License is often shipped with GNU software, and
++    is generally kept in a file called COPYING or LICENSE.  If you do not
++    have a copy of the license, write to the Free Software Foundation,
++    675 Mass Ave, Cambridge, MA 02139, USA. */
++ 
++ #ifndef _CHARDEFS_H
++ #define _CHARDEFS_H
++ 
+  #include <ctype.h>
+  
+***************
+*** 11,22 ****
+  #endif /* HAVE_STRING_H */
+  
+- #ifndef savestring
+- extern char *xmalloc ();
+- #  ifndef strcpy
+- extern char *strcpy ();
+- #  endif
+- #define savestring(x) strcpy (xmalloc (1 + strlen (x)), (x))
+- #endif
+- 
+  #ifndef whitespace
+  #define whitespace(c) (((c) == ' ') || ((c) == '\t'))
+--- 32,35 ----
+***************
+*** 41,52 ****
+  #define UNCTRL(c) to_upper(((c)|control_character_bit))
+  
+  #define lowercase_p(c) (((c) > ('a' - 1) && (c) < ('z' + 1)))
+  #define uppercase_p(c) (((c) > ('A' - 1) && (c) < ('Z' + 1)))
+  
+  #define pure_alphabetic(c) (lowercase_p(c) || uppercase_p(c))
+  
+  #ifndef to_upper
+! #define to_upper(c) (lowercase_p(c) ? ((c) - 32) : (c))
+! #define to_lower(c) (uppercase_p(c) ? ((c) + 32) : (c))
+  #endif
+  
+--- 54,75 ----
+  #define UNCTRL(c) to_upper(((c)|control_character_bit))
+  
++ /* Old versions
+  #define lowercase_p(c) (((c) > ('a' - 1) && (c) < ('z' + 1)))
+  #define uppercase_p(c) (((c) > ('A' - 1) && (c) < ('Z' + 1)))
++ */
+  
++ #define lowercase_p(c) (islower(c))
++ #define uppercase_p(c) (isupper(c))
++ 
+  #define pure_alphabetic(c) (lowercase_p(c) || uppercase_p(c))
+  
++ /* Old versions
++ #  define to_upper(c) (lowercase_p(c) ? ((c) - 32) : (c))
++ #  define to_lower(c) (uppercase_p(c) ? ((c) + 32) : (c))
++ */
++ 
+  #ifndef to_upper
+! #  define to_upper(c) (islower(c) ? toupper(c) : (c))
+! #  define to_lower(c) (isupper(c) ? tolower(c) : (c))
+  #endif
+  
+***************
+*** 87,91 ****
+  #undef SPACE
+  #endif
+! #define SPACE 0x20
+  
+  #ifdef ESC
+--- 110,114 ----
+  #undef SPACE
+  #endif
+! #define SPACE ' '	/* XXX - was 0x20 */
+  
+  #ifdef ESC
+***************
+*** 95,97 ****
+  #define ESC CTRL('[')
+  
+! #endif  /* _CHARDEFS_ */
+--- 118,120 ----
+  #define ESC CTRL('[')
+  
+! #endif  /* _CHARDEFS_H */
+*** bash-1.14.0/lib/readline/complete.c	Thu Jun  2 09:35:54 1994
+--- bash-1.14.1/lib/readline/complete.c	Fri Jul  1 11:21:16 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+***************
+*** 436,440 ****
+  	{
+  	  int quoted = 0;
+! 	  /* We didn't find an unclosed quoted substring up which to do
+  	     completion, so use the word break characters to find the
+  	     substring on which to complete. */
+--- 437,441 ----
+  	{
+  	  int quoted = 0;
+! 	  /* We didn't find an unclosed quoted substring upon which to do
+  	     completion, so use the word break characters to find the
+  	     substring on which to complete. */
+***************
+*** 442,445 ****
+--- 443,450 ----
+  	    {
+  	      scan = rl_line_buffer[rl_point];
++ 
++ 	      if (strchr (rl_completer_word_break_characters, scan) == 0)
++ 		continue;
++ 
+  #if defined (SHELL)
+  	      /* Don't let word break characters in quoted substrings break
+***************
+*** 448,453 ****
+  		continue;
+  #endif /* SHELL */
+! 	      if (strchr (rl_completer_word_break_characters, scan))
+! 	        break;
+  	    }
+  	}
+--- 453,460 ----
+  		continue;
+  #endif /* SHELL */
+! 
+! 	      /* Convoluted code, but it avoids an n2 algorithm with calls
+! 	      	 to char_is_quoted. */
+! 	      break;
+  	    }
+  	}
+***************
+*** 512,515 ****
+--- 519,523 ----
+      {
+        register int i;
++       int should_quote;
+  
+        /* It seems to me that in all the cases we handle we would like
+***************
+*** 594,599 ****
+  	  replacement = matches[0];
+  
+! 	  if (matches[0] && rl_completer_quote_characters && !quote_char &&
+! 	      rl_filename_completion_desired)
+  	    {
+  	      int do_replace;
+--- 602,615 ----
+  	  replacement = matches[0];
+  
+! 	  should_quote = matches[0] && rl_completer_quote_characters &&
+! 			 rl_filename_completion_desired;
+! 
+! #if defined (SHELL)
+! 	  should_quote = should_quote && (!quote_char || quote_char == '"');
+! #else
+! 	  should_quote = should_quote && !quote_char;
+! #endif
+! 
+! 	  if (should_quote)
+  	    {
+  	      int do_replace;
+***************
+*** 605,613 ****
+  		 matches needs to be quoted.  If the common prefix should
+  		 not be checked, add !matches[1] to the if clause. */
+! 	      if (rl_strpbrk (matches[0], rl_completer_word_break_characters)
+  #if defined (SHELL)
+! 	          || rl_strpbrk (matches[0], "$`")
+  #endif
+! 		 )
+  		do_replace = matches[1] ? MULT_MATCH : SINGLE_MATCH;
+  
+--- 621,630 ----
+  		 matches needs to be quoted.  If the common prefix should
+  		 not be checked, add !matches[1] to the if clause. */
+! 	      should_quote = rl_strpbrk (matches[0], rl_completer_word_break_characters) != 0;
+  #if defined (SHELL)
+! 	      should_quote = should_quote || rl_strpbrk (matches[0], "#$`") != 0;
+  #endif
+! 
+! 	      if (should_quote)
+  		do_replace = matches[1] ? MULT_MATCH : SINGLE_MATCH;
+  
+***************
+*** 615,619 ****
+  		{
+  #if defined (SHELL)
+- 		  /* XXX - experimental */
+  		  /* Quote the replacement, since we found an
+  		     embedded word break character in a potential
+--- 632,635 ----
+***************
+*** 639,643 ****
+  		  rlen = strlen (rtext);
+  		  replacement = xmalloc (rlen + 1);
+! 		  strcpy (replacement, rtext);
+  		  if (do_replace == MULT_MATCH)
+  		    replacement[rlen - 1] = '\0';
+--- 655,670 ----
+  		  rlen = strlen (rtext);
+  		  replacement = xmalloc (rlen + 1);
+! 		  /* If we're completing on a quoted string where the user
+! 		     has already supplied the opening quote, we don't want
+! 		     the quote in the replacement text, and we reset
+! 		     QUOTE_CHAR to 0 to avoid an extra closing quote. */
+! 		  if (quote_char == '"')
+! 		    {
+! 		      strcpy (replacement, rtext + 1);
+! 		      rlen--;
+! 		      quote_char = 0;
+! 		    }
+! 		  else
+! 		    strcpy (replacement, rtext);
+  		  if (do_replace == MULT_MATCH)
+  		    replacement[rlen - 1] = '\0';
+*** bash-1.14.0/lib/readline/display.c	Thu Jun  2 09:35:54 1994
+--- bash-1.14.1/lib/readline/display.c	Fri Jul  1 11:21:17 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+***************
+*** 75,78 ****
+--- 76,83 ----
+  extern char *xmalloc (), *xrealloc ();
+  
++ /* Heuristic used to decide whether it is faster to move from CUR to NEW
++    by backing up or outputting a carriage return and moving forward. */
++ #define CR_FASTER(new, cur) (((new) + 1) < ((cur) - (new)))
++ 
+  /* **************************************************************** */
+  /*								    */
+***************
+*** 282,287 ****
+    if (!invisible_line)
+      {
+!       visible_line = (char *)xmalloc (line_size);
+!       invisible_line = (char *)xmalloc (line_size);
+        line = invisible_line;
+        for (in = 0; in < line_size; in++)
+--- 287,292 ----
+    if (!invisible_line)
+      {
+!       visible_line = xmalloc (line_size);
+!       invisible_line = xmalloc (line_size);
+        line = invisible_line;
+        for (in = 0; in < line_size; in++)
+***************
+*** 322,327 ****
+  
+        if (local_prompt)
+! 	strncpy (line + out,  local_prompt, local_len);
+!       out +=  local_len;
+        line[out] = '\0';
+        wrap_offset = local_len - visible_length;
+--- 327,332 ----
+  
+        if (local_prompt)
+! 	strncpy (line + out, local_prompt, local_len);
+!       out += local_len;
+        line[out] = '\0';
+        wrap_offset = local_len - visible_length;
+***************
+*** 354,359 ****
+  	{
+  	  line_size *= 2;
+! 	  visible_line = (char *)xrealloc (visible_line, line_size);
+! 	  invisible_line = (char *)xrealloc (invisible_line, line_size);
+  	  line = invisible_line;
+  	}
+--- 359,364 ----
+  	{
+  	  line_size *= 2;
+! 	  visible_line = xrealloc (visible_line, line_size);
+! 	  invisible_line = xrealloc (invisible_line, line_size);
+  	  line = invisible_line;
+  	}
+***************
+*** 437,440 ****
+--- 442,446 ----
+  	     visible_wrap_offset for the line currently displayed. */
+  
++ #define W_OFFSET(line, offset) ((line) == 0 ? offset : 0)
+  #define L_OFFSET(n, offset) ((n) > 0 ? ((n) * screenwidth) + (offset) : 0)
+  #define VIS_CHARS(line) &visible_line[L_OFFSET((line), visible_wrap_offset)]
+***************
+*** 445,449 ****
+  	  for (linenum = 0; linenum <= inv_botlin; linenum++)
+  	    {
+! 	      update_line (VIS_LINE(linenum), INV_LINE(linenum), linenum);
+  
+  	      /* If this is the line with the prompt, we might need to
+--- 451,457 ----
+  	  for (linenum = 0; linenum <= inv_botlin; linenum++)
+  	    {
+! 	      update_line (VIS_LINE(linenum), INV_LINE(linenum), linenum,
+! 			   screenwidth + W_OFFSET(linenum, visible_wrap_offset),
+! 			   screenwidth + W_OFFSET(linenum, wrap_offset));
+  
+  	      /* If this is the line with the prompt, we might need to
+***************
+*** 485,489 ****
+  	  /* Which line? */
+  	  nleft = c_pos - screenwidth - wrap_offset;
+! 	  if (nleft > 0)
+  	    cursor_linenum = 1 + nleft / screenwidth;
+  	  else
+--- 493,497 ----
+  	  /* Which line? */
+  	  nleft = c_pos - screenwidth - wrap_offset;
+! 	  if (nleft >= 0)
+  	    cursor_linenum = 1 + nleft / screenwidth;
+  	  else
+***************
+*** 491,494 ****
+--- 499,515 ----
+  	  _rl_move_vert (cursor_linenum);
+  
++ 	  /* We have to reprint the prompt if it contains invisible
++ 	     characters, since it's not generally OK to just reprint
++ 	     the characters from the current cursor position. */
++ 	  nleft = visible_length + wrap_offset;
++ 	  if (cursor_linenum == 0 && wrap_offset > 0 && _rl_last_c_pos > 0 &&
++ 	      _rl_last_c_pos < nleft && local_prompt)
++ 	    {
++ 	      if (term_cr)
++ 		tputs (term_cr, 1, _rl_output_character_function);
++ 	      _rl_output_some_chars (local_prompt, nleft);
++ 	      _rl_last_c_pos = nleft;
++ 	    }
++ 
+  	  /* Where on that line?  And where does that line start
+  	     in the buffer? */
+***************
+*** 495,499 ****
+  	  pos = L_OFFSET(cursor_linenum, wrap_offset);
+  	  nleft = c_pos - pos;
+! 	  _rl_move_cursor_relative (nleft, &invisible_line[pos]);
+  	}
+      }
+--- 516,534 ----
+  	  pos = L_OFFSET(cursor_linenum, wrap_offset);
+  	  nleft = c_pos - pos;
+! 
+! 	  /* Since backspace() doesn't know about invisible characters in the
+! 	     prompt, and there's no good way to tell it, we compensate for
+! 	     those characters here and call backspace() directly. */
+! 	  if (wrap_offset && cursor_linenum == 0 && nleft < _rl_last_c_pos)
+! 	    {
+! 	      /* XXX - I'm not sure yet why the -1 is necessary - XXX */
+! 	      if (nleft < _rl_last_c_pos - 1)
+! 		nleft -= wrap_offset;
+! 	      backspace (_rl_last_c_pos - nleft);
+! 	      _rl_last_c_pos = nleft;
+! 	    }
+! 
+! 	  if (nleft != _rl_last_c_pos)
+! 	    _rl_move_cursor_relative (nleft, &invisible_line[pos]);
+  	}
+      }
+***************
+*** 526,531 ****
+  	{
+  	  forced_display = 0;
+! 	  update_line (&visible_line[last_lmargin],
+! 		       &invisible_line[lmargin], 0);
+  
+  	  _rl_move_cursor_relative (c_pos - lmargin, &invisible_line[lmargin]);
+--- 561,566 ----
+  	{
+  	  forced_display = 0;
+! 	  update_line (&visible_line[last_lmargin], &invisible_line[lmargin],
+! 		       0, screenwidth, screenwidth);
+  
+  	  _rl_move_cursor_relative (c_pos - lmargin, &invisible_line[lmargin]);
+***************
+*** 562,581 ****
+     Could be made even smarter, but this works well enough */
+  static void
+! update_line (old, new, current_line)
+       register char *old, *new;
+!      int current_line;
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int lendiff, wsatend;
+  
+    /* Find first difference. */
+    for (ofd = old, nfd = new;
+!        (ofd - old < screenwidth) && *ofd && (*ofd == *nfd);
+         ofd++, nfd++)
+      ;
+  
+!   /* Move to the end of the screen line. */
+!   for (oe = ofd; ((oe - old) < screenwidth) && *oe; oe++);
+!   for (ne = nfd; ((ne - new) < screenwidth) && *ne; ne++);
+  
+    /* If no difference, continue to next line. */
+--- 597,618 ----
+     Could be made even smarter, but this works well enough */
+  static void
+! update_line (old, new, current_line, omax, nmax)
+       register char *old, *new;
+!      int current_line, omax, nmax;
+  {
+    register char *ofd, *ols, *oe, *nfd, *nls, *ne;
+!   int temp, lendiff, wsatend, od, nd;
+  
+    /* Find first difference. */
+    for (ofd = old, nfd = new;
+!        (ofd - old < omax) && *ofd && (*ofd == *nfd);
+         ofd++, nfd++)
+      ;
+  
+!   /* Move to the end of the screen line.  ND and OD are used to keep track
+!      of the distance between ne and new and oe and old, respectively, to
+!      move a subtraction out of each loop. */
+!   for (od = ofd - old, oe = ofd; od < omax && *oe; oe++, od++);
+!   for (nd = nfd - new, ne = nfd; nd < nmax && *ne; ne++, nd++);
+  
+    /* If no difference, continue to next line. */
+***************
+*** 608,611 ****
+--- 645,668 ----
+  
+    _rl_move_vert (current_line);
++ 
++   /* If this is the first line and there are invisible characters in the
++      prompt string, and the prompt string has not changed, then redraw
++      the entire prompt string.  We can only do this reliably if the
++      terminal supports a `cr' capability.
++ 
++      This is more than just an efficiency hack -- there is a problem with
++      redrawing portions of the prompt string if they contain terminal
++      escape sequences (like drawing the `unbold' sequence without a
++      corresponding `bold') that manifests itself on certain terminals. */
++ 
++   lendiff = strlen (local_prompt);
++   if (current_line == 0 && lendiff > visible_length &&
++       _rl_last_c_pos > 0 && (ofd - old) >= lendiff && term_cr)
++     {
++       tputs (term_cr, 1, _rl_output_character_function);
++       _rl_output_some_chars (local_prompt, lendiff);
++       _rl_last_c_pos = lendiff;
++     }
++ 
+    _rl_move_cursor_relative (ofd - old, old);
+  
+***************
+*** 614,617 ****
+--- 671,675 ----
+  
+    /* Insert (diff (len (old), len (new)) ch. */
++   temp = ne - nfd;
+    if (lendiff > 0)
+      {
+***************
+*** 620,627 ****
+  	  /* Sometimes it is cheaper to print the characters rather than
+  	     use the terminal's capabilities. */
+! 	  if ((2 * (ne - nfd)) < lendiff && !term_IC)
+  	    {
+! 	      _rl_output_some_chars (nfd, (ne - nfd));
+! 	      _rl_last_c_pos += (ne - nfd);
+  	    }
+  	  else
+--- 678,685 ----
+  	  /* Sometimes it is cheaper to print the characters rather than
+  	     use the terminal's capabilities. */
+! 	  if ((2 * temp) < lendiff && !term_IC)
+  	    {
+! 	      _rl_output_some_chars (nfd, temp);
+! 	      _rl_last_c_pos += temp;
+  	    }
+  	  else
+***************
+*** 639,647 ****
+  		  _rl_last_c_pos += lendiff;
+  		}
+  	      /* Copy (new) chars to screen from first diff to last match. */
+! 	      if (((nls - nfd) - lendiff) > 0)
+  		{
+! 		  _rl_output_some_chars (&nfd[lendiff], ((nls - nfd) - lendiff));
+! 		  _rl_last_c_pos += ((nls - nfd) - lendiff);
+  		}
+  	    }
+--- 697,706 ----
+  		  _rl_last_c_pos += lendiff;
+  		}
++ 	      temp = nls - nfd;
+  	      /* Copy (new) chars to screen from first diff to last match. */
+! 	      if ((temp - lendiff) > 0)
+  		{
+! 		  _rl_output_some_chars (&nfd[lendiff], temp - lendiff);
+! 		  _rl_last_c_pos += temp - lendiff;
+  		}
+  	    }
+***************
+*** 649,654 ****
+        else
+  	{		/* cannot insert chars, write to EOL */
+! 	  _rl_output_some_chars (nfd, (ne - nfd));
+! 	  _rl_last_c_pos += (ne - nfd);
+  	}
+      }
+--- 708,713 ----
+        else
+  	{		/* cannot insert chars, write to EOL */
+! 	  _rl_output_some_chars (nfd, temp);
+! 	  _rl_last_c_pos += temp;
+  	}
+      }
+***************
+*** 656,660 ****
+      {
+        /* If possible and inexpensive to use terminal deletion, then do so. */
+!       if (term_dc && (2 * (ne - nfd)) >= (-lendiff))
+  	{
+  	  if (lendiff)
+--- 715,719 ----
+      {
+        /* If possible and inexpensive to use terminal deletion, then do so. */
+!       if (term_dc && (2 * temp) >= -lendiff)
+  	{
+  	  if (lendiff)
+***************
+*** 662,669 ****
+  
+  	  /* Copy (new) chars to screen from first diff to last match */
+! 	  if ((nls - nfd) > 0)
+  	    {
+! 	      _rl_output_some_chars (nfd, (nls - nfd));
+! 	      _rl_last_c_pos += (nls - nfd);
+  	    }
+  	}
+--- 721,729 ----
+  
+  	  /* Copy (new) chars to screen from first diff to last match */
+! 	  temp = nls - nfd;
+! 	  if (temp > 0)
+  	    {
+! 	      _rl_output_some_chars (nfd, temp);
+! 	      _rl_last_c_pos += temp;
+  	    }
+  	}
+***************
+*** 671,676 ****
+        else
+  	{
+! 	  _rl_output_some_chars (nfd, (ne - nfd));
+! 	  _rl_last_c_pos += (ne - nfd);
+  	  clear_to_eol ((oe - old) - (ne - new));
+  	}
+--- 731,739 ----
+        else
+  	{
+! 	  if (temp > 0)
+! 	    {
+! 	      _rl_output_some_chars (nfd, temp);
+! 	      _rl_last_c_pos += temp;
+! 	    }
+  	  clear_to_eol ((oe - old) - (ne - new));
+  	}
+***************
+*** 716,720 ****
+    /* It may be faster to output a CR, and then move forwards instead
+       of moving backwards. */
+!   if (new + 1 < _rl_last_c_pos - new)
+      {
+        tputs (term_cr, 1, _rl_output_character_function);
+--- 779,783 ----
+    /* It may be faster to output a CR, and then move forwards instead
+       of moving backwards. */
+!   if (CR_FASTER (new, _rl_last_c_pos))
+      {
+        tputs (term_cr, 1, _rl_output_character_function);
+***************
+*** 823,833 ****
+       register int c, pos;
+  {
+!   if (META_CHAR (c))
+      return ((_rl_output_meta_chars == 0) ? 4 : 1);
+  
+!   if (c == '\t')
+      {
+  #if defined (DISPLAY_TABS)
+!       return (((pos | (int)7) + 1) - pos);
+  #else
+        return (2);
+--- 886,900 ----
+       register int c, pos;
+  {
+!   unsigned char uc;
+! 
+!   uc = (unsigned char)c;
+! 
+!   if (META_CHAR (uc))
+      return ((_rl_output_meta_chars == 0) ? 4 : 1);
+  
+!   if (uc == '\t')
+      {
+  #if defined (DISPLAY_TABS)
+!       return (((pos | 7) + 1) - pos);
+  #else
+        return (2);
+***************
+*** 835,839 ****
+      }
+  
+!   return ((isprint (c)) ? 1 : 2);
+  }
+  
+--- 902,906 ----
+      }
+  
+!   return ((isprint (uc)) ? 1 : 2);
+  }
+  
+*** bash-1.14.0/lib/readline/funmap.c	Thu Jun  2 09:35:49 1994
+--- bash-1.14.1/lib/readline/funmap.c	Fri Jul  1 11:41:32 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #if defined (STATIC_MALLOC)
+***************
+*** 151,155 ****
+    { "vi-yank-arg", rl_vi_yank_arg },
+    { "vi-yank-to", rl_vi_yank_to },
+- 
+  #endif /* VI_MODE */
+  
+--- 152,155 ----
+*** bash-1.14.0/lib/readline/history.c	Thu Jun  2 09:35:48 1994
+--- bash-1.14.1/lib/readline/history.c	Fri Jul  1 11:21:12 1994
+***************
+*** 24,27 ****
+--- 24,28 ----
+     don't have to know what data types are used, just what functions
+     you can call.  I think I have done that. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+***************
+*** 665,669 ****
+    /* Write only if there are more lines in the file than we want to
+       truncate to. */
+!   if (i && ((file = open (filename, O_WRONLY, 0666)) != -1))
+      {
+        write (file, buffer + i, finfo.st_size - i);
+--- 666,670 ----
+    /* Write only if there are more lines in the file than we want to
+       truncate to. */
+!   if (i && ((file = open (filename, O_WRONLY|O_TRUNC, 0666)) != -1))
+      {
+        write (file, buffer + i, finfo.st_size - i);
+***************
+*** 1551,1554 ****
+--- 1552,1563 ----
+    char *temp;
+  
++   /* Setting the history expansion character to 0 inhibits all
++      history expansion. */
++   if (history_expansion_char == 0)
++     {
++       *output = savestring (hstring);
++       return (0);
++     }
++     
+    /* Prepare the buffer for printing error messages. */
+    result = xmalloc (result_len = 256);
+***************
+*** 1796,1800 ****
+    /* Try to get FIRST and LAST figured out. */
+  
+!   if (spec[i] == '-' || spec[i] == '^')
+      first = 1;
+    else if (digit (spec[i]) && expecting_word_spec)
+--- 1805,1811 ----
+    /* Try to get FIRST and LAST figured out. */
+  
+!   if (spec[i] == '-')
+!     first = 0;
+!   else if (spec[i] == '^')
+      first = 1;
+    else if (digit (spec[i]) && expecting_word_spec)
+*** bash-1.14.0/lib/readline/history.h	Thu Jun  2 09:35:47 1994
+--- bash-1.14.1/lib/readline/history.h	Fri Jul  1 11:21:11 1994
+***************
+*** 105,108 ****
+--- 105,112 ----
+  extern HIST_ENTRY **history_list ();
+  
++ /* Return the history entry which is logically at OFFSET in the history
++    array.  OFFSET is relative to history_base. */
++ extern HIST_ENTRY *history_get ();
++ 
+  /* Search the history for STRING, starting at history_offset.
+     If DIRECTION < 0, then the search is through previous entries,
+*** bash-1.14.0/lib/readline/isearch.c	Thu Jun  2 09:35:52 1994
+--- bash-1.14.1/lib/readline/isearch.c	Fri Jul  1 11:21:15 1994
+***************
+*** 25,31 ****
+--- 25,36 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+  
++ #if defined (HAVE_UNISTD_H)
++ #  include <unistd.h>
++ #endif
++ 
+  #include "memalloc.h"
+  #include "readline.h"
+***************
+*** 176,179 ****
+--- 181,185 ----
+    *search_string = '\0';
+    search_string_index = 0;
++   prev_line_found = (char *)0;		/* XXX */
+  
+    /* Normalize DIRECTION into 1 or -1. */
+***************
+*** 241,248 ****
+  	  free (allocated_line);
+  	  free (lines);
+! 	  return;
+  
+  	default:
+! 	  if (c < 32 || c > 126)
+  	    {
+  	      rl_execute_next (c);
+--- 247,254 ----
+  	  free (allocated_line);
+  	  free (lines);
+! 	  return 0;
+  
+  	default:
+! 	  if (CTRL_P (c) || META_CHAR (c) || c == RUBOUT)
+  	    {
+  	      rl_execute_next (c);
+***************
+*** 320,324 ****
+  	  ding ();
+  	  i = last_found_line;
+! 	  break;
+  	}
+  
+--- 326,330 ----
+  	  ding ();
+  	  i = last_found_line;
+! 	  continue; 		/* XXX - was break */
+  	}
+  
+*** bash-1.14.0/lib/readline/keymaps.c	Thu Jun  2 09:35:49 1994
+--- bash-1.14.1/lib/readline/keymaps.c	Fri Jul  1 11:21:13 1994
+***************
+*** 19,22 ****
+--- 19,23 ----
+     along with Readline; see the file COPYING.  If not, write to the Free
+     Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #if defined (HAVE_STDLIB_H)
+*** bash-1.14.0/lib/readline/keymaps.h	Thu Jun  2 09:35:48 1994
+--- bash-1.14.1/lib/readline/keymaps.h	Fri Jul  1 11:21:12 1994
+***************
+*** 24,28 ****
+  #define _KEYMAPS_H_
+  
+! #include <readline/chardefs.h>
+  
+  #if !defined (__FUNCTION_DEF)
+--- 24,32 ----
+  #define _KEYMAPS_H_
+  
+! #if defined (READLINE_LIBRARY)
+! #  include "chardefs.h"
+! #else
+! #  include <readline/chardefs.h>
+! #endif
+  
+  #if !defined (__FUNCTION_DEF)
+*** bash-1.14.0/lib/readline/parens.c	Thu Jun  2 09:35:53 1994
+--- bash-1.14.1/lib/readline/parens.c	Fri Jul  1 11:21:16 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include "rlconf.h"
+*** bash-1.14.0/lib/readline/readline.c	Thu Jun  2 13:58:45 1994
+--- bash-1.14.1/lib/readline/readline.c	Fri Jul  1 11:43:00 1994
+***************
+*** 21,24 ****
+--- 21,25 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+***************
+*** 3246,3249 ****
+--- 3247,3263 ----
+      }
+  }
++ 
++ #if !defined (SHELL)
++ #ifdef savestring
++ #undef savestring
++ #endif
++ /* Backwards compatibilty, now that savestring has been removed from
++    all `public' readline header files. */
++ savestring (s)
++      char *s;
++ {
++   return ((char *)strcpy (xmalloc (1 + (int)strlen (x)), (x)));
++ }
++ #endif
+  
+  #if defined (STATIC_MALLOC)
+*** bash-1.14.0/lib/readline/readline.h	Thu Jun  2 09:35:46 1994
+--- bash-1.14.1/lib/readline/readline.h	Fri Jul  1 11:21:10 1994
+***************
+*** 24,29 ****
+  #define _READLINE_H_
+  
+! #include <readline/keymaps.h>
+! #include <readline/tilde.h>
+  
+  /* The functions for manipulating the text of the line within readline.
+--- 24,34 ----
+  #define _READLINE_H_
+  
+! #if defined (READLINE_LIBRARY)
+! #  include "keymaps.h"
+! #  include "tilde.h"
+! #else
+! #  include <readline/keymaps.h>
+! #  include <readline/tilde.h>
+! #endif
+  
+  /* The functions for manipulating the text of the line within readline.
+***************
+*** 47,51 ****
+    rl_restart_output (), rl_re_read_init_file (), rl_dump_functions (),
+    rl_delete_horizontal_space (), rl_history_search_forward (),
+!   rl_history_search_backward ();
+  
+  /* `Public' utility functions. */
+--- 52,56 ----
+    rl_restart_output (), rl_re_read_init_file (), rl_dump_functions (),
+    rl_delete_horizontal_space (), rl_history_search_forward (),
+!   rl_history_search_backward (), rl_tty_status ();
+  
+  /* `Public' utility functions. */
+***************
+*** 64,70 ****
+  extern int rl_do_undo ();
+  
+! #if defined (PAREN_MATCHING)
+  extern int rl_insert_close ();
+- #endif /* PAREN_MATCHING */
+  
+  /* These are *both* defined even when VI_MODE is not. */
+--- 69,74 ----
+  extern int rl_do_undo ();
+  
+! /* Not available unless readline is compiled -DPAREN_MATCHING. */
+  extern int rl_insert_close ();
+  
+  /* These are *both* defined even when VI_MODE is not. */
+***************
+*** 76,81 ****
+    rl_noninc_forward_search_again (), rl_noninc_reverse_search_again ();
+  
+! #if defined (VI_MODE)
+! /* Things for vi mode. */
+  extern int rl_vi_check (), rl_vi_textmod_command ();
+  extern int
+--- 80,84 ----
+    rl_noninc_forward_search_again (), rl_noninc_reverse_search_again ();
+  
+! /* Things for vi mode. Not available unless readline is compiled -DVI_MODE. */
+  extern int rl_vi_check (), rl_vi_textmod_command ();
+  extern int
+***************
+*** 93,97 ****
+    rl_vi_delete_to (), rl_vi_change_to (), rl_vi_yank_to (),
+    rl_vi_complete (), rl_vi_fetch_history ();
+- #endif /* VI_MODE */
+  
+  /* Keyboard macro commands. */
+--- 96,99 ----
+*** bash-1.14.0/lib/readline/rldefs.h	Thu Jun  2 09:35:53 1994
+--- bash-1.14.1/lib/readline/rldefs.h	Fri Jul  1 11:21:15 1994
+***************
+*** 187,190 ****
+--- 187,195 ----
+  #endif
+  
++ #ifndef savestring
++ extern char *xmalloc ();
++ #define savestring(x) strcpy (xmalloc (1 + strlen (x)), (x))
++ #endif
++ 
+  /* Possible values for _rl_bell_preference. */
+  #define NO_BELL 0
+*** bash-1.14.0/lib/readline/rltty.c	Thu Jun  2 09:35:53 1994
+--- bash-1.14.1/lib/readline/rltty.c	Fri Jul  1 11:21:16 1994
+***************
+*** 21,24 ****
+--- 21,26 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
++ 
+  #include <sys/types.h>
+  #include <signal.h>
+***************
+*** 197,200 ****
+--- 199,209 ----
+       TIOTYPE *tiop;
+  {
++ #if !defined (SHELL) && defined (TIOCGWINSZ)
++   struct winsize w;
++ 
++   if (ioctl (tty, TIOCGWINSZ, &w) == 0)
++       (void) ioctl (tty, TIOCSWINSZ, &w);
++ #endif
++ 
+    tiop->flags = tiop->lflag = 0;
+  
+***************
+*** 361,364 ****
+--- 370,380 ----
+       TIOTYPE *tiop;
+  {
++ #if !defined (SHELL) && defined (TIOCGWINSZ)
++   struct winsize w;
++ 
++   if (ioctl (tty, TIOCGWINSZ, &w) == 0)
++       (void) ioctl (tty, TIOCSWINSZ, &w);
++ #endif
++ 
+    while (GETATTR (tty, tiop) < 0)
+      {
+***************
+*** 602,605 ****
+--- 618,631 ----
+  #if defined (NEW_TTY_DRIVER)
+  
++ #define SET_SPECIAL(sc, func) \
++   do \
++     { \
++       int ic; \
++       ic = sc; \
++       if (ic != -1 && kmap[ic].type == ISFUNC) \
++ 	kmap[ic].function = func; \
++     } \
++   while (0)
++ 
+    if (get_tty_settings (tty, &ttybuff) == 0)
+      {
+***************
+*** 606,678 ****
+        if (ttybuff.flags & SGTTY_SET)
+  	{
+! 	  int erase, kill;
+! 
+! 	  erase = ttybuff.sgttyb.sg_erase;
+! 	  kill  = ttybuff.sgttyb.sg_kill;
+! 
+! 	  if (erase != -1 && kmap[erase].type == ISFUNC)
+! 	    kmap[erase].function = rl_rubout;
+! 
+! 	  if (kill != -1 && kmap[kill].type == ISFUNC)
+! 	    kmap[kill].function = rl_unix_line_discard;
+  	}
+  
+  #  if defined (TIOCGLTC)
+- 
+        if (ttybuff.flags & LTCHARS_SET)
+  	{
+! 	  int werase, nextc;
+! 
+! 	  werase = ttybuff.ltchars.t_werasc;
+! 	  nextc = ttybuff.ltchars.t_lnextc;
+! 
+! 	  if (werase != -1 && kmap[werase].type == ISFUNC)
+! 	    kmap[werase].function = rl_unix_word_rubout;
+! 
+! 	  if (nextc != -1 && kmap[nextc].type == ISFUNC)
+! 	    kmap[nextc].function = rl_quoted_insert;
+  	}
+-     }
+  #  endif /* TIOCGLTC */
+  
+  #else /* !NEW_TTY_DRIVER */
+  
+    if (get_tty_settings (tty, &ttybuff) == 0)
+      {
+!       unsigned char erase, kill;
+  
+-       erase = ttybuff.c_cc[VERASE];
+-       kill = ttybuff.c_cc[VKILL];
+- 
+-       if (erase != (unsigned char)_POSIX_VDISABLE &&
+- 	  kmap[erase].type == ISFUNC)
+- 	kmap[erase].function = rl_rubout;
+- 
+-       if (kill != (unsigned char)_POSIX_VDISABLE &&
+- 	  kmap[kill].type == ISFUNC)
+- 	kmap[kill].function = rl_unix_line_discard;
+- 
+  #  if defined (VLNEXT) && defined (TERMIOS_TTY_DRIVER)
+!       {
+! 	unsigned char nextc;
+! 
+! 	nextc = ttybuff.c_cc[VLNEXT];
+! 
+! 	if (nextc != (unsigned char)_POSIX_VDISABLE &&
+! 	    kmap[nextc].type == ISFUNC)
+! 	  kmap[nextc].function = rl_quoted_insert;
+!       }
+  #  endif /* VLNEXT && TERMIOS_TTY_DRIVER */
+  
+  #  if defined (VWERASE) && defined (TERMIOS_TTY_DRIVER)
+!       {
+! 	unsigned char werase;
+! 
+! 	werase = ttybuff.c_cc[VWERASE];
+! 
+! 	if (werase != (unsigned char)_POSIX_VDISABLE &&
+! 	    kmap[werase].type == ISFUNC)
+! 	  kmap[werase].function = rl_unix_word_rubout;
+!       }
+  #  endif /* VWERASE && TERMIOS_TTY_DRIVER */
+      }
+--- 632,671 ----
+        if (ttybuff.flags & SGTTY_SET)
+  	{
+! 	  SET_SPECIAL (ttybuff.sgttyb.sg_erase, rl_rubout);
+! 	  SET_SPECIAL (ttybuff.sgttyb.sg_kill, rl_unix_line_discard);
+  	}
+  
+  #  if defined (TIOCGLTC)
+        if (ttybuff.flags & LTCHARS_SET)
+  	{
+! 	  SET_SPECIAL (ttybuff.ltchars.t_werasc, rl_unix_word_rubout);
+! 	  SET_SPECIAL (ttybuff.ltchars.t_lnextc, rl_quoted_insert);
+  	}
+  #  endif /* TIOCGLTC */
++     }
+  
+  #else /* !NEW_TTY_DRIVER */
+  
++ #define SET_SPECIAL(sc, func) \
++   do \
++     { \
++       unsigned char uc; \
++       uc = ttybuff.c_cc[sc]; \
++       if (uc != (unsigned char)_POSIX_VDISABLE && kmap[uc].type == ISFUNC) \
++ 	kmap[uc].function = func; \
++     } \
++   while (0)
++ 
+    if (get_tty_settings (tty, &ttybuff) == 0)
+      {
+!       SET_SPECIAL (VERASE, rl_rubout);
+!       SET_SPECIAL (VKILL, rl_unix_line_discard);
+  
+  #  if defined (VLNEXT) && defined (TERMIOS_TTY_DRIVER)
+!       SET_SPECIAL (VLNEXT, rl_quoted_insert);
+  #  endif /* VLNEXT && TERMIOS_TTY_DRIVER */
+  
+  #  if defined (VWERASE) && defined (TERMIOS_TTY_DRIVER)
+!       SET_SPECIAL (VWERASE, rl_unix_word_rubout);
+  #  endif /* VWERASE && TERMIOS_TTY_DRIVER */
+      }
+*** bash-1.14.0/lib/readline/search.c	Thu Jun  2 09:35:52 1994
+--- bash-1.14.1/lib/readline/search.c	Sat Jul  2 22:51:41 1994
+***************
+*** 21,28 ****
+--- 21,35 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
++ #include <sys/types.h>
+  #include <stdio.h>
+  
++ #if defined (HAVE_UNISTD_H)
++ #  include <unistd.h>
++ #endif
++ 
+  #include "memalloc.h"
++ #include "rldefs.h"
+  #include "readline.h"
+  #include "history.h"
+*** bash-1.14.0/lib/readline/signals.c	Thu Jun  2 09:35:55 1994
+--- bash-1.14.1/lib/readline/signals.c	Fri Jul  1 11:21:17 1994
+***************
+*** 20,23 ****
+--- 20,24 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  #include <stdio.h>
+*** bash-1.14.0/lib/readline/tilde.c	Thu Jun  2 09:35:55 1994
+--- bash-1.14.1/lib/readline/tilde.c	Fri Jul  1 11:21:17 1994
+***************
+*** 34,38 ****
+  #endif /* HAVE_STDLIB_H */
+  
+! #include <tilde/tilde.h>
+  #include <pwd.h>
+  
+--- 34,38 ----
+  #endif /* HAVE_STDLIB_H */
+  
+! #include "tilde.h"
+  #include <pwd.h>
+  
+*** bash-1.14.0/lib/readline/vi_mode.c	Thu Jun  2 09:35:47 1994
+--- bash-1.14.1/lib/readline/vi_mode.c	Fri Jul  1 11:21:11 1994
+***************
+*** 21,24 ****
+--- 21,25 ----
+     have a copy of the license, write to the Free Software Foundation,
+     675 Mass Ave, Cambridge, MA 02139, USA. */
++ #define READLINE_LIBRARY
+  
+  /* **************************************************************** */
+***************
+*** 38,41 ****
+--- 39,46 ----
+  #  include "ansi_stdlib.h"
+  #endif /* HAVE_STDLIB_H */
++ 
++ #if defined (HAVE_UNISTD_H)
++ #  include <unistd.h>
++ #endif
+  
+  #include <stdio.h>
+*** bash-1.14.0/lib/tilde/tilde.c	Thu Jun  2 09:36:03 1994
+--- bash-1.14.1/lib/tilde/tilde.c	Fri Jul  1 11:21:21 1994
+***************
+*** 34,38 ****
+  #endif /* HAVE_STDLIB_H */
+  
+! #include <tilde/tilde.h>
+  #include <pwd.h>
+  
+--- 34,38 ----
+  #endif /* HAVE_STDLIB_H */
+  
+! #include "tilde.h"
+  #include <pwd.h>
+  
+*** bash-1.14.0/portbash/strings.sh	Thu Jun  2 09:36:35 1994
+--- bash-1.14.1/portbash/strings.sh	Sat Jul  2 20:18:23 1994
+***************
+*** 64,66 ****
+--- 64,87 ----
+  
+  rm -f x.c x.o a.out
++ 
++ 
++ cat > x.c << EOF
++ 
++ main()
++ {
++ 	if (strcasecmp("abc", "AbC") == 0)
++ 		exit(0);
++ 	exit(1);
++ }
++ EOF
++ 
++ if ${CC} x.c >/dev/null 2>&1
++ then
++ 	if ./a.out
++ 	then
++ 		echo '#define HAVE_STRCASECMP'
++ 	fi
++ fi
++ 
++ rm -f x.c x.o a.out
+  exit 0
+*** bash-1.14.0/support/bashbug.sh	Thu Jun  2 09:36:16 1994
+--- bash-1.14.1/support/bashbug.sh	Fri Jul  1 11:21:31 1994
+***************
+*** 67,71 ****
+  	fi
+  
+! 	rmail $BUGADDR < $TEMP
+  fi
+  
+--- 67,71 ----
+  	fi
+  
+! 	rmail $BUGADDR < $TEMP || cat $TEMP >> $HOME/dead.bashbug
+  fi
+  
+*** bash-1.14.0/support/getcppsyms.c	Thu Jun  2 09:36:14 1994
+--- bash-1.14.1/support/getcppsyms.c	Fri Jul  1 11:21:30 1994
+***************
+*** 210,214 ****
+  #  if !defined (__GNUC__)
+    printf (" -pcc");
+! #endif /* !__GNUC__ */
+    printf (" -Dconvex");
+  #endif /* convex */
+--- 210,214 ----
+  #  if !defined (__GNUC__)
+    printf (" -pcc");
+! #  endif /* !__GNUC__ */
+    printf (" -Dconvex");
+  #endif /* convex */
+*** bash-1.14.0/support/mksysdefs	Thu Jun  2 09:36:14 1994
+--- bash-1.14.1/support/mksysdefs	Fri Jul  1 11:21:29 1994
+***************
+*** 5,9 ****
+  # by looking at random files.
+  
+! if [ "$1" ]; then
+    sysdefs=$1
+  else
+--- 5,13 ----
+  # by looking at random files.
+  
+! case "$1" in
+! -s)	shift; srcdir=$1; shift ;;
+! esac
+! 
+! if [ -n "$1" ]; then
+    sysdefs=$1
+  else
+***************
+*** 11,14 ****
+--- 15,22 ----
+  fi
+  
++ if [ -z "$srcdir" ]; then
++ 	srcdir=.
++ fi
++ 
+  rm -f $sysdefs
+  
+***************
+*** 35,47 ****
+  fi
+  
+! # Test for shared libraries (this is pretty Sunish).
+! if [ -f /lib/ld.so ]; then
+!   SHLIB=-DHAVE_SHARED_LIBS
+!   echo ""					>>$sysdefs
+!   echo "#define HAVE_SHARED_LIBS"		>>$sysdefs
+!   if [ "${UNAME}${RELEASE}" = "SunOS5" ]; then
+!      SYSDEF=USGr4
+!   fi
+! fi
+  
+  # Test for NeXT
+--- 43,51 ----
+  fi
+  
+! # check for versions of SunOS 
+! case "${UNAME}${RELEASE}" in
+! SunOS4) SYSDEF=SunOS4 ;;
+! SunOS5) SYSDEF=SunOS5 ;;
+! esac
+  
+  # Test for NeXT
+***************
+*** 57,67 ****
+  # Test for shared libraries (this is pretty sVr4ish).
+  if [ -f /usr/ccs/lib/libc.so ]; then
+!   if [ "$SHLIB" = "" ]; then
+!     SHLIB=-DHAVE_SHARED_LIBS
+!     echo ""					>>$sysdefs
+!     echo "#if !defined (HAVE_SHARED_LIBS)"	>>$sysdefs
+!     echo "#  define HAVE_SHARED_LIBS"		>>$sysdefs
+!     echo "#endif /* HAVE_SHARED_LIBS */"	>>$sysdefs
+!   fi
+    SYSDEF=USGr4
+  fi
+--- 61,70 ----
+  # Test for shared libraries (this is pretty sVr4ish).
+  if [ -f /usr/ccs/lib/libc.so ]; then
+!   SHLIB=-DHAVE_SHARED_LIBS
+!   echo ""					>>$sysdefs
+!   echo "#if !defined (HAVE_SHARED_LIBS)"	>>$sysdefs
+!   echo "#  define HAVE_SHARED_LIBS"		>>$sysdefs
+!   echo "#endif /* HAVE_SHARED_LIBS */"	>>$sysdefs
+! 
+    SYSDEF=USGr4
+  fi
+***************
+*** 456,460 ****
+  # alternate ansi-style cpp-Makefile.
+  if [ "$MAKE_ANSI" = "true" ]; then
+!    cat cpp-Makefile | grep -v '/\*\*/' >ansi-Makefile
+  fi
+  
+--- 459,463 ----
+  # alternate ansi-style cpp-Makefile.
+  if [ "$MAKE_ANSI" = "true" ]; then
+!    grep -v '/\*\*/' ${srcdir}/cpp-Makefile >ansi-Makefile
+  fi
+  
+*** bash-1.14.0/tests/dollar-at.sh	Thu Jun  2 09:36:22 1994
+--- bash-1.14.1/tests/dollar-at.sh	Fri Jul  1 11:21:38 1994
+***************
+*** 1 ****
+! /bin/cat "$@"
+--- 1 ----
+! recho "$@"
+*** bash-1.14.0/tests/dollar-star.sh	Thu Jun  2 09:36:22 1994
+--- bash-1.14.1/tests/dollar-star.sh	Fri Jul  1 11:21:38 1994
+***************
+*** 1 ****
+! /bin/cat "$*"
+--- 1 ----
+! recho "$*"
+*** bash-1.14.0/tests/dollar.right	Thu Jun  2 09:36:23 1994
+--- bash-1.14.1/tests/dollar.right	Fri Jul  1 11:21:39 1994
+***************
+*** 1,5 ****
+! expect an error message
+! cat: a b: No such file or directory
+! expect two lines of output
+! this is a file named a
+! this is a file named b
+--- 1,3 ----
+! argv[1] = <a b>
+! argv[1] = <a>
+! argv[2] = <b>
+*** bash-1.14.0/tests/run-dollars	Thu Jun  2 09:36:27 1994
+--- bash-1.14.1/tests/run-dollars	Sat Jul  2 21:33:10 1994
+***************
+*** 1,12 ****
+! echo this is a file named a > a
+! echo this is a file named b > b
+! 
+! echo expect an error message > x
+! ../bash ./dollar-star.sh a b >> x 2>&1
+! 
+! echo expect two lines of output >> x
+  ../bash ./dollar-at.sh a b >>x 2>&1
+- 
+- rm -f a b
+- 
+  diff x dollar.right && rm -f x
+--- 1,3 ----
+! ../bash ./dollar-star.sh a b > x 2>&1
+  ../bash ./dollar-at.sh a b >>x 2>&1
+  diff x dollar.right && rm -f x

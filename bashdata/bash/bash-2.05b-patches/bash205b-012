@@ -1,0 +1,44 @@
+			     BASH PATCH REPORT
+			     =================
+
+Bash-Release: 2.05b
+Patch-ID: bash205b-012
+
+Bug-Reported-by:	Michal Zalewski <lcamtuf@coredump.cx>
+Bug-Reference-ID:
+Bug-Reference-URL:
+
+Bug-Description:
+
+When bash is parsing a function definition that contains a here-document
+delimited by end-of-file (or end-of-string), it leaves the closing delimiter
+uninitialized.  This can result in an invalid memory access when the parsed
+function is later copied.
+
+Patch:
+
+*** ../bash-2.05b.11/make_cmd.c	2002-05-06 13:37:02.000000000 -0400
+--- make_cmd.c	2014-10-02 11:58:30.000000000 -0400
+***************
+*** 650,653 ****
+--- 650,654 ----
+    temp->redirector = source;
+    temp->redirectee = dest_and_filename;
++   temp->here_doc_eof = 0;
+    temp->instruction = instruction;
+    temp->flags = 0;
+*** ../bash-2.05b.11/copy_cmd.c	2002-03-12 14:41:03.000000000 -0500
+--- copy_cmd.c	2014-10-02 11:58:30.000000000 -0400
+***************
+*** 118,122 ****
+      case r_reading_until:
+      case r_deblank_reading_until:
+!       new_redirect->here_doc_eof = savestring (redirect->here_doc_eof);
+        /*FALLTHROUGH*/
+      case r_reading_string:
+--- 118,122 ----
+      case r_reading_until:
+      case r_deblank_reading_until:
+!       new_redirect->here_doc_eof = redirect->here_doc_eof ? savestring (redirect->here_doc_eof) : 0;
+        /*FALLTHROUGH*/
+      case r_reading_string:

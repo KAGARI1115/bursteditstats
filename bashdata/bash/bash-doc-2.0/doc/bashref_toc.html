@@ -1,0 +1,187 @@
+<HTML>
+<HEAD>
+<!-- This HTML file has been created by texi2html 1.51
+     from ./bashref.texi on 18 December 1996 -->
+
+<TITLE>Bash Reference Manual - Table of Contents</TITLE>
+</HEAD>
+<BODY>
+<H1>Bash Reference Manual</H1>
+<H2>Reference Documentation for Bash</H2>
+<H2>Edition 2.0, for <CODE>bash</CODE> Version 2.0.</H2>
+<H2>25 November 1996</H2>
+<ADDRESS>Chet Ramey, Case Western Reserve University</ADDRESS>
+<ADDRESS>Brian Fox, Free Software Foundation</ADDRESS>
+<P>
+<P><HR><P>
+<UL>
+<LI><A NAME="TOC1" HREF="bashref.html#SEC1">Introduction</A>
+<UL>
+<LI><A NAME="TOC2" HREF="bashref.html#SEC2">What is Bash?</A>
+<LI><A NAME="TOC3" HREF="bashref.html#SEC3">What is a shell?</A>
+</UL>
+<LI><A NAME="TOC4" HREF="bashref.html#SEC4">Definitions</A>
+<LI><A NAME="TOC5" HREF="bashref.html#SEC5">Basic Shell Features</A>
+<UL>
+<LI><A NAME="TOC6" HREF="bashref.html#SEC6">Shell Syntax</A>
+<UL>
+<LI><A NAME="TOC7" HREF="bashref.html#SEC7">Shell Operation</A>
+<LI><A NAME="TOC8" HREF="bashref.html#SEC8">Quoting</A>
+<UL>
+<LI><A NAME="TOC9" HREF="bashref.html#SEC9">Escape Character</A>
+<LI><A NAME="TOC10" HREF="bashref.html#SEC10">Single Quotes</A>
+<LI><A NAME="TOC11" HREF="bashref.html#SEC11">Double Quotes</A>
+<LI><A NAME="TOC12" HREF="bashref.html#SEC12">ANSI-C Quoting</A>
+<LI><A NAME="TOC13" HREF="bashref.html#SEC13">Locale-Specific Translation</A>
+</UL>
+<LI><A NAME="TOC14" HREF="bashref.html#SEC14">Comments</A>
+</UL>
+<LI><A NAME="TOC15" HREF="bashref.html#SEC15">Simple Commands</A>
+<LI><A NAME="TOC16" HREF="bashref.html#SEC16">Pipelines</A>
+<LI><A NAME="TOC17" HREF="bashref.html#SEC17">Lists of Commands</A>
+<LI><A NAME="TOC18" HREF="bashref.html#SEC18">Looping Constructs</A>
+<LI><A NAME="TOC19" HREF="bashref.html#SEC19">Conditional Constructs</A>
+<LI><A NAME="TOC20" HREF="bashref.html#SEC20">Grouping Commands</A>
+<LI><A NAME="TOC21" HREF="bashref.html#SEC21">Shell Functions</A>
+<LI><A NAME="TOC22" HREF="bashref.html#SEC22">Shell Parameters</A>
+<UL>
+<LI><A NAME="TOC23" HREF="bashref.html#SEC23">Positional Parameters</A>
+<LI><A NAME="TOC24" HREF="bashref.html#SEC24">Special Parameters</A>
+</UL>
+<LI><A NAME="TOC25" HREF="bashref.html#SEC25">Shell Expansions</A>
+<UL>
+<LI><A NAME="TOC26" HREF="bashref.html#SEC26">Shell Parameter Expansion</A>
+<LI><A NAME="TOC27" HREF="bashref.html#SEC27">Command Substitution</A>
+<LI><A NAME="TOC28" HREF="bashref.html#SEC28">Process Substitution</A>
+<LI><A NAME="TOC29" HREF="bashref.html#SEC29">Word Splitting</A>
+<LI><A NAME="TOC30" HREF="bashref.html#SEC30">Filename Expansion</A>
+<LI><A NAME="TOC31" HREF="bashref.html#SEC31">Quote Removal</A>
+</UL>
+<LI><A NAME="TOC32" HREF="bashref.html#SEC32">Redirections</A>
+<UL>
+<LI><A NAME="TOC33" HREF="bashref.html#SEC33">Redirecting Input</A>
+<LI><A NAME="TOC34" HREF="bashref.html#SEC34">Redirecting Output</A>
+<LI><A NAME="TOC35" HREF="bashref.html#SEC35">Appending Redirected Output</A>
+<LI><A NAME="TOC36" HREF="bashref.html#SEC36">Redirecting Standard Output and Standard Error</A>
+<LI><A NAME="TOC37" HREF="bashref.html#SEC37">Here Documents</A>
+<LI><A NAME="TOC38" HREF="bashref.html#SEC38">Duplicating File Descriptors</A>
+<LI><A NAME="TOC39" HREF="bashref.html#SEC39">Opening File Descriptors for Reading and Writing</A>
+</UL>
+<LI><A NAME="TOC40" HREF="bashref.html#SEC40">Executing Commands</A>
+<UL>
+<LI><A NAME="TOC41" HREF="bashref.html#SEC41">Command Search and Execution</A>
+<LI><A NAME="TOC42" HREF="bashref.html#SEC42">Environment</A>
+<LI><A NAME="TOC43" HREF="bashref.html#SEC43">Exit Status</A>
+<LI><A NAME="TOC44" HREF="bashref.html#SEC44">Signals</A>
+</UL>
+<LI><A NAME="TOC45" HREF="bashref.html#SEC45">Shell Scripts</A>
+</UL>
+<LI><A NAME="TOC46" HREF="bashref.html#SEC46">Bourne Shell Style Features</A>
+<UL>
+<LI><A NAME="TOC47" HREF="bashref.html#SEC47">Bourne Shell Builtins</A>
+<LI><A NAME="TOC48" HREF="bashref.html#SEC48">Bourne Shell Variables</A>
+<LI><A NAME="TOC49" HREF="bashref.html#SEC49">Other Bourne Shell Features</A>
+<UL>
+<LI><A NAME="TOC50" HREF="bashref.html#SEC50">Major Differences From The SVR4.2 Bourne Shell</A>
+<LI><A NAME="TOC51" HREF="bashref.html#SEC51">Implementation Differences From The SVR4.2 Shell</A>
+</UL>
+</UL>
+<LI><A NAME="TOC52" HREF="bashref.html#SEC52">C-Shell Style Features</A>
+<UL>
+<LI><A NAME="TOC53" HREF="bashref.html#SEC53">Brace Expansion</A>
+<LI><A NAME="TOC54" HREF="bashref.html#SEC54">Tilde Expansion</A>
+<LI><A NAME="TOC55" HREF="bashref.html#SEC55">C Shell Builtins</A>
+<LI><A NAME="TOC56" HREF="bashref.html#SEC56">C Shell Variables</A>
+</UL>
+<LI><A NAME="TOC57" HREF="bashref.html#SEC57">Korn Shell Style Features</A>
+<UL>
+<LI><A NAME="TOC58" HREF="bashref.html#SEC58">Korn Shell Constructs</A>
+<LI><A NAME="TOC59" HREF="bashref.html#SEC59">Korn Shell Builtins</A>
+<LI><A NAME="TOC60" HREF="bashref.html#SEC60">Korn Shell Variables</A>
+<LI><A NAME="TOC61" HREF="bashref.html#SEC61">Aliases</A>
+<UL>
+<LI><A NAME="TOC62" HREF="bashref.html#SEC62">Alias Builtins</A>
+</UL>
+</UL>
+<LI><A NAME="TOC63" HREF="bashref.html#SEC63">Bash Features</A>
+<UL>
+<LI><A NAME="TOC64" HREF="bashref.html#SEC64">Invoking Bash</A>
+<LI><A NAME="TOC65" HREF="bashref.html#SEC65">Bash Startup Files</A>
+<LI><A NAME="TOC66" HREF="bashref.html#SEC66">Is This Shell Interactive?</A>
+<LI><A NAME="TOC67" HREF="bashref.html#SEC67">Bash Builtin Commands</A>
+<LI><A NAME="TOC68" HREF="bashref.html#SEC68">The Set Builtin</A>
+<LI><A NAME="TOC69" HREF="bashref.html#SEC69">Bash Conditional Expressions</A>
+<LI><A NAME="TOC70" HREF="bashref.html#SEC70">Bash Variables</A>
+<LI><A NAME="TOC71" HREF="bashref.html#SEC71">Shell Arithmetic</A>
+<UL>
+<LI><A NAME="TOC72" HREF="bashref.html#SEC72">Arithmetic Evaluation</A>
+<LI><A NAME="TOC73" HREF="bashref.html#SEC73">Arithmetic Expansion</A>
+<LI><A NAME="TOC74" HREF="bashref.html#SEC74">Arithmetic Builtins</A>
+</UL>
+<LI><A NAME="TOC75" HREF="bashref.html#SEC75">Arrays</A>
+<LI><A NAME="TOC76" HREF="bashref.html#SEC76">Controlling the Prompt</A>
+<LI><A NAME="TOC77" HREF="bashref.html#SEC77">The Restricted Shell</A>
+<LI><A NAME="TOC78" HREF="bashref.html#SEC78">Bash POSIX Mode</A>
+</UL>
+<LI><A NAME="TOC79" HREF="bashref.html#SEC79">Job Control</A>
+<UL>
+<LI><A NAME="TOC80" HREF="bashref.html#SEC80">Job Control Basics</A>
+<LI><A NAME="TOC81" HREF="bashref.html#SEC81">Job Control Builtins</A>
+<LI><A NAME="TOC82" HREF="bashref.html#SEC82">Job Control Variables</A>
+</UL>
+<LI><A NAME="TOC83" HREF="bashref.html#SEC83">Using History Interactively</A>
+<UL>
+<LI><A NAME="TOC84" HREF="bashref.html#SEC84">Bash History Facilities</A>
+<LI><A NAME="TOC85" HREF="bashref.html#SEC85">Interactive History Expansion</A>
+<UL>
+<LI><A NAME="TOC86" HREF="bashref.html#SEC86">Event Designators</A>
+<LI><A NAME="TOC87" HREF="bashref.html#SEC87">Word Designators</A>
+<LI><A NAME="TOC88" HREF="bashref.html#SEC88">Modifiers</A>
+</UL>
+</UL>
+<LI><A NAME="TOC89" HREF="bashref.html#SEC89">Command Line Editing</A>
+<UL>
+<LI><A NAME="TOC90" HREF="bashref.html#SEC90">Introduction to Line Editing</A>
+<LI><A NAME="TOC91" HREF="bashref.html#SEC91">Readline Interaction</A>
+<UL>
+<LI><A NAME="TOC92" HREF="bashref.html#SEC92">Readline Init File Syntax</A>
+<LI><A NAME="TOC93" HREF="bashref.html#SEC93">Conditional Init Constructs</A>
+<LI><A NAME="TOC94" HREF="bashref.html#SEC94">Sample Init File</A>
+</UL>
+<LI><A NAME="TOC95" HREF="bashref.html#SEC95">Bindable Readline Commands</A>
+<UL>
+<LI><A NAME="TOC96" HREF="bashref.html#SEC96">Commands For Moving</A>
+<LI><A NAME="TOC97" HREF="bashref.html#SEC97">Commands For Manipulating The History</A>
+<LI><A NAME="TOC98" HREF="bashref.html#SEC98">Commands For Changing Text</A>
+<LI><A NAME="TOC99" HREF="bashref.html#SEC99">Killing And Yanking</A>
+<LI><A NAME="TOC100" HREF="bashref.html#SEC100">Specifying Numeric Arguments</A>
+<LI><A NAME="TOC101" HREF="bashref.html#SEC101">Letting Readline Type For You</A>
+<LI><A NAME="TOC102" HREF="bashref.html#SEC102">Keyboard Macros</A>
+<LI><A NAME="TOC103" HREF="bashref.html#SEC103">Some Miscellaneous Commands</A>
+</UL>
+<LI><A NAME="TOC104" HREF="bashref.html#SEC104">Readline vi Mode</A>
+</UL>
+<LI><A NAME="TOC105" HREF="bashref.html#SEC105">Installing Bash</A>
+<UL>
+<LI><A NAME="TOC106" HREF="bashref.html#SEC106">Basic Installation</A>
+<LI><A NAME="TOC107" HREF="bashref.html#SEC107">Compilers and Options</A>
+<LI><A NAME="TOC108" HREF="bashref.html#SEC108">Compiling For Multiple Architectures</A>
+<LI><A NAME="TOC109" HREF="bashref.html#SEC109">Installation Names</A>
+<LI><A NAME="TOC110" HREF="bashref.html#SEC110">Specifying the System Type</A>
+<LI><A NAME="TOC111" HREF="bashref.html#SEC111">Sharing Defaults</A>
+<LI><A NAME="TOC112" HREF="bashref.html#SEC112">Operation Controls</A>
+<LI><A NAME="TOC113" HREF="bashref.html#SEC113">Optional Features</A>
+</UL>
+<LI><A NAME="TOC114" HREF="bashref.html#SEC114">Reporting Bugs</A>
+<LI><A NAME="TOC115" HREF="bashref.html#SEC115">Index of Shell Builtin Commands</A>
+<LI><A NAME="TOC116" HREF="bashref.html#SEC116">Shell Reserved Words</A>
+<LI><A NAME="TOC117" HREF="bashref.html#SEC117">Parameter and Variable Index</A>
+<LI><A NAME="TOC118" HREF="bashref.html#SEC118">Function Index</A>
+<LI><A NAME="TOC119" HREF="bashref.html#SEC119">Concept Index</A>
+</UL>
+<P><HR><P>
+This document was generated on 18 December 1996 using the
+<A HREF="http://wwwcn.cern.ch/dci/texi2html/">texi2html</A>
+translator version 1.51.</P>
+</BODY>
+</HTML>

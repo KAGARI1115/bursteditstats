@@ -1,0 +1,10 @@
+@ignore
+Copyright (C) 1988-2018 Free Software Foundation, Inc. 
+@end ignore
+
+@set EDITION 8.0
+@set VERSION 8.0
+@set UPDATED 6 July 2018
+@set UPDATED-MONTH July 2018
+
+@set LASTCHANGE Fri Jul  6 16:25:22 MDT 2018

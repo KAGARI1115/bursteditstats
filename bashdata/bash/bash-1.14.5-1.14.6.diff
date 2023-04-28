@@ -1,0 +1,2334 @@
+diff -Nrc2 bash-1.14.5/.patchlevel bash-1.14.6/.patchlevel
+*** bash-1.14.5/.patchlevel	Sat May 20 15:24:57 1995
+--- bash-1.14.6/.patchlevel	Mon Oct  9 14:42:45 1995
+***************
+*** 1 ****
+! 5
+--- 1 ----
+! 6
+diff -Nrc2 bash-1.14.5/NEWS bash-1.14.6/NEWS
+*** bash-1.14.5/NEWS	Wed Jul 12 10:08:44 1995
+--- bash-1.14.6/NEWS	Tue Nov 28 13:21:17 1995
+***************
+*** 1,64 ****
+! This file documents the bugs fixed between this release, bash-1.14.5,
+! and the last public bash release, 1.14.4.
+  
+  1.  Bugs fixed in Bash
+  
+! a.  Fix to `fc' so that `fc -l' works when fewer than 16 commands are in
+!     the history list.
+  
+! b.  Fixes to the builtin getopt(3) and `getopts' to complete conversion
+!     from GNU glibc getopt() to internal bash getopt.
+  
+! c.  Changes to `make install' to bring it closer to GNU guidelines.
+  
+! d.  Fixes to the expansion code so that double quotes on the rhs of
+!     ${variableOPword} are handled better.
+  
+! e.  New/changed machines.h entries: Fujitsu UXP/M, Tandem
+  
+! f.  Changes to cpp-Makefile and the rest of the Makefiles to more closely
+!     adhere to the GNU coding standards.  In particular, all recommended
+!     targets should now exist.
+  
+! g.  `read' now correctly strips trailing IFS whitespace from the input line.
+  
+! h.  Reworked the documentation Makefile so that it does not use `texindex'
+!     and `tex', but rather `texi2dvi', as per the GNU coding standards
+  
+! i.  If SIGINT is not trapped, a process dying of SIGINT will cause the shell
+!     to act as if it had received SIGINT and break out of for, while, and
+!     until loops.
+  
+! j.  Fixed a bug that caused the `select' prompt to be garbled under
+!     certain conditions.
+  
+! k.  Fixed a bug that made `declare +r variable' turn off the readonly
+!     attribute for a variable.
+  
+! l.  Fixed a bug that prevented `declare -f -r function' (or other attributes)
+!     from changing the function's attributes.
+  
+! m.  Fixed a job control bug that allowed `fg' and `bg' to restart jobs
+!     that had terminated.
+  
+! n.  The pathname canonicalization code now handles filenames with backslashes
+!     embedded in them more reasonably.
+  
+! o.  Fixed a bug that caused the expression evaluator to occasionally core
+!     dump when printing an error message.
+! 
+! p.  Fixed a bug that caused "$*" to sometimes leave a stray ^B in the
+!     expansion when there were no positional parameters.
+! 
+! q.  Fixed a bug that caused pre-3.2v4.x SCO machines to hang waiting for
+!     waitpid(2) to return.
+  
+  2.  Bugs fixed in Readline
+  
+! a.  Fix to the display code so that null prompts don't cause core dumps.
+! 
+! b.  Readline now recognizes that an $LC_CTYPE value of `ISO-8859-1' means
+!     that it should go into eight-bit mode.
+  
+! c.  Fixed a completion bug that removed user-supplied opening quotes in
+!     filenames under some circumstances.
+--- 1,55 ----
+! This file documents the bugs fixed between this release, bash-1.14.6,
+! and the last public bash release, 1.14.5.
+  
+  1.  Bugs fixed in Bash
+  
+! a.  Fix to the `fc' builtin to prevent core dumps when the history list
+!     is empty.
+  
+! b.  Fix to `getopts' to keep it from running off the end of the array of
+!     positional parameters.
+  
+! c.  FIFOs are now created with mode 600 for security reasons.
+  
+! d.  The list of active file descriptors connected to files in /dev/fd is
+!     now properly zeroed when allocated or extended.
+  
+! e.  Fix to trap so that the exit status is preserved around the command
+!     executed via `trap 0', unless that command contains a call to exit.
+!     If a call to exit appears, that will set the exit value for the shell.
+  
+! f.  Fixed an off-by-one error that caused words to be split incorrectly
+!     when IFS was set to "'".
+  
+! g.  Fixed an off-by-one error that caused completion to sometimes fail
+!     when escaped single quotes appeared in the command line.
+  
+! h.  Fixed a parser error that occasionally resulted in close braces (`}')
+!     causing syntax errors.
+  
+! i.  There is now a machine description for HPUX version 10.x.
+  
+! j.  Fixed an obscure bug that caused machines without restartable syscalls
+!     to drop backslash-escaped characters when reading here documents in an
+!     interactive shell.
+  
+! k.  Fixed a bug that caused FIGNORE to occasionally allow some completions
+!     that should be ignored.
+  
+! l.  New machine descriptions: NetBSD/pmax, Linux/m68k, BSD/OS/sparc.
+  
+! m.  Fixed a bug that caused the `vi' mode `v' command to execute the
+!     original command after it was changed in the editor.
+  
+! n.  Fixed some substitution bugs that left occasional stray CTLNUL characters
+!     in the results of variable expansion.
+  
+! o.  Updated machine descriptions: SCOv5.
+  
+  2.  Bugs fixed in Readline
+  
+! a.  Fix to the history searching functions so a null search string does
+!     not cause readline to seg fault.
+  
+! b.  Fixed a bug in the completion code which caused words appearing on a
+!     line after a quoted string to not be completed correctly.
+diff -Nrc2 bash-1.14.5/bashline.c bash-1.14.6/bashline.c
+*** bash-1.14.5/bashline.c	Thu Dec 22 17:09:57 1994
+--- bash-1.14.6/bashline.c	Tue Nov 28 10:40:47 1995
+***************
+*** 584,587 ****
+--- 584,588 ----
+      }
+    parse_and_execute (command, "v", -1);
++   rl_line_buffer[0] = '\0';	/* erase pre-edited command */
+  }
+  #endif /* VI_MODE */
+***************
+*** 1379,1411 ****
+       Function *name_func;
+  {
+!   char **p;
+!   int idx;
+  
+!   for (p = names + 1, idx = -1; *p; p++)
+      {
+!       if ((*name_func) (*p))
+! 	{
+! 	  if (idx == -1)	/* First match found. */
+! 	    idx = p - names;
+! 	  else
+! 	    return;		/* Too many matches. */
+! 	}
+      }
+-   
+-   /* If none are acceptable then let the completer handle it. */
+-   if (idx == -1)
+-     return;
+  
+!   /* Delete all non-matching elements. */
+!   free (names[0]); 
+!   for (p = names + 1; *p; p++)
+!     {
+!       if (idx == (p - names))
+! 	names[0] = *p;
+!       else 
+! 	free (*p);
+  
+!       *p = NULL;
+      }
+  }
+  
+--- 1380,1441 ----
+       Function *name_func;
+  {
+!   char **newnames;
+!   int idx, nidx;
+  
+!   /* If there is only one completion, see if it is acceptable.  If it is
+!      not, free it up.  In any case, short-circuit and return.  This is a
+!      special case because names[0] is not the prefix of the list of names
+!      if there is only one completion; it is the completion itself. */
+!   if (names[1] == (char *)0)
+!     {
+!       if ((*name_func) (names[0]) == 0)
+!         {
+!           free (names[0]);
+!           names[0] = (char *)NULL;
+!         }
+!       return;
+!     }
+! 
+!   /* Allocate space for array to hold list of pointers to matching
+!      filenames.  The pointers are copied back to NAMES when done. */
+!   for (nidx = 1; names[nidx]; nidx++)
+!     ;
+!   newnames = (char **)xmalloc ((nidx + 1) * (sizeof (char *)));
+! 
+!   newnames[0] = names[0];
+!   for (idx = nidx = 1; names[idx]; idx++)
+      {
+!       if ((*name_func) (names[idx]))
+! 	newnames[nidx++] = names[idx];
+!       else
+! 	free (names[idx]);
+      }
+  
+!   newnames[nidx] = (char *)NULL;
+  
+!   /* If none are acceptable then let the completer handle it. */
+!   if (nidx == 1)
+!     {
+!       free (names[0]);
+!       names[0] = (char *)NULL;
+!       free (newnames);
+!       return;
+!     }
+! 
+!   /* If only one is acceptable, copy it to names[0] and return. */
+!   if (nidx == 2)
+!     {
+!       free (names[0]);
+!       names[0] = newnames[1];
+!       names[1] = (char *)NULL;
+!       free (newnames);
+!       return;
+      }
++       
++   /* Copy the acceptable names back to NAMES, set the new array end,
++      and return. */
++   for (nidx = 1; newnames[nidx]; nidx++)
++     names[nidx] = newnames[nidx];
++   names[nidx] = (char *)NULL;
+  }
+  
+diff -Nrc2 bash-1.14.5/builtins/fc.def bash-1.14.6/builtins/fc.def
+*** bash-1.14.5/builtins/fc.def	Tue Apr 25 11:19:57 1995
+--- bash-1.14.6/builtins/fc.def	Mon Oct  9 14:15:00 1995
+***************
+*** 264,267 ****
+--- 264,269 ----
+       form). */
+    hlist = history_list ();
++   if (hlist == 0)
++     return (EXECUTION_SUCCESS);
+    for (i = 0; hlist[i]; i++);
+  
+diff -Nrc2 bash-1.14.5/builtins/getopt.c bash-1.14.6/builtins/getopt.c
+*** bash-1.14.5/builtins/getopt.c	Thu Apr 27 10:58:24 1995
+--- bash-1.14.6/builtins/getopt.c	Tue Nov 28 10:02:02 1995
+***************
+*** 94,99 ****
+  
+  /* 1003.2 specifies the format of this message.  */
+! #define BADOPT(c)  fprintf (stderr, "%s: illegal option -- %c\n", argv[0], c)
+! #define NEEDARG(c) fprintf (stderr, "%s: option requires an argument -- %c\n", argv[0], c)
+  
+  int
+--- 94,99 ----
+  
+  /* 1003.2 specifies the format of this message.  */
+! #define BADOPT(x)  fprintf (stderr, "%s: illegal option -- %c\n", argv[0], x)
+! #define NEEDARG(x) fprintf (stderr, "%s: option requires an argument -- %c\n", argv[0], x)
+  
+  int
+diff -Nrc2 bash-1.14.5/builtins/getopts.def bash-1.14.6/builtins/getopts.def
+*** bash-1.14.5/builtins/getopts.def	Mon Apr 24 11:12:41 1995
+--- bash-1.14.6/builtins/getopts.def	Mon Oct  9 14:20:11 1995
+***************
+*** 159,163 ****
+        register int i;
+  
+!       for (i = 0; dollar_vars[i]; i++);
+        ret = sh_getopt (i, dollar_vars, optstr);
+      }
+--- 159,163 ----
+        register int i;
+  
+!       for (i = 0; i < 10 && dollar_vars[i]; i++);
+        ret = sh_getopt (i, dollar_vars, optstr);
+      }
+***************
+*** 168,175 ****
+        char **v;
+  
+!       for (i = 0; dollar_vars[i]; i++);
+        for (words = rest_of_args; words; words = words->next, i++);
+        v = (char **)xmalloc ((i + 1) * sizeof (char *));
+!       for (i = 0; dollar_vars[i]; i++)
+          v[i] = dollar_vars[i];
+        for (words = rest_of_args; words; words = words->next, i++)
+--- 168,175 ----
+        char **v;
+  
+!       for (i = 0; i < 10 && dollar_vars[i]; i++);
+        for (words = rest_of_args; words; words = words->next, i++);
+        v = (char **)xmalloc ((i + 1) * sizeof (char *));
+!       for (i = 0; i < 10 && dollar_vars[i]; i++)
+          v[i] = dollar_vars[i];
+        for (words = rest_of_args; words; words = words->next, i++)
+diff -Nrc2 bash-1.14.5/documentation/FAQ bash-1.14.6/documentation/FAQ
+*** bash-1.14.5/documentation/FAQ	Mon May 15 14:46:47 1995
+--- bash-1.14.6/documentation/FAQ	Tue Dec 19 16:37:04 1995
+***************
+*** 1,2 ****
+--- 1,4 ----
++ This is the Bash FAQ, version 1.2, for Bash version 1.14.6.
++ 
+  This document contains a set of frequently-asked questions concerning
+  Bash, the GNU Bourne-Again Shell.  Bash is a freely-available command
+***************
+*** 7,11 ****
+  of FAQ articles periodically posted to comp.unix.shell.
+  
+! Questions and comments concerning the document should be set to
+  chet@po.cwru.edu.
+  
+--- 9,13 ----
+  of FAQ articles periodically posted to comp.unix.shell.
+  
+! Questions and comments concerning this document should be set to
+  chet@po.cwru.edu.
+  
+***************
+*** 33,38 ****
+  18) When I have terminal escape sequences in my prompt, why does bash
+      wrap lines at the wrong column?
+! 19) I built bash on Solaris 2.  Why do globbing expansions chop off the
+!     first few characters of each filename?
+  20) Why doesn't bash treat brace expansions exactly like csh?
+  21) Why does bash dump core after I interrupt username completion?
+--- 35,40 ----
+  18) When I have terminal escape sequences in my prompt, why does bash
+      wrap lines at the wrong column?
+! 19) I built bash on Solaris 2.  Why do globbing expansions and filename
+!     completion chop off the first few characters of each filename?
+  20) Why doesn't bash treat brace expansions exactly like csh?
+  21) Why does bash dump core after I interrupt username completion?
+***************
+*** 48,57 ****
+      not, and how can I make it understand them?
+  27) Why doesn't bash have csh variable modifiers?
+! 28) How do I report bugs in bash, and where should I look for fixes and
+      advice?
+! 29) What kind of bash documentation is there?
+! 30) What's coming in future versions?
+! 31) What's on the bash `wish list'?
+! 32) When will the next release appear?
+  
+  1)  What is it?
+--- 50,61 ----
+      not, and how can I make it understand them?
+  27) Why doesn't bash have csh variable modifiers?
+! 28) Why does bash report syntax errors when my C News scripts use a
+!     redirection before a subshell command?
+! 29) How do I report bugs in bash, and where should I look for fixes and
+      advice?
+! 30) What kind of bash documentation is there?
+! 31) What's coming in future versions?
+! 32) What's on the bash `wish list'?
+! 33) When will the next release appear?
+  
+  1)  What is it?
+***************
+*** 67,75 ****
+  features include additional variable expansions, shell
+  arithmetic, and a number of variables and options to control
+! shell behavior. 
+  
+  2)  What's the latest version?
+  
+! The latest version is 1.14.4, first made available on April 21, 1995.
+  
+  3)  Where can I get it?
+--- 71,83 ----
+  features include additional variable expansions, shell
+  arithmetic, and a number of variables and options to control
+! shell behavior.
+! 
+! Bash was originally written by Brian Fox of the Free Software
+! Foundation.  The current developer and maintainer is Chet Ramey
+! of Case Western Reserve University.
+  
+  2)  What's the latest version?
+  
+! The latest version is 1.14.6, first made available on December 19, 1995.
+  
+  3)  Where can I get it?
+***************
+*** 79,86 ****
+  latest version is also available for FTP from slc2.ins.cwru.edu,
+  the maintainer's machine.  The following URLs tell how to get
+! version 1.14.4:
+  
+! ftp://prep.ai.mit.edu/pub/gnu/bash-1.14.4.tar.gz
+! ftp://slc2.ins.cwru.edu/pub/dist/bash-1.14.4.tar.gz
+  
+  4)  What's the `Posix 1003.2 standard'?
+--- 87,94 ----
+  latest version is also available for FTP from slc2.ins.cwru.edu,
+  the maintainer's machine.  The following URLs tell how to get
+! version 1.14.6:
+  
+! ftp://prep.ai.mit.edu/pub/gnu/bash-1.14.6.tar.gz
+! ftp://slc2.ins.cwru.edu/pub/dist/bash-1.14.6.tar.gz
+  
+  4)  What's the `Posix 1003.2 standard'?
+***************
+*** 347,351 ****
+  cd, print, whence	function subsitutes in examples/functions/kshenv
+  autoloaded functions	examples/functions/autoload is the same as typeset -fu
+! read var?prompt		[ -t 0 ] && echo -n prompt; read var
+  
+  13) Why is the bash builtin `test' slightly different from /bin/test?
+--- 355,359 ----
+  cd, print, whence	function subsitutes in examples/functions/kshenv
+  autoloaded functions	examples/functions/autoload is the same as typeset -fu
+! read var?prompt		[ -t 0 ] && echo -n prompt >&2; read var
+  
+  13) Why is the bash builtin `test' slightly different from /bin/test?
+***************
+*** 409,413 ****
+  	stty pass8
+  
+! you may also need
+  
+  	stty even odd
+--- 417,421 ----
+  	stty pass8
+  
+! You may also need
+  
+  	stty even odd
+***************
+*** 478,483 ****
+  and the \] escape to signal the end of such a sequence. 
+  
+! 19) I built bash on Solaris 2.  Why do globbing expansions chop off the
+!     first few characters of each filename?
+  
+  This is the consequence of building bash on SunOS 5 and linking
+--- 486,491 ----
+  and the \] escape to signal the end of such a sequence. 
+  
+! 19) I built bash on Solaris 2.  Why do globbing expansions and filename
+!     completion chop off the first few characters of each filename?
+  
+  This is the consequence of building bash on SunOS 5 and linking
+***************
+*** 489,495 ****
+  `readdir' in libucb.a (a 4.3-BSD style `struct direct'). 
+  
+! Make sure you've got /bin ahead of /usr/ucb in your $PATH when
+! building bash.  This will ensure that you use /bin/cc or acc
+! instead of /usr/ucb/cc and that you link with libc before libucb. 
+  
+  20) Why doesn't bash treat brace expansions exactly like csh?
+--- 497,508 ----
+  `readdir' in libucb.a (a 4.3-BSD style `struct direct'). 
+  
+! Make sure you've got /usr/ccs/bin ahead of /usr/ucb in your $PATH
+! when building bash.  This will ensure that you use /usr/ccs/bin/cc
+! or acc instead of /usr/ucb/cc and that you link with libc before
+! libucb.
+! 
+! If you have installed the Sun C compiler, you may also need to
+! put /usr/ccs/bin and /opt/SUNWspro/bin into your $PATH before
+! /usr/ucb.
+  
+  20) Why doesn't bash treat brace expansions exactly like csh?
+***************
+*** 662,666 ****
+  
+  
+! 28) How do I report bugs in bash, and where should I look for fixes and
+      advice?
+  
+--- 675,697 ----
+  
+  
+! 28) Why does bash report syntax errors when my C News scripts use a
+!     redirection before a subshell command?
+! 
+! The actual command in question is something like
+! 
+! 	< file ( command )
+! 
+! According to the grammar given in the Posix.2 standard, this construct
+! is, in fact, a syntax error.  Redirections may only precede `simple
+! commands'.  A subshell construct such as the above is one of the shell's
+! `compound commands'.  A redirection may only follow a compound command.
+! 
+! The file CWRU/sh-redir-hack in the 1.14.6 distribution is an (unofficial)
+! patch to parse.y that will modify the grammar to support this construct.
+! Note that if you apply this, you must recompile with -DREDIRECTION_HACK.
+! This introduces a large number of reduce/reduce conflicts into the shell
+! grammar.
+! 
+! 29) How do I report bugs in bash, and where should I look for fixes and
+      advice?
+  
+***************
+*** 680,684 ****
+  bash-maintainers@prep.ai.mit.edu.
+  
+! 29) What kind of bash documentation is there?
+  
+  First, look in the documentation directory in the bash distribution.
+--- 711,715 ----
+  bash-maintainers@prep.ai.mit.edu.
+  
+! 30) What kind of bash documentation is there?
+  
+  First, look in the documentation directory in the bash distribution.
+***************
+*** 702,706 ****
+  year.
+  
+! 30) What's coming in future versions?
+  
+  There will be no new features in future releases of version 1.14.
+--- 733,737 ----
+  year.
+  
+! 31) What's coming in future versions?
+  
+  There will be no new features in future releases of version 1.14.
+***************
+*** 736,740 ****
+  test suite greatly expanded
+  
+! 31) What's on the bash `wish list'?
+  
+  internationalization with a variable expansion to translate a string
+--- 767,771 ----
+  test suite greatly expanded
+  
+! 32) What's on the bash `wish list'?
+  
+  internationalization with a variable expansion to translate a string
+***************
+*** 749,756 ****
+  Much of this will not be in bash-2.0.
+  
+! 32) When will the next release appear?
+  
+! There will probably be a 1.14.5 release to coincide with the next GNU
+! source CD.  That will be the last release for version 1.14.
+  
+! The next version will appear sometime in 1995.  Never make predictions.
+--- 780,795 ----
+  Much of this will not be in bash-2.0.
+  
+! 33) When will the next release appear?
+! 
+! Version 1.14.6 will probably be the last release for version 1.14.
+! 
+! The next version will appear sometime in 1996.  Never make predictions.
+! 
+  
+! This document is copyright Chester Ramey, 1995.
+  
+! Permission is hereby granted, without written agreement and
+! without license or royalty fees, to use, copy, and distribute
+! this document for any purpose, provided that the above copyright
+! notice appears in all copies of this document and that the
+! contents of this document remain unaltered.
+diff -Nrc2 bash-1.14.5/documentation/bash.1 bash-1.14.6/documentation/bash.1
+*** bash-1.14.5/documentation/bash.1	Wed May 17 15:44:05 1995
+--- bash-1.14.6/documentation/bash.1	Fri Nov  3 10:43:39 1995
+***************
+*** 2877,2881 ****
+  Insert the last argument to the previous command (the last word on
+  the previous line).  With an argument,
+! behave exactly like @code{yank-nth-arg}.
+  .TP
+  .B shell\-expand\-line (M\-C\-e)
+--- 2877,2881 ----
+  Insert the last argument to the previous command (the last word on
+  the previous line).  With an argument,
+! behave exactly like \fByank-nth-arg\fP.
+  .TP
+  .B shell\-expand\-line (M\-C\-e)
+diff -Nrc2 bash-1.14.5/general.c bash-1.14.6/general.c
+*** bash-1.14.5/general.c	Thu Jun  8 11:59:24 1995
+--- bash-1.14.6/general.c	Thu Nov  2 15:01:31 1995
+***************
+*** 1030,1036 ****
+   */
+  
+! #if !defined (USG) && !defined (HPUX)
+  #  define HAVE_GETDTABLESIZE
+! #endif /* !USG && !HPUX */
+  
+  #if defined (hppa) && (defined (hpux_8) || defined (hpux_9))
+--- 1030,1036 ----
+   */
+  
+! #if !defined (USG) && !defined (HPUX) && !defined (HAVE_GETDTABLESIZE)
+  #  define HAVE_GETDTABLESIZE
+! #endif /* !USG && !HPUX && !HAVE_GETDTABLESIZE */
+  
+  #if defined (hppa) && (defined (hpux_8) || defined (hpux_9))
+***************
+*** 1125,1128 ****
+--- 1125,1131 ----
+  
+  #if defined (NO_READ_RESTART_ON_SIGNAL)
++ static char localbuf[128];
++ static int local_index = 0, local_bufused = 0;
++ 
+  /* Posix and USG systems do not guarantee to restart read () if it is
+     interrupted by a signal.  We do the read ourselves, and restart it
+***************
+*** 1132,1138 ****
+       FILE *stream;
+  {
+-   static char localbuf[128];
+-   static int local_index = 0, local_bufused = 0;
+- 
+    /* Try local buffering to reduce the number of read(2) calls. */
+    if (local_index == local_bufused || local_bufused == 0)
+--- 1135,1138 ----
+***************
+*** 1153,1156 ****
+--- 1153,1167 ----
+    return (localbuf[local_index++]);
+  }
++ 
++ int
++ ungetc_with_restart (c, fp)
++      int c;
++      FILE *fp;
++ {
++   if (local_index == 0 || local_bufused == 0 || c == EOF)
++     return EOF;
++   return (localbuf[--local_index] = c);
++ }
++ 
+  #endif /* NO_READ_RESTART_ON_SIGNAL */
+  
+diff -Nrc2 bash-1.14.5/lib/readline/complete.c bash-1.14.6/lib/readline/complete.c
+*** bash-1.14.5/lib/readline/complete.c	Thu Jun  8 12:22:57 1995
+--- bash-1.14.6/lib/readline/complete.c	Tue Nov  7 10:51:19 1995
+***************
+*** 469,473 ****
+  	}
+  
+!       if (rl_point == end && found_quote == 0)
+  	{
+  	  int quoted = 0;
+--- 469,473 ----
+  	}
+  
+!       if (rl_point == end && quote_char == '\0')
+  	{
+  	  int quoted = 0;
+***************
+*** 634,638 ****
+  	  if (rl_ignore_some_completions_function &&
+  	      our_func == (Function *)filename_completion_function)
+! 	    (void)(*rl_ignore_some_completions_function)(matches);
+  
+  	  /* If we are doing completion on quoted substrings, and any matches
+--- 634,647 ----
+  	  if (rl_ignore_some_completions_function &&
+  	      our_func == (Function *)filename_completion_function)
+! 	    {
+! 	      (void)(*rl_ignore_some_completions_function)(matches);
+! 	      if (matches == 0 || matches[0] == 0)
+! 		{
+! 		  if (matches)
+! 		    free (matches);
+! 		  ding ();
+! 		  return;
+! 		}
+! 	    }
+  
+  	  /* If we are doing completion on quoted substrings, and any matches
+diff -Nrc2 bash-1.14.5/lib/readline/history.c bash-1.14.6/lib/readline/history.c
+*** bash-1.14.5/lib/readline/history.c	Tue Mar  7 18:16:26 1995
+--- bash-1.14.6/lib/readline/history.c	Mon Oct  9 14:21:57 1995
+***************
+*** 333,336 ****
+--- 333,338 ----
+  
+    /* Take care of trivial cases first. */
++   if (string == 0 || *string == '\0')
++     return (-1);
+  
+    if (!history_length || ((i == history_length) && !reverse))
+diff -Nrc2 bash-1.14.5/lib/readline/signals.c bash-1.14.6/lib/readline/signals.c
+*** bash-1.14.5/lib/readline/signals.c	Thu Aug 11 14:55:12 1994
+--- bash-1.14.6/lib/readline/signals.c	Thu Dec 14 10:05:13 1995
+***************
+*** 228,236 ****
+    old_int = (SigHandler *)rl_set_sighandler (SIGINT, rl_signal_handler);
+    if (old_int == (SigHandler *)SIG_IGN)
+!     signal (SIGINT, SIG_IGN);
+  
+    old_alrm = (SigHandler *)rl_set_sighandler (SIGALRM, rl_signal_handler);
+    if (old_alrm == (SigHandler *)SIG_IGN)
+!     signal (SIGALRM, SIG_IGN);
+  
+  #if !defined (SHELL)
+--- 228,236 ----
+    old_int = (SigHandler *)rl_set_sighandler (SIGINT, rl_signal_handler);
+    if (old_int == (SigHandler *)SIG_IGN)
+!     rl_set_sighandler (SIGINT, SIG_IGN);
+  
+    old_alrm = (SigHandler *)rl_set_sighandler (SIGALRM, rl_signal_handler);
+    if (old_alrm == (SigHandler *)SIG_IGN)
+!     rl_set_sighandler (SIGALRM, SIG_IGN);
+  
+  #if !defined (SHELL)
+***************
+*** 239,243 ****
+    old_tstp = (SigHandler *)rl_set_sighandler (SIGTSTP, rl_signal_handler);
+    if (old_tstp == (SigHandler *)SIG_IGN)
+!     signal (SIGTSTP, SIG_IGN);
+  #endif /* SIGTSTP */
+  #if defined (SIGTTOU)
+--- 239,243 ----
+    old_tstp = (SigHandler *)rl_set_sighandler (SIGTSTP, rl_signal_handler);
+    if (old_tstp == (SigHandler *)SIG_IGN)
+!     rl_set_sighandler (SIGTSTP, SIG_IGN);
+  #endif /* SIGTSTP */
+  #if defined (SIGTTOU)
+***************
+*** 247,252 ****
+    if (old_tstp == (SigHandler *)SIG_IGN)
+      {
+!       signal (SIGTTOU, SIG_IGN);
+!       signal (SIGTTIN, SIG_IGN);
+      }
+  #endif /* SIGTTOU */
+--- 247,252 ----
+    if (old_tstp == (SigHandler *)SIG_IGN)
+      {
+!       rl_set_sighandler (SIGTTOU, SIG_IGN);
+!       rl_set_sighandler (SIGTTIN, SIG_IGN);
+      }
+  #endif /* SIGTTOU */
+diff -Nrc2 bash-1.14.5/machines.h bash-1.14.6/machines.h
+*** bash-1.14.5/machines.h	Wed May 31 11:05:02 1995
+--- bash-1.14.6/machines.h	Mon Dec 18 14:13:22 1995
+***************
+*** 97,102 ****
+--- 97,118 ----
+  #  define HAVE_DIRENT
+  #  define HAVE_STRCASECMP
++ #  undef USE_GNU_MALLOC
+  #endif /* sparc && __NetBSD__ */
+  
++ /* BSDI BSD/OS running on a sparc. */
++ #if defined (sparc) && defined (__bsdi__)
++ #  define M_MACHINE "sun4"
++ #  define M_OS "BSD_OS"
++ #  define SYSDEP_CFLAGS -DOPENDIR_NOT_ROBUST -DRLIMTYPE=quad_t
++ #  define HAVE_SYS_SIGLIST
++ #  define HAVE_SETLINEBUF
++ #  define HAVE_GETGROUPS
++ #  define HAVE_VFPRINTF
++ #  define HAVE_STRERROR
++ #  define VOID_SIGHANDLER
++ #  define HAVE_DIRENT
++ #  define HAVE_STRCASECMP
++ #endif /* sparc && __bsdi__ */
++ 
+  #if defined (sun) && !defined (M_MACHINE)
+  /* We aren't currently using GNU Malloc on Suns because of a bug in Sun's
+***************
+*** 196,199 ****
+--- 212,235 ----
+  
+  /* ************************ */
++ /*                          */
++ /*  NetBSD/pmax (DEC mips)  */
++ /*                          */  
++ /* ************************ */
++ #if defined(mips) && defined(__NetBSD__)
++ #  define M_MACHINE "mips"   
++ #  define M_OS "NetBSD"
++ #  define SYSDEP_CFLAGS -DOPENDIR_NOT_ROBUST -DINT_GROUPS_ARRAY \
++                        -DRLIMTYPE=quad_t
++ #  define HAVE_SYS_SIGLIST
++ #  define HAVE_SETLINEBUF
++ #  define HAVE_GETGROUPS
++ #  define HAVE_VFPRINTF
++ #  define HAVE_STRERROR
++ #  define VOID_SIGHANDLER
++ #  define HAVE_DIRENT
++ #  define HAVE_STRCASECMP
++ #endif /* mips && __NetBSD__ */
++ 
++ /* ************************ */
+  /*			    */
+  /*	    Ultrix	    */
+***************
+*** 309,312 ****
+--- 345,349 ----
+  #  endif /* !Irix5 */
+  #  define SYSDEP_CFLAGS SGI_CFLAGS MACHINE_CFLAGS ANSIC
++ #  define SYSDEP_LDFLAGS MACHINE_CFLAGS
+  #endif  /* sgi */
+  
+***************
+*** 492,495 ****
+--- 529,533 ----
+  #    undef MACHINE_CFLAGS
+  #    define MACHINE_CFLAGS -Wf,-XNl3072 -systype bsd43
++ #    define SYSDEP_LDFLAGS -systype bsd43
+  #  endif /* !HAVE_GCC */
+  #  define SYSDEP_CFLAGS MACHINE_CFLAGS MIPS_CFLAGS
+***************
+*** 732,740 ****
+  #    define M_OS "SCO"
+  #    define SCO_CFLAGS -DUSG -DUSGr3 -DPGRP_PIPE
+! #    if defined (SCOv4)
+  #      define SYSDEP_CFLAGS SCO_CFLAGS -DWAITPID_BROKEN
+! #    else /* !SCOv4 */
+  #      define SYSDEP_CFLAGS SCO_CFLAGS -DOPENDIR_NOT_ROBUST -DMUST_UNBLOCK_CHILD
+! #    endif /* !SCOv4 */
+  #    define HAVE_VFPRINTF
+  #    define VOID_SIGHANDLER
+--- 770,778 ----
+  #    define M_OS "SCO"
+  #    define SCO_CFLAGS -DUSG -DUSGr3 -DPGRP_PIPE
+! #    if defined (SCOv4) || defined (SCOv5)
+  #      define SYSDEP_CFLAGS SCO_CFLAGS -DWAITPID_BROKEN
+! #    else /* !SCOv4 && !SCOv5 */
+  #      define SYSDEP_CFLAGS SCO_CFLAGS -DOPENDIR_NOT_ROBUST -DMUST_UNBLOCK_CHILD
+! #    endif /* !SCOv4 && !SCOv5 */
+  #    define HAVE_VFPRINTF
+  #    define VOID_SIGHANDLER
+***************
+*** 947,950 ****
+--- 985,1012 ----
+  #endif /* alliant */
+  
++ /* ********************* */
++ /*                       */
++ /*      Linux/m68k       */
++ /*                       */
++ /* ********************* */
++ #if defined (mc68000) && (defined (__linux__) || defined (linux))
++ #  define M_MACHINE "m68k"
++ #  define M_OS "Linux"
++ #  define SYSDEP_CFLAGS -DHAVE_BCOPY -DHAVE_GETPW_DECLS -DHAVE_GETHOSTNAME
++ #  define REQUIRED_LIBRARIES
++ #  define HAVE_GETGROUPS
++ #  define HAVE_STRERROR
++ #  define VOID_SIGHANDLER
++ #  define HAVE_SYS_SIGLIST
++ #  define HAVE_VFPRINTF
++ #  define HAVE_VARARGS_H
++ #  if defined (__GNUC__)
++ #    define HAVE_FIXED_INCLUDES
++ #  endif /* __GNUC__ */
++ #  undef USE_GNU_MALLOC
++ #  undef HAVE_SETLINEBUF
++ #  define HAVE_STRCASECMP
++ #endif  /* mc68000 && __linux__ */
++ 
+  /* **************************************************************** */
+  /*                                                                  */
+***************
+*** 1152,1155 ****
+--- 1214,1231 ----
+  #      undef HAVE_RESOURCE
+  #      define HPUX_CFLAGS -DNO_SBRK_DECL -DHAVE_SOCKETS -DHAVE_GETHOSTNAME HPUX_ANSI
++ #    endif /* HPUX_9 */
++ 
++ #    if defined (HPUX_10)
++ #      define M_OS "hpux_10"
++ #      if !defined (__GNUC__)
++ #        undef HAVE_ALLOCA
++ #	 define HPUX_ANSI +O3 -Ae
++ #      else
++ #	 define HPUX_ANSI
++ #      endif
++ #      undef HAVE_GETWD
++ #      undef USE_GNU_MALLOC
++ #      undef HAVE_RESOURCE
++ #      define HPUX_CFLAGS -DNO_SBRK_DECL -DHAVE_SOCKETS -DHAVE_GETHOSTNAME -DBSD_GETPGRP HPUX_ANSI
+  #    endif /* HPUX_9 */
+  
+diff -Nrc2 bash-1.14.5/parse.y bash-1.14.6/parse.y
+*** bash-1.14.5/parse.y	Mon Feb 27 11:07:49 1995
+--- bash-1.14.6/parse.y	Thu Nov  2 15:00:51 1995
+***************
+*** 964,968 ****
+--- 964,972 ----
+       int c;
+  {
++ #if defined (NO_READ_RESTART_ON_SIGNAL)
++   return (ungetc_with_restart (c, bash_input.location.file));
++ #else
+    return (ungetc (c, bash_input.location.file));
++ #endif
+  }
+  
+***************
+*** 1728,1731 ****
+--- 1732,1738 ----
+  	      if (word_token_alist[i].token == '{') \
+  		open_brace_awaiting_satisfaction++; \
++ \
++ 	      if (word_token_alist[i].token == '}' && open_brace_awaiting_satisfaction) \
++ 		open_brace_awaiting_satisfaction--; \
+  \
+  	      return (word_token_alist[i].token); \
+diff -Nrc2 bash-1.14.5/shell.h bash-1.14.6/shell.h
+*** bash-1.14.5/shell.h	Thu Mar  3 14:36:16 1994
+--- bash-1.14.6/shell.h	Mon Oct  9 14:15:52 1995
+***************
+*** 94,98 ****
+  
+  #define CTLESC '\001'
+! #define CTLNUL '\002'
+  
+  /* Information about the current user. */
+--- 94,98 ----
+  
+  #define CTLESC '\001'
+! #define CTLNUL '\177'
+  
+  /* Information about the current user. */
+diff -Nrc2 bash-1.14.5/subst.c bash-1.14.6/subst.c
+*** bash-1.14.5/subst.c	Tue Jun 27 15:13:26 1995
+--- bash-1.14.6/subst.c	Fri Nov 17 16:50:37 1995
+***************
+*** 177,181 ****
+  
+    if (charlist[0] == '\'' && !charlist[1])
+!     return (string_extract_single_quoted (string, sindex));
+  
+    for (i = *sindex; (c = string[i]); i++)
+--- 177,186 ----
+  
+    if (charlist[0] == '\'' && !charlist[1])
+!     {
+!       temp = string_extract_single_quoted (string, sindex);
+!       i = *sindex - 1;
+!       *sindex = i;
+!       return (temp);
+!     }
+  
+    for (i = *sindex; (c = string[i]); i++)
+***************
+*** 724,727 ****
+--- 729,733 ----
+            if (i > eindex)
+              return 1;
++           i--;
+          }
+        else if (string[i] == '"')
+***************
+*** 732,735 ****
+--- 738,742 ----
+            if (i > eindex)
+              return 1;
++           i--;
+          }
+        else if (string[i] == '\\')
+***************
+*** 918,923 ****
+--- 925,957 ----
+     of how expand_word_internal works.  remove_quoted_nulls () simply
+     turns STRING into an empty string iff it only consists of a quoted null. */
++ /*
+  #define remove_quoted_nulls(string) \
+    do { if (QUOTED_NULL (string)) string[0] ='\0'; } while (0)
++ */
++ static void
++ remove_quoted_nulls (string)
++      char *string;
++ {
++   char *nstr, *s, *p;
++ 
++   nstr = savestring (string);
++   nstr[0] = '\0';
++   for (p = nstr, s = string; *s; s++)
++     {
++       if (*s == CTLESC)
++ 	{
++ 	  *p++ = *s++;  /* CTLESC */
++ 	  if (*s == 0)
++ 	    break;
++ 	  *p++ = *s;    /* quoted char */
++ 	  continue;
++ 	}
++       if (*s == CTLNUL)
++ 	continue;
++       *p++ = *s;
++     }
++   *p = '\0';
++   strcpy (string, nstr);
++ }
+  
+  /* Perform quoted null character removal on each element of LIST.
+***************
+*** 1817,1821 ****
+  
+    tname = mktemp (savestring ("/tmp/sh-np-XXXXXX"));
+!   if (mkfifo (tname, 0666) < 0)
+      {
+        free (tname);
+--- 1851,1855 ----
+  
+    tname = mktemp (savestring ("/tmp/sh-np-XXXXXX"));
+!   if (mkfifo (tname, 0600) < 0)
+      {
+        free (tname);
+***************
+*** 1857,1862 ****
+    if (!dev_fd_list || fd >= totfds)
+      {
+!       int zero;
+  
+        totfds = getdtablesize ();
+        if (totfds < 0 || totfds > 256)
+--- 1891,1897 ----
+    if (!dev_fd_list || fd >= totfds)
+      {
+!       int ofds;
+  
++       ofds = totfds;
+        totfds = getdtablesize ();
+        if (totfds < 0 || totfds > 256)
+***************
+*** 1865,1873 ****
+  	totfds = fd + 2;
+  
+-       zero = dev_fd_list == (char *) NULL;
+        dev_fd_list = xrealloc (dev_fd_list, totfds);
+!       if (zero)
+! 	bzero (dev_fd_list, totfds);
+!       /* XXX - should zero out new portion of list here - XXX */
+      }
+  
+--- 1900,1905 ----
+  	totfds = fd + 2;
+  
+        dev_fd_list = xrealloc (dev_fd_list, totfds);
+!       bzero (dev_fd_list + ofds, totfds - ofds);
+      }
+  
+***************
+*** 2466,2469 ****
+--- 2498,2507 ----
+        temp = string_list (l);
+        dispose_words (l);
++     }
++   else if (lquote)
++     {
++       temp = xmalloc (2);
++       temp[0] = CTLNUL;
++       temp[1] = '\0';
+      }
+    else
+diff -Nrc2 bash-1.14.5/support/mksysdefs bash-1.14.6/support/mksysdefs
+*** bash-1.14.5/support/mksysdefs	Mon May 22 10:52:29 1995
+--- bash-1.14.6/support/mksysdefs	Tue Nov 28 13:18:53 1995
+***************
+*** 258,261 ****
+--- 258,262 ----
+    case `/bin/uname -X 2>/dev/null | grep '^Release' 2>/dev/null` in
+      *3.2v4.*) SYSDEF=SCOv4 ;;
++     *3.2v5.*) SYSDEF=SCOv5 ;;
+  	   *) SYSDEF=SCO ;;
+    esac
+diff -Nrc2 bash-1.14.5/trap.c bash-1.14.6/trap.c
+*** bash-1.14.5/trap.c	Sat Feb 25 18:25:03 1995
+--- bash-1.14.6/trap.c	Mon Oct  9 14:23:24 1995
+***************
+*** 458,461 ****
+--- 458,465 ----
+  run_exit_trap ()
+  {
++   int old_exit_value;
++ 
++   old_exit_value = last_command_exit_value;
++ 
+    /* Run the trap only if signal 0 is trapped and not ignored. */
+    if ((sigmodes[0] & SIG_TRAPPED) &&
+***************
+*** 474,479 ****
+        if (code == 0)
+  	parse_and_execute (trap_command, "trap", 0);
+      }
+!   return (last_command_exit_value);
+  }
+  
+--- 478,488 ----
+        if (code == 0)
+  	parse_and_execute (trap_command, "trap", 0);
++       else if (code == EXITPROG)
++ 	return (last_command_exit_value);
++       else
++ 	return (old_exit_value);
+      }
+! 
+!   return (old_exit_value);
+  }
+  
+diff -Nrc2 bash-1.14.5/y.tab.c bash-1.14.6/y.tab.c
+*** bash-1.14.5/y.tab.c	Thu Mar 16 10:29:07 1995
+--- bash-1.14.6/y.tab.c	Wed Nov  8 16:51:55 1995
+***************
+*** 1,4 ****
+  
+! /*  A Bison parser, made from /usr/homes/chet/src/bash/bash-1.14.4/parse.y  */
+  
+  #define YYBISON 1  /* Identify Bison output.  */
+--- 1,4 ----
+  
+! /*  A Bison parser, made from /usr/homes/chet/src/bash/bash-1.14.6/parse.y  */
+  
+  #define YYBISON 1  /* Identify Bison output.  */
+***************
+*** 36,40 ****
+  #define	yacc_EOF	288
+  
+! #line 21 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  
+  #include <stdio.h>
+--- 36,40 ----
+  #define	yacc_EOF	288
+  
+! #line 21 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  
+  #include <stdio.h>
+***************
+*** 137,141 ****
+  static REDIRECTEE redir;
+  
+! #line 122 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  typedef union {
+    WORD_DESC *word;		/* the word that we read. */
+--- 137,141 ----
+  static REDIRECTEE redir;
+  
+! #line 122 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  typedef union {
+    WORD_DESC *word;		/* the word that we read. */
+***************
+*** 976,980 ****
+  
+  case 1:
+! #line 164 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  /* Case of regular command.  Discard the error
+--- 976,980 ----
+  
+  case 1:
+! #line 164 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  /* Case of regular command.  Discard the error
+***************
+*** 987,991 ****
+      break;}
+  case 2:
+! #line 173 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  /* Case of regular command, but not a very
+--- 987,991 ----
+      break;}
+  case 2:
+! #line 173 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  /* Case of regular command, but not a very
+***************
+*** 996,1000 ****
+      break;}
+  case 3:
+! #line 181 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  /* Error during parsing.  Return NULL command. */
+--- 996,1000 ----
+      break;}
+  case 3:
+! #line 181 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  /* Error during parsing.  Return NULL command. */
+***************
+*** 1013,1017 ****
+      break;}
+  case 4:
+! #line 196 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  /* Case of EOF seen by itself.  Do ignoreeof or 
+--- 1013,1017 ----
+      break;}
+  case 4:
+! #line 196 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  /* Case of EOF seen by itself.  Do ignoreeof or 
+***************
+*** 1023,1035 ****
+      break;}
+  case 5:
+! #line 206 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.word_list = (WORD_LIST *)NULL; ;
+      break;}
+  case 6:
+! #line 208 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, yyvsp[-1].word_list); ;
+      break;}
+  case 7:
+! #line 212 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1023,1035 ----
+      break;}
+  case 5:
+! #line 206 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.word_list = (WORD_LIST *)NULL; ;
+      break;}
+  case 6:
+! #line 208 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, yyvsp[-1].word_list); ;
+      break;}
+  case 7:
+! #line 212 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1038,1042 ****
+      break;}
+  case 8:
+! #line 217 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1038,1042 ----
+      break;}
+  case 8:
+! #line 217 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1045,1049 ****
+      break;}
+  case 9:
+! #line 222 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1045,1049 ----
+      break;}
+  case 9:
+! #line 222 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1052,1056 ****
+      break;}
+  case 10:
+! #line 227 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1052,1056 ----
+      break;}
+  case 10:
+! #line 227 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1059,1063 ****
+      break;}
+  case 11:
+! #line 232 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1059,1063 ----
+      break;}
+  case 11:
+! #line 232 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1066,1070 ****
+      break;}
+  case 12:
+! #line 237 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1066,1070 ----
+      break;}
+  case 12:
+! #line 237 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1073,1077 ****
+      break;}
+  case 13:
+! #line 242 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1073,1077 ----
+      break;}
+  case 13:
+! #line 242 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1081,1085 ****
+      break;}
+  case 14:
+! #line 248 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1081,1085 ----
+      break;}
+  case 14:
+! #line 248 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1089,1093 ****
+      break;}
+  case 15:
+! #line 254 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+--- 1089,1093 ----
+      break;}
+  case 15:
+! #line 254 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+***************
+*** 1096,1100 ****
+      break;}
+  case 16:
+! #line 259 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+--- 1096,1100 ----
+      break;}
+  case 16:
+! #line 259 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+***************
+*** 1103,1107 ****
+      break;}
+  case 17:
+! #line 264 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+--- 1103,1107 ----
+      break;}
+  case 17:
+! #line 264 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+***************
+*** 1110,1114 ****
+      break;}
+  case 18:
+! #line 269 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+--- 1110,1114 ----
+      break;}
+  case 18:
+! #line 269 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = yyvsp[0].number;
+***************
+*** 1117,1121 ****
+      break;}
+  case 19:
+! #line 274 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1117,1121 ----
+      break;}
+  case 19:
+! #line 274 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1124,1128 ****
+      break;}
+  case 20:
+! #line 279 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1124,1128 ----
+      break;}
+  case 20:
+! #line 279 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1131,1135 ****
+      break;}
+  case 21:
+! #line 284 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1131,1135 ----
+      break;}
+  case 21:
+! #line 284 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1138,1142 ****
+      break;}
+  case 22:
+! #line 289 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1138,1142 ----
+      break;}
+  case 22:
+! #line 289 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1145,1149 ****
+      break;}
+  case 23:
+! #line 294 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1145,1149 ----
+      break;}
+  case 23:
+! #line 294 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1154,1158 ****
+      break;}
+  case 24:
+! #line 301 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1154,1158 ----
+      break;}
+  case 24:
+! #line 301 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1163,1167 ****
+      break;}
+  case 25:
+! #line 308 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = 0L;
+--- 1163,1167 ----
+      break;}
+  case 25:
+! #line 308 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = 0L;
+***************
+*** 1170,1174 ****
+      break;}
+  case 26:
+! #line 313 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = 0L;
+--- 1170,1174 ----
+      break;}
+  case 26:
+! #line 313 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = 0L;
+***************
+*** 1177,1181 ****
+      break;}
+  case 27:
+! #line 318 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = 0L;
+--- 1177,1181 ----
+      break;}
+  case 27:
+! #line 318 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = 0L;
+***************
+*** 1184,1188 ****
+      break;}
+  case 28:
+! #line 323 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.dest = 0L;
+--- 1184,1188 ----
+      break;}
+  case 28:
+! #line 323 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.dest = 0L;
+***************
+*** 1191,1195 ****
+      break;}
+  case 29:
+! #line 328 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1191,1195 ----
+      break;}
+  case 29:
+! #line 328 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1198,1202 ****
+      break;}
+  case 30:
+! #line 333 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1198,1202 ----
+      break;}
+  case 30:
+! #line 333 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1205,1209 ****
+      break;}
+  case 31:
+! #line 338 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  REDIRECT *t1, *t2;
+--- 1205,1209 ----
+      break;}
+  case 31:
+! #line 338 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  REDIRECT *t1, *t2;
+***************
+*** 1223,1227 ****
+      break;}
+  case 32:
+! #line 354 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1223,1227 ----
+      break;}
+  case 32:
+! #line 354 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1230,1234 ****
+      break;}
+  case 33:
+! #line 359 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+--- 1230,1234 ----
+      break;}
+  case 33:
+! #line 359 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  redir.filename = yyvsp[0].word;
+***************
+*** 1237,1253 ****
+      break;}
+  case 34:
+! #line 366 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.element.word = yyvsp[0].word; yyval.element.redirect = 0; ;
+      break;}
+  case 35:
+! #line 368 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.element.word = yyvsp[0].word; yyval.element.redirect = 0; ;
+      break;}
+  case 36:
+! #line 370 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.element.redirect = yyvsp[0].redirect; yyval.element.word = 0; ;
+      break;}
+  case 37:
+! #line 374 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyval.redirect = yyvsp[0].redirect;
+--- 1237,1253 ----
+      break;}
+  case 34:
+! #line 366 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.element.word = yyvsp[0].word; yyval.element.redirect = 0; ;
+      break;}
+  case 35:
+! #line 368 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.element.word = yyvsp[0].word; yyval.element.redirect = 0; ;
+      break;}
+  case 36:
+! #line 370 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.element.redirect = yyvsp[0].redirect; yyval.element.word = 0; ;
+      break;}
+  case 37:
+! #line 374 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyval.redirect = yyvsp[0].redirect;
+***************
+*** 1255,1259 ****
+      break;}
+  case 38:
+! #line 378 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { 
+  			  register REDIRECT *t = yyvsp[-1].redirect;
+--- 1255,1259 ----
+      break;}
+  case 38:
+! #line 378 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { 
+  			  register REDIRECT *t = yyvsp[-1].redirect;
+***************
+*** 1266,1290 ****
+      break;}
+  case 39:
+! #line 389 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_simple_command (yyvsp[0].element, (COMMAND *)NULL); ;
+      break;}
+  case 40:
+! #line 391 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_simple_command (yyvsp[0].element, yyvsp[-1].command); ;
+      break;}
+  case 41:
+! #line 395 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = clean_simple_command (yyvsp[0].command); ;
+      break;}
+  case 42:
+! #line 397 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 43:
+! #line 401 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 44:
+! #line 403 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  if (yyvsp[-1].command->redirects)
+--- 1266,1290 ----
+      break;}
+  case 39:
+! #line 389 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_simple_command (yyvsp[0].element, (COMMAND *)NULL); ;
+      break;}
+  case 40:
+! #line 391 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_simple_command (yyvsp[0].element, yyvsp[-1].command); ;
+      break;}
+  case 41:
+! #line 395 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = clean_simple_command (yyvsp[0].command); ;
+      break;}
+  case 42:
+! #line 397 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 43:
+! #line 401 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 44:
+! #line 403 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  if (yyvsp[-1].command->redirects)
+***************
+*** 1301,1369 ****
+      break;}
+  case 45:
+! #line 418 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-4].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 46:
+! #line 420 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-4].word, add_string_to_list ("$@", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 47:
+! #line 422 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-5].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 48:
+! #line 424 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-5].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 49:
+! #line 426 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-8].word, REVERSE_LIST (yyvsp[-5].word_list, WORD_LIST *), yyvsp[-1].command); ;
+      break;}
+  case 50:
+! #line 428 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_for_command (yyvsp[-8].word, REVERSE_LIST (yyvsp[-5].word_list, WORD_LIST *), yyvsp[-1].command); ;
+      break;}
+  case 51:
+! #line 431 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_case_command (yyvsp[-4].word, (PATTERN_LIST *)NULL); ;
+      break;}
+  case 52:
+! #line 433 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_case_command (yyvsp[-5].word, yyvsp[-2].pattern); ;
+      break;}
+  case 53:
+! #line 435 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_case_command (yyvsp[-4].word, yyvsp[-1].pattern); ;
+      break;}
+  case 54:
+! #line 437 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_while_command (yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 55:
+! #line 439 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_until_command (yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 56:
+! #line 441 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 57:
+! #line 443 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 58:
+! #line 445 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 59:
+! #line 447 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 60:
+! #line 449 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 61:
+! #line 453 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1301,1369 ----
+      break;}
+  case 45:
+! #line 418 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-4].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 46:
+! #line 420 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-4].word, add_string_to_list ("$@", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 47:
+! #line 422 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-5].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 48:
+! #line 424 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-5].word, add_string_to_list ("\"$@\"", (WORD_LIST *)NULL), yyvsp[-1].command); ;
+      break;}
+  case 49:
+! #line 426 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-8].word, REVERSE_LIST (yyvsp[-5].word_list, WORD_LIST *), yyvsp[-1].command); ;
+      break;}
+  case 50:
+! #line 428 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_for_command (yyvsp[-8].word, REVERSE_LIST (yyvsp[-5].word_list, WORD_LIST *), yyvsp[-1].command); ;
+      break;}
+  case 51:
+! #line 431 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_case_command (yyvsp[-4].word, (PATTERN_LIST *)NULL); ;
+      break;}
+  case 52:
+! #line 433 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_case_command (yyvsp[-5].word, yyvsp[-2].pattern); ;
+      break;}
+  case 53:
+! #line 435 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_case_command (yyvsp[-4].word, yyvsp[-1].pattern); ;
+      break;}
+  case 54:
+! #line 437 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_while_command (yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 55:
+! #line 439 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_until_command (yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 56:
+! #line 441 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 57:
+! #line 443 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 58:
+! #line 445 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 59:
+! #line 447 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 60:
+! #line 449 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 61:
+! #line 453 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1373,1377 ****
+      break;}
+  case 62:
+! #line 459 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1373,1377 ----
+      break;}
+  case 62:
+! #line 459 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1381,1385 ****
+      break;}
+  case 63:
+! #line 465 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1381,1385 ----
+      break;}
+  case 63:
+! #line 465 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1389,1393 ****
+      break;}
+  case 64:
+! #line 471 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1389,1393 ----
+      break;}
+  case 64:
+! #line 471 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1397,1401 ****
+      break;}
+  case 65:
+! #line 477 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1397,1401 ----
+      break;}
+  case 65:
+! #line 477 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1405,1409 ****
+      break;}
+  case 66:
+! #line 483 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+--- 1405,1409 ----
+      break;}
+  case 66:
+! #line 483 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  #if defined (SELECT_COMMAND)
+***************
+*** 1413,1521 ****
+      break;}
+  case 67:
+! #line 491 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_function_def (yyvsp[-4].word, yyvsp[0].command); ;
+      break;}
+  case 68:
+! #line 494 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-5].word, yyvsp[-1].command); ;
+      break;}
+  case 69:
+! #line 497 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_function_def (yyvsp[-4].word, yyvsp[0].command); ;
+      break;}
+  case 70:
+! #line 500 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-5].word, yyvsp[-1].command); ;
+      break;}
+  case 71:
+! #line 503 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_function_def (yyvsp[-2].word, yyvsp[0].command); ;
+      break;}
+  case 72:
+! #line 506 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-3].word, yyvsp[-1].command); ;
+      break;}
+  case 73:
+! #line 510 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[-1].command->flags |= CMD_WANT_SUBSHELL; yyval.command = yyvsp[-1].command; ;
+      break;}
+  case 74:
+! #line 514 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-3].command, yyvsp[-1].command, (COMMAND *)NULL); ;
+      break;}
+  case 75:
+! #line 516 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-5].command, yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 76:
+! #line 518 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-4].command, yyvsp[-2].command, yyvsp[-1].command); ;
+      break;}
+  case 77:
+! #line 523 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_group_command (yyvsp[-1].command); ;
+      break;}
+  case 78:
+! #line 527 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-2].command, yyvsp[0].command, (COMMAND *)NULL); ;
+      break;}
+  case 79:
+! #line 529 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-4].command, yyvsp[-2].command, yyvsp[0].command); ;
+      break;}
+  case 80:
+! #line 531 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = make_if_command (yyvsp[-3].command, yyvsp[-1].command, yyvsp[0].command); ;
+      break;}
+  case 82:
+! #line 536 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[0].pattern->next = yyvsp[-1].pattern; yyval.pattern = yyvsp[0].pattern; ;
+      break;}
+  case 83:
+! #line 540 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, yyvsp[0].command); ;
+      break;}
+  case 84:
+! #line 542 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 85:
+! #line 544 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, yyvsp[0].command); ;
+      break;}
+  case 86:
+! #line 546 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 88:
+! #line 551 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyvsp[0].pattern->next = yyvsp[-1].pattern; yyval.pattern = yyvsp[0].pattern; ;
+      break;}
+  case 89:
+! #line 555 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, yyvsp[-1].command); ;
+      break;}
+  case 90:
+! #line 557 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 91:
+! #line 559 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, yyvsp[-1].command); ;
+      break;}
+  case 92:
+! #line 561 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 93:
+! #line 565 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, (WORD_LIST *)NULL); ;
+      break;}
+  case 94:
+! #line 567 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, yyvsp[-2].word_list); ;
+      break;}
+  case 95:
+! #line 576 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyval.command = yyvsp[0].command;
+--- 1413,1521 ----
+      break;}
+  case 67:
+! #line 491 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_function_def (yyvsp[-4].word, yyvsp[0].command); ;
+      break;}
+  case 68:
+! #line 494 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-5].word, yyvsp[-1].command); ;
+      break;}
+  case 69:
+! #line 497 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_function_def (yyvsp[-4].word, yyvsp[0].command); ;
+      break;}
+  case 70:
+! #line 500 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-5].word, yyvsp[-1].command); ;
+      break;}
+  case 71:
+! #line 503 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_function_def (yyvsp[-2].word, yyvsp[0].command); ;
+      break;}
+  case 72:
+! #line 506 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[-1].command->redirects = yyvsp[0].redirect; yyval.command = make_function_def (yyvsp[-3].word, yyvsp[-1].command); ;
+      break;}
+  case 73:
+! #line 510 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[-1].command->flags |= CMD_WANT_SUBSHELL; yyval.command = yyvsp[-1].command; ;
+      break;}
+  case 74:
+! #line 514 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-3].command, yyvsp[-1].command, (COMMAND *)NULL); ;
+      break;}
+  case 75:
+! #line 516 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-5].command, yyvsp[-3].command, yyvsp[-1].command); ;
+      break;}
+  case 76:
+! #line 518 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-4].command, yyvsp[-2].command, yyvsp[-1].command); ;
+      break;}
+  case 77:
+! #line 523 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_group_command (yyvsp[-1].command); ;
+      break;}
+  case 78:
+! #line 527 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-2].command, yyvsp[0].command, (COMMAND *)NULL); ;
+      break;}
+  case 79:
+! #line 529 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-4].command, yyvsp[-2].command, yyvsp[0].command); ;
+      break;}
+  case 80:
+! #line 531 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = make_if_command (yyvsp[-3].command, yyvsp[-1].command, yyvsp[0].command); ;
+      break;}
+  case 82:
+! #line 536 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[0].pattern->next = yyvsp[-1].pattern; yyval.pattern = yyvsp[0].pattern; ;
+      break;}
+  case 83:
+! #line 540 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, yyvsp[0].command); ;
+      break;}
+  case 84:
+! #line 542 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 85:
+! #line 544 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, yyvsp[0].command); ;
+      break;}
+  case 86:
+! #line 546 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-2].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 88:
+! #line 551 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyvsp[0].pattern->next = yyvsp[-1].pattern; yyval.pattern = yyvsp[0].pattern; ;
+      break;}
+  case 89:
+! #line 555 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, yyvsp[-1].command); ;
+      break;}
+  case 90:
+! #line 557 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 91:
+! #line 559 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, yyvsp[-1].command); ;
+      break;}
+  case 92:
+! #line 561 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.pattern = make_pattern_list (yyvsp[-3].word_list, (COMMAND *)NULL); ;
+      break;}
+  case 93:
+! #line 565 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, (WORD_LIST *)NULL); ;
+      break;}
+  case 94:
+! #line 567 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.word_list = make_word_list (yyvsp[0].word, yyvsp[-2].word_list); ;
+      break;}
+  case 95:
+! #line 576 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyval.command = yyvsp[0].command;
+***************
+*** 1525,1529 ****
+      break;}
+  case 98:
+! #line 586 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  if (yyvsp[-2].command->type == cm_connection)
+--- 1525,1529 ----
+      break;}
+  case 98:
+! #line 586 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  if (yyvsp[-2].command->type == cm_connection)
+***************
+*** 1534,1546 ****
+      break;}
+  case 100:
+! #line 597 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, AND_AND); ;
+      break;}
+  case 101:
+! #line 599 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, OR_OR); ;
+      break;}
+  case 102:
+! #line 601 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  if (yyvsp[-3].command->type == cm_connection)
+--- 1534,1546 ----
+      break;}
+  case 100:
+! #line 597 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, AND_AND); ;
+      break;}
+  case 101:
+! #line 599 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, OR_OR); ;
+      break;}
+  case 102:
+! #line 601 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  if (yyvsp[-3].command->type == cm_connection)
+***************
+*** 1551,1567 ****
+      break;}
+  case 103:
+! #line 608 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 104:
+! #line 610 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 105:
+! #line 612 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 106:
+! #line 614 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyvsp[0].command->flags |= CMD_INVERT_RETURN;
+--- 1551,1567 ----
+      break;}
+  case 103:
+! #line 608 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 104:
+! #line 610 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 105:
+! #line 612 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 106:
+! #line 614 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyvsp[0].command->flags |= CMD_INVERT_RETURN;
+***************
+*** 1570,1574 ****
+      break;}
+  case 112:
+! #line 636 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyval.command = yyvsp[0].command;
+--- 1570,1574 ----
+      break;}
+  case 112:
+! #line 636 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyval.command = yyvsp[0].command;
+***************
+*** 1578,1582 ****
+      break;}
+  case 113:
+! #line 642 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  if (yyvsp[-1].command->type == cm_connection)
+--- 1578,1582 ----
+      break;}
+  case 113:
+! #line 642 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  if (yyvsp[-1].command->type == cm_connection)
+***************
+*** 1589,1593 ****
+      break;}
+  case 114:
+! #line 651 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyval.command = yyvsp[-1].command;
+--- 1589,1593 ----
+      break;}
+  case 114:
+! #line 651 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyval.command = yyvsp[-1].command;
+***************
+*** 1597,1609 ****
+      break;}
+  case 115:
+! #line 659 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, AND_AND); ;
+      break;}
+  case 116:
+! #line 661 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, OR_OR); ;
+      break;}
+  case 117:
+! #line 663 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  if (yyvsp[-2].command->type == cm_connection)
+--- 1597,1609 ----
+      break;}
+  case 115:
+! #line 659 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, AND_AND); ;
+      break;}
+  case 116:
+! #line 661 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, OR_OR); ;
+      break;}
+  case 117:
+! #line 663 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  if (yyvsp[-2].command->type == cm_connection)
+***************
+*** 1614,1626 ****
+      break;}
+  case 118:
+! #line 670 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-2].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 119:
+! #line 672 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 120:
+! #line 674 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  {
+  			  yyvsp[0].command->flags |= CMD_INVERT_RETURN;
+--- 1614,1626 ----
+      break;}
+  case 118:
+! #line 670 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-2].command, yyvsp[0].command, ';'); ;
+      break;}
+  case 119:
+! #line 672 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+  case 120:
+! #line 674 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  {
+  			  yyvsp[0].command->flags |= CMD_INVERT_RETURN;
+***************
+*** 1629,1637 ****
+      break;}
+  case 121:
+! #line 682 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, '|'); ;
+      break;}
+  case 122:
+! #line 684 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+--- 1629,1637 ----
+      break;}
+  case 121:
+! #line 682 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = command_connect (yyvsp[-3].command, yyvsp[0].command, '|'); ;
+      break;}
+  case 122:
+! #line 684 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  { yyval.command = yyvsp[0].command; ;
+      break;}
+***************
+*** 1830,1834 ****
+    goto yynewstate;
+  }
+! #line 686 "/usr/homes/chet/src/bash/bash-1.14.4/parse.y"
+  
+  
+--- 1830,1834 ----
+    goto yynewstate;
+  }
+! #line 686 "/usr/homes/chet/src/bash/bash-1.14.6/parse.y"
+  
+  
+***************
+*** 2111,2115 ****
+--- 2111,2119 ----
+       int c;
+  {
++ #if defined (NO_READ_RESTART_ON_SIGNAL)
++   return (ungetc_with_restart (c, bash_input.location.file));
++ #else
+    return (ungetc (c, bash_input.location.file));
++ #endif
+  }
+  
+***************
+*** 2875,2878 ****
+--- 2879,2885 ----
+  	      if (word_token_alist[i].token == '{') \
+  		open_brace_awaiting_satisfaction++; \
++ \
++ 	      if (word_token_alist[i].token == '}' && open_brace_awaiting_satisfaction) \
++ 		open_brace_awaiting_satisfaction--; \
+  \
+  	      return (word_token_alist[i].token); \
